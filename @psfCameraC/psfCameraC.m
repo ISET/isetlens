@@ -47,6 +47,7 @@ classdef psfCameraC <  handle
             p = inputParser;
             p.CaseSensitive = false;
             
+            varargin = ieParamFormat(varargin);
             p.addParameter('lens',[],@(x)(isa(x,'lensC')));
             p.addParameter('film',[],@(x)(isa(x,'filmC')));
             p.addParameter('clearfilm',true,@islogical);

@@ -12,7 +12,7 @@
 %
 % AL, Vistasoft Team, Copyright 2014
 
-%
+%%
 ieInit;
 
 %% Specify HURB ray tracing location and specification
@@ -32,7 +32,7 @@ point = psCreate(0,0,-1e+15);
 
 % Read a lens file and create a lens
 %lensFileName = fullfile(cisetRootPath,'data', 'lens', 'dgauss.50mm.dat');
-lensFileName = fullfile(cisetRootPath,'data', 'lens', '2ElLens.dat');
+lensFileName = fullfile(ilensRootPath,'data', 'lens', '2ElLens.dat');
 
 nSamples = 2001; 
 
@@ -63,7 +63,7 @@ lens.draw;
 %     'size', [2/sqrt(2) 2/sqrt(2)], ...
 %     'wave', wave);
 film = filmC('position', [0 0 50], ...
-    'resolution', [300 300 1], ...
+    'resolution', [300 300], ...
     'size', [0.5/sqrt(2) 0.5/sqrt(2)], ...
     'wave', wave);
 

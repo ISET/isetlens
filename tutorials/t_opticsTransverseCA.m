@@ -28,7 +28,7 @@
 ieInit
 
 %% Use the simple default lens with an aperture in the middle.
-thisLens = lens;
+thisLens = lensC;
 
 %% Set index of refraction for the lens
 
