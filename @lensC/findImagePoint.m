@@ -67,7 +67,7 @@ ip_height = ps_height.*m_lat; %image point distance from the optical axis
 
 %% SET OUTPUT
 
-% The image point is returned in cartesian coordinates.
+% The image point is returned in Cartesian coordinates.
 % The image position should generally be positive.
 % Anything else we could check on?
 % Also, shouldn't we be position cart2pol?

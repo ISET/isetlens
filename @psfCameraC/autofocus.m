@@ -65,11 +65,12 @@ end
 % Set default or read the index of refraction in object and image space
 % For the 
 if nargin>3,  n_ob = varargin{1};    n_im = varargin{2};   
-else          n_ob = 1;    n_im = 1;                    
+else,         n_ob = 1;    n_im = 1;                    
 end
 
 
-%% SET the film position in focus 
+%% SET the film position in focus
+
 % Get input
 % lens=obj.lens;
 lens = obj.get('lens');
@@ -78,12 +79,11 @@ lens = obj.get('lens');
 % pSource=obj.pointSource;
 pSource = obj.get('pointSource');
 
-
 % Find Gaussian Image Point (wavelength dependence) Points are sometimes
-% cells and sometimes vectors, sadly.  We handle it here but wew should
+% cells and sometimes vectors, sadly.  We handle it here but we should
 % make a uniform principle.
 if iscell(pSource), pt = pSource{1};
-else pt = pSource;
+else, pt = pSource;
 end
 imagePoint = lens.findImagePoint(pt,n_ob,n_im);
 
