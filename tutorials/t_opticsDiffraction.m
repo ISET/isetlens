@@ -15,26 +15,16 @@
 %%
 ieInit;
 
-%% Specify HURB ray tracing location and specification
-% chdir(fullfile(s3dRootPath, 'papers', '2014-OSA'));
-% sampleArray = cell(1, 1);
-% 
-% sampleArray{1}.rayTraceFile = 'PSFCenter_50mm_2m_f22_n401.mat'%'25mm_1m_65res.pbrt.mat' %'rayTrace25mm32res.mat' 
-% sampleArray{1}.focalLength = 50
-% sampleArray{1}.apertureDiameter = 2.2727
-% sampleArray{1}.filmDistance = 51.2821	
-% sampleArray{1}.targetDistance = 2
-% 
+%% Set up a point and a lens file
 
-%% Produce HURB results
 % Make a point source (approximately infinity)
 point = psCreate(0,0,-1e+15);
 
 % Read a lens file and create a lens
-%lensFileName = fullfile(cisetRootPath,'data', 'lens', 'dgauss.50mm.dat');
-lensFileName = fullfile(ilensRootPath,'data', 'lens', '2ElLens.dat');
+lensFileName = fullfile(ilensRootPath,'data', 'lens', 'dgauss.22deg.50.0mm.dat');
+% lensFileName = fullfile(ilensRootPath,'data', 'lens', '2ElLens.dat');
 
-nSamples = 2001; 
+nSamples = 401; 
 
 % apertureMiddleD = .11;  %.5;   % mm    %WORKS BRILLIANTLY.  For what (BW)?  For scene?
 apertureMiddleD = 2;  %.5;   % mm    %WORKS BRILLIANTLY.  For what (BW)?  For scene?
@@ -43,45 +33,36 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD, ...
     'diffractionEnabled', true);
-
-% Create a film (sensor) 
-% position - relative to center of final lens surface
-% size - 'mm'
-% wavelength samples
 lens.set('wave', (400:10:700));
-
-wave = lens.get('wave');
-
 lens.draw;
 
 %% Create the film
 
-% Put it 50 mm away for the 2E lens and, I guess, for the dgauss 50mm.
-% We need an autofocus here.  I think MP wrote one.
-% film = filmC('position', [0 0 50], ...
-%     'resolution', [300 300 1], ...
-%     'size', [2/sqrt(2) 2/sqrt(2)], ...
-%     'wave', wave);
+% Put it 50 mm away for the 2E lens
+% Size in mm.  
+% Should be about 50 microns
+wave = lens.get('wave');
 film = filmC('position', [0 0 50], ...
-    'resolution', [300 300], ...
-    'size', [0.5/sqrt(2) 0.5/sqrt(2)], ...
+    'resolution', [400 400], ...
+    'size', [0.1 0.1], ...
     'wave', wave);
 
 %% Create a camera out of lens, film ,and point source
 
 camera = psfCameraC('lens',lens,'film',film,'point source',point);
+camera.autofocus(550,'nm');
 
 % Estimate the PSF
-nLines = 100;    % Show 100 lines
-jitter = false;  % Randomizing position of lines?
+nLines = 50;     % Show lines
+jitter = true;  % Randomize position of lines
 
 % Limits the entrance aperture so this can run faster
 % But this is not reasonable for the diffraction calculation
 subsection = [];
 
 % Choose among the diffraction producing methods
-method = 'HURB';      % Randomized the direction of rays near the edges
-%method = 'huygens';  % This method ...
+method = 'HURB';   % Randomized the direction of rays near the edges
+% method = 'huygens';  % This method ...
 
 % Ray trace type ... not sure about this ...
 rtType = 'ideal';
@@ -104,7 +85,7 @@ point = psCreate(0,0,-1e+15);
 
 % Read a lens file and create a lens
 %lensFileName = fullfile(cisetRootPath,'data', 'lens', 'dgauss.50mm.dat');
-lensFileName = fullfile(cisetRootPath,'data', 'lens', '2ElLens.dat');
+lensFileName = fullfile(ilensRootPath,'data', 'lens', '2ElLens.dat');
 
 nSamples = 401; %501; %151;
 apertureMiddleD = .11;  %.5;   % mm    %WORKS BRILLIANTLY
@@ -130,6 +111,7 @@ film = filmC('position', [0 0 50], ...
 
 % Create a camera out of lens, film ,and point source
 camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
+camera.autofocus(550,'nm');
 
 % Sequence of events for estimating the PSF, 
 nLines = 100;
