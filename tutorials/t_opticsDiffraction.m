@@ -1,14 +1,16 @@
 %% 2014 OSA Conference
 %
-% This script uses the point test file, blur it in 3 different ways.  
+% This script uses the point test file, blurs it in 3 different ways.  
 %
 % The first way is to use the new ray tracing method which uses Heisenburg
-% Uncertainty Ray Bending (HURB).  
+% Uncertainty Ray Bending (HURB).
+%
 % The second way is Huygens method.
+%
 % The third way is the classical way using theoretical PSF's and formulae
 % from ISE
 %
-%  NEEDS TO BE FIXED FOR FINDING THE DATA
+% NEEDS TO BE FIXED FOR FINDING THE DATA
 %
 % AL, Vistasoft Team, Copyright 2014
 
@@ -71,7 +73,8 @@ rtType = 'ideal';
 % Produced the data for the PSF.  Needs more comments
 camera.estimatePSF(nLines,jitter,subsection, method, rtType);
 
-oiHURB = camera.oiCreate(); 
+oiHURB = camera.oiCreate();
+oiHURB = oiAdjustIlluminance(oiHURB,0.1);  %Makes the middle bright
 ieAddObject(oiHURB); oiWindow;
     
 
