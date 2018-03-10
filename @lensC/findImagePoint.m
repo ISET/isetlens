@@ -3,21 +3,29 @@ function [iPoint]=findImagePoint(obj,pSource,n_ob,n_im)
 %
 %   [iPoint] = lens.findImagePoint(obj,pSource,n_ob,n_im)
 %
-% This method works when the imaging system specification has known
-% principal points (in object space and image space).
+% Description:
+%  Find the image location given a point (pSource) in the object space for
+%  each of the wavelengths of the point source. This method works when the
+%  imaging system specification has known principal points (in object space
+%  and image space).
 %
-% INPUT
-%   pSource: point source coordinate [ x y z]
-%   n_ob: refractive index in the object space
-%   n_im: refractive index in the image space
+% Inputs:
+%   obj:         a lensC object
+%   pSource:     Position of a point source [ x y z]
+%   n_ob, n_im:  Index of refraction of the object medium and the medium
+%                just prior to the film (image medium).
 %
-%OUTPUT
-%  Each row is a different wavelength
+% Optional key/value pairs
+%   N/A
 %
-%   [iPoint (wave)]= [x y z] (wave)
+% Outputs:
+%  iPoint:  A matrix, with each row containing the image point for a
+%      different wavelength
+%      [iPoint (wave)]= [x y z] (wave)
 %
 %  MP Vistasoft 2014
-
+%
+% See also:  psfCameraC.autofocus, psfCameraCBBoxModel
 
 %% CHECK IF BLACK BOX MODEL is EMPTY and (eventually) FILL THAT
 if isempty(obj.BBoxModel), obj.bbmCreate(n_ob,n_im); end

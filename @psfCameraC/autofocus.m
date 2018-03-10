@@ -1,13 +1,16 @@
 function dist0 = autofocus(obj, wave0, waveUnit,varargin)
 % Set the camera film to the focus plane for the point and wavelength
 %
-%   psfCamera.autofocus(wave0, waveUnit, [n_ob], [n_im])
+%   psfCameraC.autofocus(wave0, waveUnit, [n_ob], [n_im])
 %
-% The camera (obj) has a point source, lens, and film.
+% Description:
+%   The input is a psfCameraC (obj) that has a point source, lens, and
+%   film. The routine finds the position of the lens that brings that point
+%   into best focus.
 %
-% INPUT
+% Inputs
 %   wave0
-%   waveUnit = 'nm' or 'mm'or 'index'
+%   waveUnit = 'nm' or 'mm' or 'index'
 %   n_ob  (default = 1)  Index of refraction of the object space
 %   n_im  (default = 1)  Index of refraction of the image space
 %
@@ -30,6 +33,8 @@ function dist0 = autofocus(obj, wave0, waveUnit,varargin)
 %   3:    psfCamera.autofocus(2, 'index') second value in the vector
 %
 % MP Vistasoft Team, Copyright 2014
+%
+% See also:  psfCameraC
 
 
 %% Set up variables
@@ -62,47 +67,42 @@ if (isempty(ind0)) || (length(ind0)>1)
     error (' Not found a "unique" wavelength matching to the selected ones!!!!')
 end
 
-% Set default or read the index of refraction in object and image space
-% For the 
+% Set the index of refraction in object and image space.  This can be
+% problematic for the human eye case because on the image side we are still
+% in liquid.  For most cameras the default (1,1) is right.
 if nargin>3,  n_ob = varargin{1};    n_im = varargin{2};   
 else,         n_ob = 1;    n_im = 1;                    
 end
 
-
 %% SET the film position in focus
 
-% Get input
-% lens=obj.lens;
-lens = obj.get('lens');
-% film=obj.film;
-% film=obj.get('film');
-% pSource=obj.pointSource;
+% Get lens and point source input
+lens    = obj.get('lens');
 pSource = obj.get('pointSource');
 
 % Find Gaussian Image Point (wavelength dependence) Points are sometimes
 % cells and sometimes vectors, sadly.  We handle it here but we should
 % make a uniform principle.
-if iscell(pSource), pt = pSource{1};
+if    iscell(pSource), pt = pSource{1};
 else, pt = pSource;
 end
+
 imagePoint = lens.findImagePoint(pt,n_ob,n_im);
 
-%Right distance for the selected wavelength
-dist0=imagePoint(ind0,3); % z position
+% Right distance for the selected wavelength
+dist0 = imagePoint(ind0,3); % z position
 
-
-%Get previous film position
-oldPos=obj.get('film');
+% Get previous film position
+oldPos = obj.get('film');
 
 % Set new distance
-newPos=oldPos;
-newPos.position(3)=dist0;
+newPos = oldPos;
+newPos.position(3) = dist0;
 
 % film=filmC('position', oldPos, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
-%% SET THE NEW FILM
+%% SET THE CAMERA FILM POSITION TO AUTOFOCUS
 obj.set('film',newPos);
 
-if nargout>0
-    varargout{1}=dist0;
 end
+%%

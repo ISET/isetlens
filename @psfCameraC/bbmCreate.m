@@ -15,6 +15,8 @@ function ImagSyst = bbmCreate(obj,varargin)
 %   ImagSyst: Optical System structure.
 %
 % MP Vistasoft 2014
+%
+% See also:  psfCameraC.autofocus, lensC.findImagePoint
 
 %% Get inputs
 % lens=obj.lens; %NOT NEEDED in this function

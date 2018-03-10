@@ -1,7 +1,7 @@
 %% Lens ray tracing illustrated
 %
-%  Read in a lens file
 %  Create a point source
+%  Read in a lens file
 %  Create a film
 %  Visualize Ray trace the point through the lens to the film
 %  Create an optical image of the ray trace
@@ -24,25 +24,28 @@ clear point
 pZ_far = -1e4;
 pX = 20;
 pY = 20;
-point{1} = [-pX -pY pZ_far];  % Top right is -,-  
-point{2} = [pX, -pY, pZ_far]/2;   % Top left is +, - 
-point{3} = [pX, pY, pZ_far]/4;  % Bottom left is +,+ 
-point{4} = [ -pX  pY pZ_far]/6;   % Bottom right -,+
+point{1} = [-pX -pY  pZ_far];   % Top right is -,-  
+point{2} = [ pX,-pY, pZ_far]/2; % Top left is +, - 
+point{3} = [ pX, pY, pZ_far]/4; % Bottom left is +,+ 
+point{4} = [-pX  pY, pZ_far]/6; % Bottom right -,+
 
 % point = psCreate(pX,pY,pZ);
 
 %% Read a lens file and create a lens
 
-% lensFileName = fullfile(cisetRootPath,'data','lens','gullstrand.dat');
-% lensFileName = fullfile(cisetRootPath,'data','lens','wide.22mm.dat');
-% lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens.dat');
-% lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_16mm.dat');
-% lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_35mm.dat');
-% lensFileName = fullfile(cisetRootPath,'data','lens','fisheye.16mm.dat');
+%{
+ lensFileName = fullfile(cisetRootPath,'data','lens','gullstrand.dat');
+ lensFileName = fullfile(cisetRootPath,'data','lens','wide.22mm.dat');
+ lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens.dat');
+ lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_16mm.dat');
+ lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_35mm.dat');
+ lensFileName = fullfile(cisetRootPath,'data','lens','fisheye.16mm.dat');
+%}
 lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.50.0mm.dat');
-exist(lensFileName,'file')
+exist(lensFileName,'file');
+
 % Small number of samples
-nSamples = 701;   % Number of ray samples that we trace
+nSamples = 301;   % Number of ray samples that we trace
 
 % We select the size of the middle aperture radius. 
 thisLens = lensC('fileName', lensFileName, 'aperture sample',[nSamples,nSamples]);
@@ -77,6 +80,7 @@ camera = psfCameraC('lens',thisLens,'film',film,'pointsource',infinite_point);
 
 % Find the focus distance
 fDistance = camera.autofocus(550,'nm');
+
 % set the film at focus
 camera.set('film position',[0 0 fDistance]);
 camera.set('pointsource', point);

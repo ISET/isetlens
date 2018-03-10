@@ -1,15 +1,20 @@
-%% s_initPLF
+function [pts, lens, film] = ilInitPLF
+% Create a default point, lens and film
 %
-% We often need a default point (P), lens (L) and film (F) for debuggin
-% This script creates the variables
+% Description:
+%   While developing, we often need a default point, lens, and film. This
+%   script creates three simple variables.
 %
-%   pts    a set of point locations (
+% Inputs:
+%  N/A
+%
+% Optional key/value pairs
+%  N/A
+%
+% Outputs:
+%   pts    a point 
 %   lens   a lens object
 %   film   a film object
-% 
-% Other scripts can adjust or overwrite, but many times we just need these
-% things and this is a clean and automatic way for getting them into a
-% script.
 %
 % BW SCIEN STANFORD, 2018
 %
