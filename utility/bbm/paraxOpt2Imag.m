@@ -35,7 +35,13 @@ profile='flat'; resFilm=F.res; pixel_pitch=F.pp; %um x um
 %Imaging system
 [ImagSyst]=paraxCreateImagSyst(OptSys,filmObj,film_zpos,[0 0]);
 % Point source object
-[ps_height,ps_angle,zOUT]=coordCart2Polar3D(pSource(1),pSource(2),pSource(3));
+if iscell(pSource)
+    p = pSource{1};
+    [ps_height,ps_angle,zOUT]=coordCart2Polar3D(p(1),p(2),p(3));
+else
+    [ps_height,ps_angle,zOUT]=coordCart2Polar3D(pSource(1),pSource(2),pSource(3));
+end
+
 % ps_height=sqrt(pSource(1).^2+pSource(2).^2); %distance of the point source to optical axis
 % if not(pSource(2)==0) && not(pSource(1)==0)
 %     ps_angle=atan(pSource(2)/pSource(1)); %angle subtended by the point source and the x-axis in the object plane

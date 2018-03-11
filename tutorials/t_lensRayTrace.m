@@ -22,8 +22,8 @@ clear point
 
 % A little bit off axis.  Pretty far away.
 pZ_far = -1e4;
-pX = 20;
-pY = 20;
+pX = 30;
+pY = 30;
 point{1} = [-pX -pY  pZ_far];   % Top right is -,-  
 point{2} = [ pX,-pY, pZ_far]/2; % Top left is +, - 
 point{3} = [ pX, pY, pZ_far]/4; % Bottom left is +,+ 
@@ -45,7 +45,7 @@ lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.50.0mm.dat');
 exist(lensFileName,'file');
 
 % Small number of samples
-nSamples = 301;   % Number of ray samples that we trace
+nSamples = 501;   % Number of ray samples that we trace
 
 % We select the size of the middle aperture radius. 
 thisLens = lensC('fileName', lensFileName, 'aperture sample',[nSamples,nSamples]);

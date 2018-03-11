@@ -168,7 +168,10 @@ classdef psfCameraC <  handle
                     
                  case {'film'} 
                     % get the film structure   
-                    val = obj.film;                    
+                    val = obj.film;
+                case {'filmposition'}
+                    % Distance to the film
+                    val = obj.film.position;
                 case {'pointsource';'psource';'lightsource'} 
                     % get the point source in the psfCamera   
                     val = obj.pointSource;
