@@ -19,11 +19,7 @@ point = psCreate(0,pY,-1000);
 
 %% Read a lens file and create a lens
 
-lensFileName = fullfile(ilensRootPath,'data', 'lens', 'endoscopeFixed.dat');
-% edit(lensFileName)
-%{
-lens = lensC('fileName', lensFileName);
-%}
+lensFileName = fullfile(ilensRootPath,'data', 'lens', 'endoscope.dat');
 if ~exist(lensFileName,'file'), error('Missing lens file'); end
 
 nSamples = 251;
@@ -61,7 +57,7 @@ camera.estimatePSF(nLines,jitter);
 %% Show the point spread in the optical image window
 
 oi = camera.oiCreate;
-vcAddObject(oi); oiWindow;
+ieAddObject(oi); oiWindow;
 
 %% Move the sensor to different distances from the lens
 
