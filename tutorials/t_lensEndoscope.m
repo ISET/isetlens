@@ -9,7 +9,7 @@
 % AL/BW VISTASOFT 2014
 
 % We could also do this for a couple of film distances and point distances
-%
+%%
 ieInit
 
 %% Make a point far away.  A little off center and 100 mm from the back surface
@@ -19,7 +19,12 @@ point = psCreate(0,pY,-1000);
 
 %% Read a lens file and create a lens
 
-lensFileName = fullfile(cisetRootPath,'data', 'lens', 'endoscope.dat');
+lensFileName = fullfile(ilensRootPath,'data', 'lens', 'endoscopeFixed.dat');
+% edit(lensFileName)
+%{
+lens = lensC('fileName', lensFileName);
+%}
+if ~exist(lensFileName,'file'), error('Missing lens file'); end
 
 nSamples = 251;
 apertureMiddleD = 8;   % mm

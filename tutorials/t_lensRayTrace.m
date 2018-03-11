@@ -57,6 +57,7 @@ thisLens.set('Middle aperture diameter',diameter);
 % lens is at 0 and the object space is negative and the sensor plane is
 % positive.
 thisLens.draw
+set(gca,'xlim',[-40 10],'ylim',[-15 15])
 
 %% Create a film (sensor)
 
@@ -86,12 +87,14 @@ camera.set('film position',[0 0 fDistance]);
 camera.set('pointsource', point);
 
 % Estimate the PSF and show the ray trace
-nLines = 0;  % Do not draw the rays
+nLines = 100;  % Do not draw the rays
 jitter = true;
 camera.estimatePSF(nLines,jitter);
+set(gca,'xlim',[-50 40],'ylim',[-15 15])
 
 % Show the point spread in the optical image window
 oi = camera.oiCreate;
 ieAddObject(oi); oiWindow;
+oiSet(oi,'gamma',0.7);
 
 %%

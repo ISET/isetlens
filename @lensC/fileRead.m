@@ -89,6 +89,11 @@ end
 % each column and save the data.
 radius = str2double(import{1});
 radius = radius(dStart:length(firstColumn)) * unitScale;
+if sum(isnan(radius)) > 0
+    warning('Error reading lens file radius');
+    lst = find(isnan(radius));
+    fprintf('Bad indices %d\n',lst);
+end
 
 % Read in "Axpos," which is the distance from the current surface to the
 % next surface. (We call this "offset.") The offset denotes the distance
@@ -102,7 +107,11 @@ offset = str2double(import{2});
 offset = offset(dStart:length(firstColumn));
 offset = [0; offset(1:(end-1))]; % Shift to account for different convention
 offset = offset*unitScale;
-
+if sum(isnan(offset)) > 0
+    warning('Error reading lens file offset');
+    lst = find(isnan(offset));
+    fprintf('Bad indices %d\n',lst);
+end
 % Read in N, the index of refraction.
 N = str2double(import{3});
 N = N(dStart:length(firstColumn));
@@ -111,6 +120,11 @@ N = N(dStart:length(firstColumn));
 aperture = str2double(import{4});
 aperture = aperture(dStart:length(firstColumn));
 aperture = aperture*unitScale;
+if sum(isnan(aperture)) > 0
+    warning('Error reading lens file aperture');
+    lst = find(isnan(aperture));
+    fprintf('Bad indices %d\n',lst);
+end
 
 % Modify the object with the data we read
 obj.elementsSet(offset, radius, aperture, N);

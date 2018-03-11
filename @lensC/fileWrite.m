@@ -77,7 +77,7 @@ p.addParameter('units','mm',@(x)(ismember(x,{'um','mm','m'})));
 
 p.parse(fullFileName,varargin{:});
 
-unitScale = p.Results.units;
+unitScale   = p.Results.units;
 description = sprintf('# Description: %s\n',p.Results.description);
 description = addText(description,sprintf('# units are %s',unitScale));
 
@@ -95,7 +95,8 @@ switch unitScale
 end
 
 %% Open the lens file for writing
-% fid = fopen(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'));
+
+% fullFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
 if ~exist(fullFileName,'file')
 else,  fprintf('Overwriting %s\n',fullFileName)
 end
@@ -118,8 +119,6 @@ for ii=1:size(d,1)
     fprintf(fid,'%f\t%f\t%f\t%f\n', d(ii,1), d(ii, 2), d(ii,3), d(ii,4));
 end
 
-%ftr = lensFooter(obj);
-%fprintf(fid,'%s',ftr);
 fclose(fid);
 end
 

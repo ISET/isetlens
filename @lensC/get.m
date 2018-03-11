@@ -19,15 +19,15 @@ switch pName
         % position of the first surface is the total size.
         sArray = obj.surfaceArray;
         res    = -1*sArray(1).get('zpos');
+        
         % We have a special case when rt is the ideal.
         % Not handled properly yet.  Need a validation for the
         % 'ideal' case.
         %
-        %                     if strcmp(rtType,'ideal')
-        %                         % The 'ideal'thin lens has a front surface at
-        %                         res = 0;
-        %                     end
-        
+        %   if strcmp(rtType,'ideal')
+        %   % The 'ideal'thin lens has a front surface at
+        %            res = 0;
+        %   end
         
     case 'offsets'
         % Offsets format (like PBRT files) from center/zPos
@@ -36,12 +36,12 @@ switch pName
     case 'surfacearray'
         % lens.get('surface array',[which surface])
         if isempty(varargin), res = obj.surfaceArray;
-        else                  res = obj.surfaceArray(varargin{1});
+        else,                 res = obj.surfaceArray(varargin{1});
         end
         
     case {'indexofrefraction','narray'}
         nSurf = obj.get('nsurfaces');
-        sWave  = obj.surfaceArray(1).wave;
+        sWave = obj.surfaceArray(1).wave;
         res = zeros(length(sWave),nSurf);
         for ii=1:nSurf
             res(:,ii) = obj.surfaceArray(ii).n(:)';
@@ -77,7 +77,7 @@ switch pName
         % spherical radius of curvature of this surface.
         % lens.get('sradius',whichSurface)
         if isempty(varargin), this = 1;
-        else this = varargin{1};
+        else, this = varargin{1};
         end
         res = obj.surfaceArray(this).sRadius;
     case 'sdiameter'
@@ -85,7 +85,7 @@ switch pName
         % Aperture diameter of this surface.
         % lens.get('sradius',whichSurface)
         if isempty(varargin), this = 1;
-        else this = varargin{1};
+        else, this = varargin{1};
         end
         res = obj.surfaceArray(this).apertureD;
     case {'aperture','diaphragm'}

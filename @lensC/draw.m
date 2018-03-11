@@ -15,11 +15,9 @@ function obj =  draw(obj, fHdl)
 %% Create the figure and set the parameters
 
 if notDefined('figureHandle'), fHdl = vcNewGraphWin; axis equal;
-else                             figure(fHdl);
+else,                          figure(fHdl);
 end
 obj.fHdl = fHdl;
-
-
 
 %% We draw one surface/aperture at a time
 
