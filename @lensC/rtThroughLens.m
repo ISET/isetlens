@@ -65,7 +65,7 @@ for lensEl = 1:nSurfaces
     
     % Get the surface data
     curEl = obj.surfaceArray(lensEl);
-    curAperture = curEl.apertureD/2;
+    curApertureRadius = curEl.apertureD/2;
     
     % Calculate ray intersection position with lens element or
     % aperture. In the case of a 0 curvature, the direction
@@ -112,7 +112,7 @@ for lensEl = 1:nSurfaces
         end
         
         % Set rays outside of the aperture to NaN
-        outsideAperture = endPoint(:, 1).^2 + endPoint(:, 2).^2 >= curAperture^2;
+        outsideAperture = endPoint(:, 1).^2 + endPoint(:, 2).^2 >= curApertureRadius^2;
         endPoint(outsideAperture, :) = NaN;
         prevN(outsideAperture)       = NaN;
         rays.removeDead(outsideAperture);
@@ -192,10 +192,10 @@ for lensEl = 1:nSurfaces
         intersectT = (intersectZ - rays.origin(:, 3))./rays.direction(:, 3);
         repIntersectT = repmat(intersectT, [1 3]);
         endPoint = rays.origin + rays.direction .* repIntersectT;
-        curAperture = min(curEl.apertureD, obj.apertureMiddleD)/2;
+        curApertureRadius = min(curEl.apertureD, obj.apertureMiddleD)/2;
         
         % Set rays outside of the aperture to NaN
-        outsideAperture = endPoint(:, 1).^2 + endPoint(:, 2).^2 >= curAperture^2;
+        outsideAperture = (endPoint(:, 1).^2 + endPoint(:, 2).^2) >= curApertureRadius^2;
         endPoint(outsideAperture, :) = NaN;
         prevN(outsideAperture)       = NaN;
         rays.removeDead(outsideAperture);
@@ -222,12 +222,14 @@ for lensEl = 1:nSurfaces
             raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',h,'samps',samps);
         end
         
-    end
+        % HURB diffraction calculation
+        if (obj.diffractionEnabled)
+            obj.rtHURB(rays, endPoint, curApertureRadius);
+        end
     
-    % HURB diffraction calculation
-    if (obj.diffractionEnabled)
-        obj.rtHURB(rays, endPoint, curEl.apertureD/2);
     end
+   
+    
 end
 
 end
