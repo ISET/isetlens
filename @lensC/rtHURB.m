@@ -1,81 +1,128 @@
 function obj = rtHURB(obj, rays, lensIntersectPosition, curApertureRadius)
-%Performs the Heisenburg Uncertainty Ray Bending method on the
-%rays, given a circular aperture radius, and lens intersection
-%position 
+%Performs the Heisenburg Uncertainty Ray Bending method on the rays, given
+%a circular aperture radius, and lens intersection position. This
+%calculation is based on Freniere et al. 1999
 %
 % obj = rtHURB(obj, rays, lensIntersectPosition, curApertureRadius)
 %
-% This function accepts both vector forms of inputs, or individual inputs
+% This function accepts both vector forms of inputs, or individual inputs.
 %
 % Look for cases when you can use: bsxfun ...
 %
 % This code is not readable yet.  Let's figure out the steps
-% and write clarifying functions.
+% and write clarifying functions. (TL Working on this!)
 %
-% AL Vistasoft Copyright 2014
+% AL/TL Vistasoft Copyright 2014
 
-ipLength = sqrt(sum(dot(lensIntersectPosition(:, (1:2)), lensIntersectPosition(:, (1:2)), 2), 2));
+%%
 
-%calculate directionS which is ....
+% Calculate the distance between the center of the aperture and the
+% intersection point. 
+ipLength = sqrt(sum(lensIntersectPosition(:, (1:2)).^2, 2));
+
+% Calculate the direction that points along the shortest distance between
+% the intersection point and the edge of the aperture. This is just the
+% vector originating from the center of the aperture (the origin) toward
+% the intersection. 
 directionS = [lensIntersectPosition(:, 1) lensIntersectPosition(:,2) zeros(length(lensIntersectPosition), 1)];
 
-% And the orthogonal directionL
+% Calculate the orthogonal vector to directionS on the aperture
+% plane. It is the longer direction, so we call it "directionL."
 directionL = [-lensIntersectPosition(:,2) lensIntersectPosition(:,1) zeros(length(lensIntersectPosition), 1)];
 
+% We need to normalize the directions above, but we don't want to divide by
+% zero. Here we make sure that doesn't happen. 
 normS = repmat(sqrt(sum(dot(directionS, directionS, 2), 2)), [1 3]);
 normL = repmat(sqrt(sum(dot(directionL, directionL, 2), 2)), [1 3]);
 divideByZero = sum(normS,2) ==0;
-
 directionS(~divideByZero, :) = directionS(~divideByZero, :)./normS(~divideByZero, :);
 directionL(~divideByZero, :) = directionL(~divideByZero, :)./normL(~divideByZero, :);
 directionS(divideByZero, :) = [ones(sum(divideByZero == 1), 1) zeros(sum(divideByZero == 1), 2)];
 directionL(divideByZero, :) = [zeros(sum(divideByZero == 1), 1) ones(sum(divideByZero == 1), 1) zeros(sum(divideByZero == 1), 1)];
 
-pointToEdgeS = curApertureRadius - ipLength;   %this is 'a' from paper  //pointToEdgeS stands for point to edge short
-pointToEdgeL = sqrt((curApertureRadius* curApertureRadius) - ipLength .* ipLength);  %pointToEdgeS stands for point to edge long
+% Calculate the distance between the intersection point and the edge
+% of the aperture along our two orthogonal directions (directionS and
+% directionL). The paper refers to this as delta x and delta y. 
+pointToEdgeS = curApertureRadius - ipLength;     
+pointToEdgeL = sqrt((curApertureRadius* curApertureRadius) - ipLength .* ipLength); 
 
-lambda = rays.get('wavelength')' * 1e-9;  %this converts lambda to meters
-%sigmaS = atan(1./(2 * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m
-%sigmaL = atan(1./(2 * pointToEdgeL * .001 * 2 * pi./lambda));
+% Grab all the wavelengths for this set of rays. We convert the
+% wavelength to meters.
+lambda = rays.get('wavelength')' * 1e-9;  
 
-sigmaS = atan(1./(sqrt(2) * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m   experimental
-sigmaL = atan(1./(sqrt(2) * pointToEdgeL * .001 * 2 * pi./lambda));
+% Calculate the variance for the gaussian distribution as described in the
+% paper. We convert distances from mm to meters. 
+% The paper originally has 2 instead of sqrt(2). Andy added the sqrt(2) to
+% produce PSF closer to the Airy disk (?)
+% TL (3/18): I switched back to 2. 
+sigmaS = atan(1./(2 * pointToEdgeS *.001 * 2 * pi./lambda));  
+sigmaL = atan(1./(2 * pointToEdgeL * .001 * 2 * pi./lambda));
 
-%this function regenerates a 2D gaussian sample and
-%returns it randOut
-%gsl_ran_bivariate_gaussian (r, sigmaS, sigmaL, 0, noiseSPointer, noiseLPointer);    %experiment for now
-[randOut] = randn(length(sigmaS),2) .* [sigmaS sigmaL];
+% Sample the gaussian distribution.
+[randOut] = randn(length(sigmaS),2) .* [sigmaS sigmaL]; 
 
-%calculate component of these vectors based on 2 random degrees
-%assign noise in the s and l directions according to data at these pointers
+% Plot distribution of sampled values
+%{
+temp = randOut(~isnan(randOut(:,1)),:);
+temp = rad2deg(temp);
+temp = temp((temp(:,1) < 0.5) & (temp(:,1) > -0.5),:);
+temp = temp((temp(:,2) < 0.5) & (temp(:,2) > -0.5),:);
+histogram2(temp(:,1),temp(:,2),...
+    'Normalization','pdf', ...
+    'FaceAlpha',0.5,...
+    'EdgeAlpha',0.5);
+%}
+
+% The output of the distribution gives us the angle deviation we want to
+% apply.
 noiseS = randOut(:,1);
 noiseL = randOut(:,2);
 
-%project the original ray (in world coordinates) onto a new set of basis vectors in the s and l directions
-projS = (rays.direction(: , 1) .* directionS(: ,1) + rays.direction(: , 2) .* directionS(:,2))./sqrt(directionS(:,1) .* directionS(:,1) + directionS(:,2) .* directionS(:,2));
-projL = (rays.direction(: , 1) .* directionL(:, 1) + rays.direction(: , 2 ) .* directionL(:,2))./sqrt(directionL(:,1) .* directionL(:,1) + directionL(:,2) .* directionL(:,2));
-thetaA = atan(projS./rays.direction(: , 3));   %azimuth - this corresponds to sigmaS
-thetaE = atan(projL./sqrt(projS.*projS + rays.direction(:, 3).* rays.direction(: , 3)));   %elevation - this corresponds to sigmaL
+% Project the original ray onto directionS and directionL. projS and projL
+% are the magnitude of the projection. 
+projS = (rays.direction(: , 1) .* directionS(: ,1)+ ...
+         rays.direction(: , 2) .* directionS(:,2))./ ...
+         sqrt(directionS(:,1) .* directionS(:,1) +...
+         directionS(:,2) .* directionS(:,2));
+projL = (rays.direction(: , 1) .* directionL(:, 1) +...
+         rays.direction(: , 2 ) .* directionL(:,2))./...
+         sqrt(directionL(:,1) .* directionL(:,1) +...
+         directionL(:,2) .* directionL(:,2));
+projU = rays.direction(:,3);
 
-%add uncertainty
+% We have now decomposed the original, incoming ray into three orthogonal
+% directions: directionS, directionL, and directionU.
+% directionS is the direction along the shortest distance to the aperture
+% edge.
+% directionL is the orthogonal direction to directionS in the plane of the
+% aperture.
+% directionU is the direction normal to the plane of the aperture, pointing
+% toward the scene. 
+% To orient our azimuth and elevation directions, imagine that the
+% S-U-plane forms the "ground plane." "Theta_x" in the Freniere paper is
+% therefore the deviation in the azimuth and "Theta_y" is the deviation in
+% the elevation. 
+
+% Calculate current azimuth and elevation angles
+thetaA = atan(projS./projU);  % Azimuth
+thetaE = atan(projL./sqrt(projS.*projS + projU.*projU)); % Elevation 
+
+% Deviate them
 thetaA = thetaA + noiseS;
 thetaE = thetaE + noiseL;
 
-%convert angles back into cartesian coordinates, but in s,l space
+% Recalculate the new ray direction
+% Remember the ray direction is normalized, so it should have length = 1
 newprojL = sin(thetaE);
-smallH = cos(thetaE);   %smallH corresponds to the projection of the ray onto the s-z plane
-newprojS = smallH .* sin(thetaA);
-rays.direction(:, 3) = smallH .* cos(thetaA);
+newprojSU = cos(thetaE); 
+newprojS = newprojSU .* sin(thetaA);
+newprojU = newprojSU .* cos(thetaA);
 
-%convert from s-l space back to x-y space
+% Add up the new projections to get a new direction.
 rays.direction(:, 1) = (directionS(:, 1) .* newprojS + directionL(:, 1) .* newprojL)./sqrt(directionS(:,1) .* directionS(:,1) + directionL(:,1) .* directionL(:,1));
 rays.direction(:, 2) = (directionS(:, 2) .* newprojS + directionL(:, 2) .* newprojL)./sqrt(directionS(:,2) .* directionS(:,2) + directionL(:,2) .* directionL(:,2));
+rays.direction(:, 3) = newprojU;
 normDirection = repmat(sqrt(sum(dot(rays.direction, rays.direction, 2),2)), [1 3]);
 rays.direction = rays.direction./normDirection;
 
-%reassign ray
-%                 rays.origin(i,:) = curRay.origin;
-%                 rays.direction(i, :) = curRay.direction;
-%                 rays.wavelength(i,:) = curRay.wavelength;
-%             end
 end
