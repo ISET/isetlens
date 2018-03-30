@@ -1,4 +1,6 @@
-%% 2014 OSA Conference
+%% Optics diffraction tutorial
+%
+% Edited by TL (3/2018)
 %
 % This script uses the point test file, blurs it in 3 different ways.  
 %
@@ -8,9 +10,7 @@
 % The second way is Huygens method.
 %
 % The third way is the classical way using theoretical PSF's and formulae
-% from ISE
-%
-% NEEDS TO BE FIXED FOR FINDING THE DATA
+% from ISET
 %
 % AL, Vistasoft Team, Copyright 2014
 
@@ -22,14 +22,15 @@ ieInit;
 % Make a point source (approximately infinity)
 point = psCreate(0,0,-1e+15);
 
-% Read a lens file and create a lens
-lensFileName = fullfile(ilensRootPath,'data', 'lens', 'dgauss.22deg.50.0mm.dat');
-% lensFileName = fullfile(ilensRootPath,'data', 'lens', '2ElLens.dat');
+% Read a lens file and create a lens. The "diffraction" lens consists of a
+% spehrical plane, an aperture, and a flat plane behind it. 
+lensFileName = fullfile(ilensRootPath,'data', 'lens', 'diffraction.dat');
 
 nSamples = 401; 
 
-% apertureMiddleD = .11;  %.5;   % mm    %WORKS BRILLIANTLY.  For what (BW)?  For scene?
-apertureMiddleD = 2;  %.5;   % mm    %WORKS BRILLIANTLY.  For what (BW)?  For scene?
+% Set the aperture size (this lens seems to be diffraction-limited for
+% aperture sizes of less than 2 mm)
+apertureMiddleD = 0.5;   % mm   
 
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
@@ -40,11 +41,11 @@ lens.draw;
 
 %% Create the film
 
-% Put it 50 mm away for the 2E lens
-% Size in mm.  
-% Should be about 50 microns
+% The film position will later be overwritten by the autofocus calculation.
+% However, the other values will remain the same for the rest of this
+% script. We set the size of the sensor to be 100 um x 100 um.
 wave = lens.get('wave');
-film = filmC('position', [0 0 50], ...
+film = filmC('position', [0 0 5], ...
     'resolution', [400 400], ...
     'size', [0.1 0.1], ...
     'wave', wave);
@@ -52,7 +53,9 @@ film = filmC('position', [0 0 50], ...
 %% Create a camera out of lens, film ,and point source
 
 camera = psfCameraC('lens',lens,'film',film,'point source',point);
-camera.autofocus(550,'nm');
+
+% Automatically place the film at a distance where 550 nm will be in focus. 
+camera.autofocus(550,'nm'); 
 
 % Estimate the PSF
 nLines = 50;     % Show lines
@@ -64,14 +67,16 @@ subsection = [];
 
 % Choose among the diffraction producing methods
 method = 'HURB';   % Randomized the direction of rays near the edges
-% method = 'huygens';  % This method ...
 
-% Ray trace type ... not sure about this ...
+% TL: I believe an "ideal" rtType aims rays toward the aperture instead of
+% shooting them randomly over the lens. I'm not 100% positive though.
 rtType = 'ideal';
-% rtType = 'realistic';
 
-% Produced the data for the PSF.  Needs more comments
+% Produced the data for the PSF.
 camera.estimatePSF(nLines,jitter,subsection, method, rtType);
+
+% Scale the axes so we can see the film plane. 
+set(gca,'xlim',[-5 20]); grid on
 
 oiHURB = camera.oiCreate();
 oiHURB = oiAdjustIlluminance(oiHURB,0.1);  %Makes the middle bright
@@ -79,10 +84,13 @@ ieAddObject(oiHURB); oiWindow;
     
 
 %% Produce Huygens-Fresnel results 
-
+% This does not work at the moment. 
+%{
 % This section takes a long time to run - and you should only do it on
 % after parallelization!
 
+% Use all the same parameters as before (TL)
+%{
 % Make a point source (approximately infinity mm)
 point = psCreate(0,0,-1e+15);
 
@@ -115,6 +123,7 @@ film = filmC('position', [0 0 50], ...
 % Create a camera out of lens, film ,and point source
 camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
 camera.autofocus(550,'nm');
+%}
 
 % Sequence of events for estimating the PSF, 
 nLines = 100;
@@ -132,34 +141,34 @@ camera.estimatePSF(nLines,jitter,subsection, method, rtType);
 oiHuygens = camera.oiCreate(); 
 oiHuygens = oiSet(oiHuygens,'name','Huygens');
 ieAddObject(oiHuygens); oiWindow;
-    
+ %} 
 
-%% Theoretical results based on ISET formulae
+%% Theoretical results based on ISET formula
+% Compare the PSF from HURB with ISET implementation
 
-%assign parameters from above
-sensorWidth = film.size(1);
-focalLength = film.position(3)*1e-3;
-apertureDiameter = 2e-3;     % 2 mm
+% Match the camera parameters with the ones we used above. 
+sensorWidth = camera.film.size(1)*1e-3;
+focalLength = camera.film.position(3)*1e-3;
+filmDistance = camera.film.position(3)*1e-3;
+apertureDiameter = camera.lens.apertureMiddleD*1e-3;
 
-%load scene file
-d = displayCreate('equal energy');
-
-% This is an annoying way to make a single point scene.
+% BW(?): This is an annoying way to make a single point scene.
 % I should add a single point sceneCreate.  There is a 'point array', and
 % we should just make a 'single point' version.  The point could always
 % have a single point in the middle, and then just set the spacing very
 % large so there is only one point.  Right now, the point array doesn't put
 % a point in the middle!
-pFile = fullfile(cisetRootPath,'data','pointTest.png');
+d = displayCreate('equal energy');
+pFile = fullfile(ilensRootPath,'data','images','pointTest.png');
 scene = sceneFromFile(pFile, 'rgb', [], d);
 wave = sceneGet(scene, 'wave');
 onesPhotons = ones(size(wave)) * 1e+15;
 equalPhotonsEnergy = Quanta2Energy(wave, onesPhotons);
 scene = sceneAdjustIlluminant(scene, equalPhotonsEnergy);
 
-horFieldofView = 2 * atan(sensorWidth/(2 * filmDistance)) * 180/pi * .8;
+horFieldofView = 2 * atand(sensorWidth/(2 * filmDistance))*0.8; 
 scene = sceneSet(scene,'fov',horFieldofView);
-scene = sceneSet(scene, 'distance', 100000001);   %scene = sceneSet(scene, 'distance', 2001);
+scene = sceneSet(scene, 'distance', 100000001);   
 ieAddObject(scene); sceneWindow;
 
 %create optical image
@@ -176,9 +185,9 @@ oiT = oiSet(oiT,'optics',optics);
 oiT = oiCompute(scene,oiT);
 ieAddObject(oiT); oiWindow;
 
-%% Plot mesh plots for all 3 techniques
+%% Plot mesh plots for all techniques
 
-%Theoretical
+% Theoretical
 oiPhotons = oiGet(oiT, 'photons');
 PSFLineSpectral = sum(oiPhotons, 1);
 PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) size(oiPhotons, 3)]);
@@ -192,8 +201,7 @@ ylabel('Position (um)')
 zlabel('Intensity (rel.)');
 title('Theoretical Linespread');
 
-
-%HURB
+% HURB
 oiPhotons = oiGet(oiHURB, 'photons');
 PSFLineSpectral = sum(oiPhotons, 1);
 PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) size(oiPhotons, 3)]);
@@ -207,6 +215,8 @@ zlabel('Intensity (rel.)');
 title('HURB Linespread');
 
 %% Huygens
+% Not working at the moment. 
+%{
 oiPhotons = oiGet(oiHuygens, 'photons');
 PSFLineSpectral = sum(oiPhotons, 1);
 PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) size(oiPhotons, 3)]);
@@ -218,6 +228,7 @@ xlabel('Wavelength (nm)')
 ylabel('Position (um)')
 zlabel('Intensity (rel.)');  
 title('Huygens-Fresnel Linespread');
+%}
 
 %% plot line vs. wavelength plots (linespread) plot PSFs on 1 figure
 
@@ -245,14 +256,13 @@ vcNewGraphWin;
 plot( positionT, PSFLineTS, position, PSFLineHURB);
 %plot( positionT, PSFLineTS, position, PSFLineHURB, position, PSFLineHuygens);
 
-title(['Linespread Comparison at 550nm;' num2str(focalLength) 'mm;f/' ...
+title(['Linespread Comparison at 550nm; ' num2str(focalLength) 'mm; f/' ...
     num2str(focalLength/apertureDiameter, 2)  ]);
 xlabel('um')
 %axis([-40 40 0 1]);  %don't show the bad part of the theoretical plot
 ylabel('Relative radiance');
 legend('Theoretical', 'HURB');
-% 
-% 
+
 % %save figure as a tiff file
 % fileName = ['PSFC_' num2str(sampleArray{index}.focalLength) 'mm_f' ...
 %     num2str(focalLength/(apertureDiameter))];
@@ -263,9 +273,11 @@ oiPhotonsTemp = oiGet(oiT, 'illuminance');
 PSFLineT = oiPhotonsTemp((size(oiPhotonsTemp, 1))/2,:);
 PSFLineTS = PSFLineT /max(PSFLineT(:));
 
+%{
 oiPhotonsTemp = oiGet(oiHuygens, 'illuminance');
 PSFLineHuygens = oiPhotonsTemp((size(oiPhotonsTemp, 1))/2,:);
 PSFLineHuygens = PSFLineHuygens / max(PSFLineHuygens(:));
+%}
 
 oiPhotonsTemp = oiGet(oiHURB, 'illuminance');
 PSFLineHURB = oiPhotonsTemp((size(oiPhotonsTemp, 1))/2,:);
@@ -275,14 +287,12 @@ positionT = linspace(-sensorWidth/2 *1000, sensorWidth/2 *1000, length(PSFLineT)
 position = linspace(-sensorWidth/2 * 1000, sensorWidth/2 * 1000, length(PSFLineHURB));
 
 vcNewGraphWin;
-plot( positionT, PSFLineTS, position, PSFLineHURB, position, PSFLineHuygens);
+% plot( positionT, PSFLineTS, position, PSFLineHURB, position, PSFLineHuygens);
+plot( positionT, PSFLineTS, position, PSFLineHURB);
 
-
-title(['PSF Slice Comparison at 550nm;' num2str(focalLength) 'mm;f/' ...
+title(['PSF Slice Comparison at 550nm; ' num2str(focalLength) 'mm; f/' ...
     num2str(focalLength/apertureDiameter, 2)  ]);
 xlabel('um')
 %axis([-40 40 0 1]);  %don't show the bad part of the theoretical plot
 ylabel('Relative radiance');
 legend('Theoretical', 'HURB', 'Huygens-Fresnel');
-
-%%
