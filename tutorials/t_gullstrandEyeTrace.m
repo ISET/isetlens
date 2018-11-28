@@ -14,8 +14,7 @@ lensFileName = fullfile(ilensRootPath,'data', 'lens', 'gullstrand.dat');
 apertureMiddleD = 3;   % (mm) a relatively narrow pupil
 
 nSamples = 1000; % Number of spatial samples in the aperture.
-% In this case, the focal length is just a string; it is not used for
-% computation. 
+
 thisLens = lensC('aperture sample', [nSamples nSamples], ...
     'filename', lensFileName, ...
     'aperture Middle D', apertureMiddleD,...
@@ -31,7 +30,7 @@ thisLens.draw
 % 550 is a good choice to just see near the diffraction limit
 % You can also choose polychromatic
 % wave = 550;
-wave = 450:25:650;
+wave = 550;
 thisLens.set('wave', wave);
 
 % Load index of refraction (n) of ocular mediums
@@ -56,16 +55,16 @@ end
 % wavelength samples
 wave = thisLens.get('wave');
 
-% Let's only model the are around the fovea for now. The fovea is around
-% 1.5 mm wide, so let's make the sensor 2 mm x 2 mm.
-sensorSize = 0.5;
+% Let's only model the are around the fovea for now.
+% I am not sure what these units are.  I think millimeters.
+sensorSize = 0.026;    % mm?
 
-% The retina is around 16.5 mm from the back of the lens
-filmPosition = 16.4;
+% The retina is very close to 16.5 mm from the back of the lens
+filmPosition = 16.7;
 
 sensor = filmC('position', [0 0 filmPosition], ...
     'size', [sensorSize sensorSize], ...
-    'resolution',[300 300],...
+    'resolution',[100 100],...
     'wave', wave);
 
 %% Make points to view
@@ -76,7 +75,6 @@ pointDistance = -1e5; % Very far
 point = psCreate(0,pointsVerticalPosition,pointDistance);
 
 %% Ray trace the points to the film
-
 
 %  We don't think the autofocus works properly with the Gullstrand
 %  eye. We aren't sure why.  Figuring this out requires getting into
@@ -95,7 +93,7 @@ iorImageSpace = 1.336;
 % camera.autofocus(550,'nm',iorObjSpace,iorImageSpace)
 
 % Estimate the PSF and show the ray trace
-nLines = 50;
+nLines = 500;
 jitter = true;
 camera.estimatePSF(nLines,jitter);
 set(gca,'xlim',[-5 20]); grid on
@@ -111,7 +109,16 @@ sz = oiGet(oi,'size');
 oiPlot(oi,'illuminance hline',round([1,sz(1)/2]));
 set(gca,'xlim',[-30 30],'xtick',-30:5:30)
 
-%%
+%%  Show a mesh of the luminance of the point spread
+
+illuminance = oiGet(oi,'illuminance');
+s = oiGet(oi,'spatial support','um');
+
+vcNewGraphWin;
+mesh(s(:,:,1), s(:,:,2), illuminance);
+xlabel('Position (um)'); ylabel('Position (um)');
+
+%% psfTarget should be the normalized illuminance
 
 %% This human eye model has a focal length of 16.5 mm
 
