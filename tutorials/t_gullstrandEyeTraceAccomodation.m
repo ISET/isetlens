@@ -40,14 +40,14 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'focalLength',16.5);    % For CISET, 16.5mm is about the focal distance.
 
 
-% Set asphericity
+% Set conicConstant
 % TODO: Set this in the lens file in the future
 
 % [cornea anterior | cornear posterior | aperture | lens anterior | lens posterior]
 % Q = [-0.26 0 0 -3.1316 -1];
 % nSurfaces = lens.get('n surfaces');
 % for ii=1:nSurfaces
-%         lens.surfaceArray(ii).asphericity = Q(ii);
+%         lens.surfaceArray(ii).conicConstant = Q(ii);
 % end
 
 % Draw the lens

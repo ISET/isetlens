@@ -1,6 +1,14 @@
-thisLens = lensC;
+thisLens = lensC('filename','dgauss.22deg.100.0mm.dat');
+
+
+thisLens.fileWrite('dgauss.22deg.100.0mm.dat.json');
+edit(thisLens.fullFileName);
+
+%{
 opts.indent = ' ';
-jsonwrite('thisLens.json',thisLens,opts)
+jsonwrite('dgauss.22deg.100.0mm.dat.json',thisLens,opts)
+%}
+
 thisLens.bbmCreate;
 jsonwrite('thisLens.json',thisLens,opts)
 
@@ -29,9 +37,15 @@ thisLens.fileWrite(fullFileName);
 %       biconic
 %     We have refractive default to spherical
 %
-%   Lens shift and tilt
+%   Surface shift and tilt
 %     For each surface there is a potential (x,y) shift
-%     For tilt we add a yaw and pitch
+%       deltaX
+%       deltaY
+%
+%     For tilt we add 
+%       rotateX - Rotation around the x-axis is pitch
+%       rotateY - Rotation around the y-axis is yaw
+%
 %
 %   Microlens object slot
 %

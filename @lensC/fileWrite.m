@@ -74,7 +74,10 @@ p.addRequired('fullFileName',@ischar);
 p.addParameter('description',obj.type,@ischar);
 p.addParameter('units','mm',@(x)(ismember(x,{'um','mm','m'})));
 
+fullFileName = which(fullFileName);
 p.parse(fullFileName,varargin{:});
+
+obj.fullFileName = fullFileName;
 
 unitScale   = p.Results.units;
 description = sprintf('# Description: %s\n',p.Results.description);
@@ -129,6 +132,7 @@ switch fileFormat
         fclose(fid);
         
     case 'json'
+        % Nicely formatted, and make sure the new file name is included.
         opts.indent = ' ';
         jsonwrite(fullFileName,obj,opts)
     otherwise
