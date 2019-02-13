@@ -12,7 +12,7 @@ classdef surfaceC <  handle
     % contains basic properties common to almost all lenses.
     %
     % Parameter/vals:
-    %    apertured, sradius, scenter, wave, zpos, n, asphericity
+    %    apertured, sradius, scenter, wave, zpos, n, conicConstant
     %
     % Examples:
     %    s = surfaceC;
@@ -28,14 +28,36 @@ classdef surfaceC <  handle
         % These are spherical surface properties
         name    = 'default';
         type    = 'surface';
-        subtype = 'refractive';  % Apparently diaphragm is another type.  I think that means aperture. (BW).
         
-        sRadius = 1;                % Sphere's radius
-        sCenter = [0 0 0];          % Sphere's center position
+        % Possible types
+        %  'Diaphragm' (aperture), 'spherical' is a synonym for
+        %  'refractive', and 'biconic'.
+        subtype = 'spherical';   
+        
+        % For spherical and biconic.  Allows displacement
+        sCenter = [0 0 0];          % Surface center position
+        
+        % If the subtype is 'spherical'
+        sRadius = 1;                % Sphere's radius (1/curvature)
+        
+        % If the subtype is biconic, we have a curvature in each direction.
+        bRadius = [];    % This is a 2-vector in the biconic
+        
+        % Surface tilt
+        %   z-axis is from scene to sensor
+        %   x- and y-axes are as expected if you are looking down the
+        %      z-axis (horizontal is x).
+        %
+        %   rotateX - Rotation around the x-axis is pitch
+        %   rotateY - Rotation around the y-axis is yaw
+        tilt = [0,0]; % rotateX = pitch, rotateY = yaw
+        
         wave = 400:50:700;          % nm
         apertureD = 1;              % mm diameter
         n =  ones(7,1);             % index of refraction
-        asphericity = 0;            % asphericity parameter ("Q")
+        
+        % Is this the biconic parameter?
+        conicConstant = 0;          % ("Q")
         
     end
     
@@ -87,8 +109,8 @@ classdef surfaceC <  handle
                         if length(obj.n) ~= length(obj.wave)
                             error('Index of refraction vector length does not match wavelength vector length');
                         end
-                    case 'asphericity' 
-                        obj.asphericity = varargin{ii+1};
+                    case 'conicConstant' 
+                        obj.conicConstant = varargin{ii+1};
                         
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
@@ -118,8 +140,8 @@ classdef surfaceC <  handle
                     % the position of the surface, centered on the y = 0
                     % axis.
                     res = obj.sCenter(3) - obj.sRadius;
-                case 'asphericity'
-                    res = obj.asphericity;
+                case 'conicconstant'
+                    res = obj.conicConstant;
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end
@@ -158,8 +180,8 @@ classdef surfaceC <  handle
                         error('Index of refraction vector length does not match wavelength vector length');
                     end
                 
-                case 'asphericity' % Asphericity parameter (i.e. "Q")
-                    obj.asphericity = val;
+                case 'conicConstant' % conicConstant parameter (i.e. "Q")
+                    obj.conicConstant = val;
                     
                 case {'subtype'}
                     % Type of surface

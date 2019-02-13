@@ -61,7 +61,7 @@ if (r ~= 0)
     %
     %   x^2 + y^2 + (z-r)^2 = r^2 ---> x^1 + y^2 + z^2 -2*r*Z = 0
     
-    Q = obj.get('asphericity');
+    Q = obj.get('conicConstant');
     yExtent = obj.apertureD/2;
     
     if(Q ~= -1)

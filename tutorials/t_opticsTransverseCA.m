@@ -32,28 +32,31 @@ thisLens = lensC;
 
 %% Set index of refraction for the lens
 
-wave = [450 550 650];        % Few wavelength samples
-apertureSample = [301 301];  % Number of samples
+wave = [450 550 650];          % Few wavelength samples
+apertureSample = [301 301];    % Number of samples
 thisLens.set('wave', wave);
 thisLens.set('apertureSample', apertureSample);
 nSurfaces = thisLens.get('n surfaces');
 nWave = thisLens.get('nwave');
+pupilDiameter = 20;            % In millimeters
 for ii=1:(nSurfaces-1)
     if thisLens.surfaceArray(ii).sRadius ~= 0  % Not an aperture
         thisLens.surfaceArray(ii).n = linspace(1.65 + .1, 1.65 - .1, nWave);
+    else
+        thisLens.surfaceArray(ii).apertureD = pupilDiameter;
     end
 end
 
 %% Make the sensor surface
 
 position = [0 0 101];   % Sensor is 101 mm behind the lens
-size = [15 15];         % Size of what?
-film = filmC ('position', position, 'size', size, 'wave', wave);
+filmSize = [45 45];         % Size of the film
+film = filmC ('position', position, 'size', filmSize, 'wave', wave);
 
 %% Make an array of point sources
 
-pX = -5:5:5;
-pY = -5:5:5;
+pX = -15:15:15;
+pY = -15:15:15;
 pZ = -100.5;
 ps = psCreate(pX,pY,pZ);
 fprintf('Calculating for %d points\n',length(ps));
@@ -97,7 +100,7 @@ pOrig    = s.get('zpos');     % Original position of the aperture
 
 
 %% Show the changing magnification with aperture z position
-d =-10;
+d = -15;
 
 for ii=1:length(d)
     aSurface = thisLens.get('aperture');  % The surface with the aperture

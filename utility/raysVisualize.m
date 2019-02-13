@@ -44,6 +44,9 @@ threeD   = p.Results.threeD;
 
 if isempty(nLines), return; end
 
+nRays = size(origin,1);
+if nRays == 0, return; end
+
 if isempty(h),  h = vcNewGraphWin; hold on; end
 figure(h);
 
@@ -55,11 +58,11 @@ lColor = [0 0.5 1]; % Blue color
 lStyle = '-';       % Solid line
 
 % Which sample rays to visualize
-nRays = size(origin,1);
-if ~isstruct(nLines),                     samps = randi(nRays,[nLines,1]);
+
+if ~isstruct(nLines) && nRays > 0,                     samps = randi(nRays,[nLines,1]);
 elseif strcmp(nLines.spacing, 'uniform'), samps = round(linspace(1, nRays, nLines.numLines));
 elseif strcmp(nLines.spacing,'random'),   samps = randi(nRays,[nLines.numLines,1]);
-else   error('Unknown spacing parameter %s\n',nLines.spacing);
+else,   error('Unknown spacing parameter %s\n',nLines.spacing);
 end
 
 if threeD

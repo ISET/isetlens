@@ -43,7 +43,7 @@ for l=1:length(lenses)
         'apertureMiddleD', apertureMiddleD);
     scaleFactor = desiredFLength/scaledLens.focalLength;
     
-    for ii=1:length(scaledLens.surfaceArray);
+    for ii=1:length(scaledLens.surfaceArray)
         scaledLens.surfaceArray(ii).sRadius = scaledLens.surfaceArray(ii).sRadius * scaleFactor;
         scaledLens.surfaceArray(ii).sCenter = scaledLens.surfaceArray(ii).sCenter * scaleFactor;
         scaledLens.surfaceArray(ii).apertureD = scaledLens.surfaceArray(ii).apertureD * scaleFactor;

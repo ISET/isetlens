@@ -54,17 +54,17 @@ for ni=1:nelem
             if ni>1
                 N(:,ni)=N(:,ni-1); %refractive indices
            end
-        case {'refractive';'refr'}
+        case {'refractive','refr','spherical'}
             surftype{ni}='refr';
-            N(:,ni)=S.n';           %refractive indices                
-            Diam(ni)=S.apertureD; %aperture diameter
+            N(:,ni)=S.n';           % refractive indices                
+            Diam(ni)=S.apertureD;   % aperture diameter
         otherwise
             error (['NOT VALID ',S.subtype,' as surface subtype'])
     end
     Radius(ni)=S.sRadius; %radius of curvature
     posZ(ni)=S.get('zintercept');
     %% OTHER FIELDs
-    %asphericity (conical parameter)
+    % conicConstant (conical parameter)
     
 end
 
@@ -98,7 +98,7 @@ end
 %     Radius(ni)=S.sRadius; %radius of curvature
 %     posZ(ni)=S.get('zintercept');
 %     %% OTHER FIELDs
-%     %asphericity (conical parameter)
+%     %conicConstant (conical parameter)
 %     
 % end
 

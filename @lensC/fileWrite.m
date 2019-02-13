@@ -1,8 +1,7 @@
 function fileWrite(obj, fullFileName, varargin)
-% Writes PBRT lens file
+% Writes PBRT lens file, either as text of JSON
 %
 % Syntax:
-%
 %   lens.fileWrite(fullFileName, varargun)
 %
 % Description:
@@ -16,9 +15,9 @@ function fileWrite(obj, fullFileName, varargin)
 % # Name: 2ElLens
 % # Description: foobar
 % # units are mm
-% # Focal length 
+% # Focal length
 % 50.000
-% 
+%
 % # Each row is a surface.
 % # They are ordered from the image to the sensor.
 % # Zero is the position of the first lens surface.
@@ -75,7 +74,10 @@ p.addRequired('fullFileName',@ischar);
 p.addParameter('description',obj.type,@ischar);
 p.addParameter('units','mm',@(x)(ismember(x,{'um','mm','m'})));
 
+fullFileName = which(fullFileName);
 p.parse(fullFileName,varargin{:});
+
+obj.fullFileName = fullFileName;
 
 unitScale   = p.Results.units;
 description = sprintf('# Description: %s\n',p.Results.description);
@@ -94,34 +96,51 @@ switch unitScale
         error('Unknown spatial scale');
 end
 
-%% Open the lens file for writing
+[~,~,e] = fileparts(fullFileName);
+if strcmp(e,'.json'),    fileFormat = 'json';
+elseif strcmp(e,'.txt'), fileFormat = 'txt';
+end
 
-% fullFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
+%% Tell the person if we are over-writing a lens file
 if ~exist(fullFileName,'file')
 else,  fprintf('Overwriting %s\n',fullFileName)
 end
-fid = fopen(fullFileName,'w');
 
-%% Write the header
-hdr = lensHeader(obj,description,unitScale);
-fprintf(fid,'%s',hdr);
+switch fileFormat
+    case 'txt'
+        
+        % fullFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
+        fid = fopen(fullFileName,'w');
 
-%% Write the data matrix
-d  = lensMatrix(obj);
-
-% Columns 1 2 and 4 are corrected for spatial scale
-d(:,1) = d(:,1)*unitScale;
-d(:,2) = d(:,2)*unitScale;
-d(:,4) = d(:,4)*unitScale;
-
-% Column 3 is 
-for ii=1:size(d,1)
-    fprintf(fid,'%f\t%f\t%f\t%f\n', d(ii,1), d(ii, 2), d(ii,3), d(ii,4));
+        %% Write the header
+        hdr = lensHeader(obj,description,unitScale);
+        fprintf(fid,'%s',hdr);
+        
+        %% Write the data matrix
+        d  = lensMatrix(obj);
+        
+        % Columns 1 2 and 4 are corrected for spatial scale
+        d(:,1) = d(:,1)*unitScale;
+        d(:,2) = d(:,2)*unitScale;
+        d(:,4) = d(:,4)*unitScale;
+        
+        % Column 3 is
+        for ii=1:size(d,1)
+            fprintf(fid,'%f\t%f\t%f\t%f\n', d(ii,1), d(ii, 2), d(ii,3), d(ii,4));
+        end
+        
+        fclose(fid);
+        
+    case 'json'
+        % Nicely formatted, and make sure the new file name is included.
+        opts.indent = ' ';
+        jsonwrite(fullFileName,obj,opts)
+    otherwise
+        error('Unknown file format %s\n');
+        
 end
 
-fclose(fid);
 end
-
 
 %% The header
 function hdr = lensHeader(obj, description, unitScale)
@@ -173,13 +192,10 @@ for ii=1:nSurfaces
     d(ii,1) = lens.get('s radius',ii);
     d(ii,2) = offsets(ii);
     
-    % Pbrt does not yet support custom specified index of refractions. 
-    % Thus, we will take the middle one 
+    % Pbrt does not yet support custom specified index of refractions.
+    % Thus, we will take the middle one
     d(ii,3) = nArray(ii);
     d(ii,4) = lens.get('sdiameter', ii);
 end
-
-
-
 
 end

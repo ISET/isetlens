@@ -86,6 +86,7 @@ classdef lensC <  handle
     properties
         name = 'default';
         type = 'multi element lens';
+        fullFileName = '';             % If read from a file
         surfaceArray = surfaceC();     % Set of spherical surfaces and apertures
         diffractionEnabled = false;    % Not implemented yet
         wave = 400:50:700;             % nm
@@ -100,8 +101,14 @@ classdef lensC <  handle
         % Spatial units defined in the input file
         units = 'mm';
 
-        % Black Box Model
+        % Black Box Model - Used for certain efficient analyses and
+        % computations, largely in Matlab
         BBoxModel=[]; % Empty
+        
+        % Microlens Model - Will be used extensively for camera development
+        % and testing, largely in PBRT
+        MLensModel = []; % Empty
+        
     end
     
     properties (SetAccess = private)
@@ -146,13 +153,15 @@ classdef lensC <  handle
             p.addParameter('figurehandle',[],@isgraphics);
             p.addParameter('blackboxmodel',[])
             
-            p.addParameter('filename','2ElLens.dat',@(x)(exist(x,'file')));
+            fullFileName = which('2ElLens.dat');
+            p.addParameter('filename',fullFileName,@(x)(exist(x,'file')));
             
             p.parse(varargin{:});
             
             % Initialize with the lens file and default name
             obj.fileRead(p.Results.filename,'units',p.Results.units);
             [~,obj.name,~] = fileparts(p.Results.filename);
+            obj.fullFileName = which(p.Results.filename);
             
             % Basics
             if ~isempty(p.Results.name), obj.name = p.Results.name; end
