@@ -82,10 +82,14 @@ classdef lensC <  handle
        type '2ElLensMeters.dat'
        delete('2ElLensMeters.dat');
     %}
+    %{
+        lens = lensC('filename','dgauss.22deg.100.0mm.json')
+    %}
     
     properties
         name = 'default';
         type = 'multi element lens';
+        description = 'description';   % Patents or related
         fullFileName = '';             % If read from a file
         surfaceArray = surfaceC();     % Set of spherical surfaces and apertures
         diffractionEnabled = false;    % Not implemented yet
@@ -94,6 +98,10 @@ classdef lensC <  handle
         apertureMiddleD = 8;           % mm, diameter of the middle aperture
         apertureSample = [151 151];    % Number of spatial samples in the aperture.  Use odd number
         centerZ = 0;                   % Theoretical center of lens (length-wise) in the z coordinate
+        
+        % When we read a lens from a JSON file, we store the struct
+        % here
+        lensData = [];
         
         % When we draw the lens we store the figure handle here
         fHdl = [];

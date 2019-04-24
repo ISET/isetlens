@@ -58,13 +58,20 @@ function fileWrite(obj, fullFileName, varargin)
 % Examples:
 %{
   % Read and write a lens all in millimeters
-  l = lens;
+  l = lensC;
   l.fileWrite('deleteme.dat','description','foobar','units','mm');
 %}
 %{
   % Read a lens in millimeters.  Write it in meters
-  l = lens;
+  l = lensC;
   l.fileWrite('deleteme.dat','description','foobar','units','m');
+%}
+%{
+  l = lensC;
+  l.fileWrite('deleteme.json','description','foobar','units','mm');
+  edit('deleteme.json');
+  l.fileRead('deleteme.json');
+  l.draw;
 %}
 
 %%
@@ -74,7 +81,7 @@ p.addRequired('fullFileName',@ischar);
 p.addParameter('description',obj.type,@ischar);
 p.addParameter('units','mm',@(x)(ismember(x,{'um','mm','m'})));
 
-fullFileName = which(fullFileName);
+% fullFileName = which(fullFileName);
 p.parse(fullFileName,varargin{:});
 
 obj.fullFileName = fullFileName;
@@ -132,9 +139,25 @@ switch fileFormat
         fclose(fid);
         
     case 'json'
-        % Nicely formatted, and make sure the new file name is included.
+        % Making the JSON output from the isetlens lensC object  
+        
+        dataMatrix  = lensMatrix(obj);
+        dataMatrix  = round(dataMatrix*1e5)/1e5;
+        nSurfaces = size(dataMatrix,1);
+        jsonLens.name = obj.name;
+        jsonLens.description = obj.description;
+        jsonLens.type = obj.type;
+        
+        for ii=1:nSurfaces
+            jsonLens.surfaces(ii).radius    = dataMatrix(ii,1);
+            jsonLens.surfaces(ii).thickness = dataMatrix(ii,2);
+            jsonLens.surfaces(ii).ior       = dataMatrix(ii,3);
+            jsonLens.surfaces(ii).semi_aperture = dataMatrix(ii,4)/2;
+        end
+        
         opts.indent = ' ';
-        jsonwrite(fullFileName,obj,opts)
+        jsonwrite(fullFileName,jsonLens,opts)
+        
     otherwise
         error('Unknown file format %s\n');
         
@@ -173,29 +196,4 @@ hdr = addText(hdr, str);
 
 end
 
-
-%% Convert the surface array data to the PBRT matrix we want to write
-function d = lensMatrix(lens)
-% In the lens class, we don't use offsets. Instead, we store the sphere
-% centers (sCenters) and radii (units of mm).  So here we go through the
-% surfaceArray and produce the radius and offset needed for the PBRT matrix
-% from the surfaceArray object sCenters and radius.
-
-nSurfaces = lens.get('n surfaces');
-
-% The PBRT data matrix
-d = zeros(nSurfaces,4);
-offsets = lens.get('offsets');
-nArray = lens.get('index of refraction');
-nArray = nArray(round((size(nArray,1) + 1)/2), :);
-for ii=1:nSurfaces
-    d(ii,1) = lens.get('s radius',ii);
-    d(ii,2) = offsets(ii);
-    
-    % Pbrt does not yet support custom specified index of refractions.
-    % Thus, we will take the middle one
-    d(ii,3) = nArray(ii);
-    d(ii,4) = lens.get('sdiameter', ii);
-end
-
-end
+%%

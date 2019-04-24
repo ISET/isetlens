@@ -114,6 +114,7 @@ switch fileFormat
             lst = find(isnan(offset));
             fprintf('Bad indices %d\n',lst);
         end
+        
         % Read in N, the index of refraction.
         N = str2double(import{3});
         N = N(dStart:length(firstColumn));
@@ -139,6 +140,50 @@ switch fileFormat
         else,                       error('No non-refractive (aperture/diaphragm) element found');
         end
     case 'json'
+        % Read the JSON file with the lens definition
+        %
+        lensData  = jsonread(fullFileName);
+        obj.fullFileName = fullFileName;
+        obj.name = lensData.name;
+        obj.description = lensData.description;
+        
+        %{
+        offset = str2double(import{2});
+        offset = offset(dStart:length(firstColumn));
+        offset = [0; offset(1:(end-1))]; % Shift to account for different convention
+        offset = offset*unitScale;
+        if sum(isnan(offset)) > 0
+            warning('Error reading lens file offset');
+            lst = find(isnan(offset));
+            fprintf('Bad indices %d\n',lst);
+        end
+        %}
+        
+        % For each surface transform the data into the lensC format
+        jSurfaces = lensData.surfaces;
+        nSurfaces = numel(jSurfaces);
+        sIOR = zeros(nSurfaces,1);
+        sRadius = sIOR; sOffset = sIOR; sApertureDiameter = sIOR;
+        for ii =1:nSurfaces 
+            sIOR(ii)    = jSurfaces(ii).ior;
+            sRadius(ii) = jSurfaces(ii).radius;   % Radius of curvature
+            sApertureDiameter(ii) = 2*jSurfaces(ii).semi_aperture;
+            sOffset(ii) = jSurfaces(ii).thickness;
+        end
+        sOffset = [sOffset(end); sOffset(1:(end-1))]*unitScale;
+        
+        obj.elementsSet(sOffset, sRadius, sApertureDiameter, sIOR)
+
+        
+        % To make this work with current isetlens, we need to convert
+        % the parameters
+        
+        % Take the lensData and fill in the slots we used in the txt
+        % format.
+        % obj.txtFormat();
+        
+        % Take the lensData and 
+        
     otherwise
         error('Unknown file format %s\n',fileFormat);
 end
