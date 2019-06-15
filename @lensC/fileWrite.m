@@ -2,7 +2,7 @@ function fileWrite(obj, fullFileName, varargin)
 % Writes PBRT lens file, either as text of JSON
 %
 % Syntax:
-%   lens.fileWrite(fullFileName, varargun)
+%   lens.fileWrite(fullFileName, varargin)
 %
 % Description:
 %

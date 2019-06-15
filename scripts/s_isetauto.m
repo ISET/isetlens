@@ -1,4 +1,7 @@
-%% Images for ISETAuto ICCV lens
+%% Images for a typical automotive lens
+%
+% Also includes some autofocusing calculation
+%
 %
 
 %% Read and draw
@@ -29,19 +32,23 @@ nLines = 0;  % Do not draw the rays
 jitter = true;
 camera.estimatePSF(nLines,jitter);
 set(gca,'xlim',[-15 6]);
-%%
+%% The oi is very dim
+
 oi = camera.oiCreate;
-% ieAddObject(oi); oiWindow;
+oi = oiSet(oi,'mean illuminance',10);
+
+oiWindow(oi);
 oiPlot(oi,'illuminance mesh linear');
 % set(gca,'xlim',[20 30],'ylim',[20 30]);
 
-%% 
-oiWindow(oi);
+%% The sensor really sees just a single spot
+% One super-pixel is covered
 
-%%
-
-sensor = sensorCreate('MT9V024');
+sensor = sensorCreate('MT9V024');       % This is a 6 um sensor
+sensor = sensorSetSizeToFOV(sensor,2);  % Make it small
+sensor = sensorCompute(sensor,oi);
 sensorWindow(sensor);
 
+%%
 
 
