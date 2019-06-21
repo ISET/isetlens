@@ -1,18 +1,26 @@
 function d = lensMatrix(lens)
-% Convert the surface array data to the PBRT matrix we want to write
+% Convert the surface array data to the PBRT matrix format
 %
 % Syntax:
+%   d = lensMatrix(lens)
 %
 % Inputs
-% Outputs
+%  lens - Lens class
 %
+% Outputs
+%  d  - Matrix description of lens useful for PBRT methods
 %
 % Descripton:
+%   In the lens class, we don't use offsets. Instead, we store the
+%   sphere centers (sCenters) and radii (units of mm).  So here we go
+%   through the surfaceArray and produce the radius and offset needed
+%   for the PBRT matrix from the surfaceArray object sCenters and
+%   radius.
 %
-% In the lens class, we don't use offsets. Instead, we store the sphere
-% centers (sCenters) and radii (units of mm).  So here we go through the
-% surfaceArray and produce the radius and offset needed for the PBRT matrix
-% from the surfaceArray object sCenters and radius.
+% Lin, Lian, Wandell and others
+%
+% See also
+%   fileWrite, t_gullstrandEyeTraceAccomodation
 
 nSurfaces = lens.get('n surfaces');
 

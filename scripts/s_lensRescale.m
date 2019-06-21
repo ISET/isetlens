@@ -1,15 +1,20 @@
-%% Re-scaling lens recipe to a desited focal length
+%% s_lensRescale
 %
-%  Generate a lens design file with a new focal length from an existing lens
-%  design file. The lens parameters (# surfaces, materials) don't change,
-%  but their dimensions do, in order to accommodate the new focal length.
+% Re-scaling lens lengths to a new focal length.
+%
+%  Convert a lens design file to a new focal length from an existing
+%  lens design file. The lens parameters (# surfaces, materials) don't
+%  change, but their dimensions do, in order to accommodate the new
+%  focal length.
 %
 %  Copyright, VISTALAB 2017
 
 %%
 ieInit
 
-desiredFLength = 6;
+%%
+desiredFLength = 6;    % Units:   millimeters
+
 lenses = {'wide.56deg','dgauss.22deg','fisheye.87deg','tessar.22deg','wide.40deg','2el.XXdeg'};
 
 for l=1:length(lenses)

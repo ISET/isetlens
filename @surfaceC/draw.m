@@ -46,12 +46,11 @@ if (r ~= 0)
     %  r^2 = (apertureD)^2 + (Zedge - c)^2
     %  zEdge = sqrt(r^2 - (apertureD)^2 ) + c
     %
-    % --------------------------------------
-    % Trisha:
-    % When modeling the eye, instead of a spherical surface we use a
-    % conicoid.
-    % According to Navarro's paper, each quadric surface in the model is
-    % represented by the formula
+    % -------------------------------------- 
+    %
+    % Trisha: When modeling the eye, instead of a spherical surface we
+    % use a conicoid. According to Navarro's paper, each quadric
+    % surface in the model is represented by the formula
     %
     %    x^2 + y^2 + (1-Q)*z^2 - 2*r*z = 0
     %

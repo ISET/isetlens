@@ -1,4 +1,4 @@
-%% t_gullstrandEyeTrace
+%% t_gullstrandEyeTraceAccomodation
 %
 % Here we demonstrate tracing through the gullstrand eye model. Using
 % Navarro's equations, we can also model the chromatic aberration present

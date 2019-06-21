@@ -22,12 +22,10 @@ obj.fHdl = fHdl;
 %% We draw one surface/aperture at a time
 
 nSurfaces = obj.get('n surfaces');
-for lensEl = 1:nSurfaces
-    
+for lensEl = 1:nSurfaces    
     % Get each surface element and draw it
     curEl = obj.surfaceArray(lensEl);
     curEl.draw('fig',fHdl);
-    
 end
 
 % Make sure the surfaces are all shown within the range
@@ -37,14 +35,17 @@ end
 % generality in the future.  If you have a bug, that might be.
 
 % X axis limits
-t = obj.get('total offset'); set(gca,'xlim',[-1.1,0.1]*t)
+t = obj.get('total offset'); 
+set(gca,'xlim',[-1.1,0.1]*t)
 
 % Y axis limits should be from aperture
 % Not yet set, but could be
 
-% Let's give the figure the lens title
+% Let's set the window to the lens name, not the title.  The title
+% takes up too much space on the drawing.
 % set(gcf,'Name',sprintf('%s',obj.name));
-title(sprintf('%s',obj.name));
+set(gcf,'Name',sprintf('%s',obj.name))
+
 axis image
 xlabel('mm'); ylabel('mm');
 
