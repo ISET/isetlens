@@ -54,7 +54,7 @@ apertureCount = 0;    % We check that there is only 1 aperture
 if ~isstruct(nLines),                     samps = randi(nRays,[nLines,1]);
 elseif strcmp(nLines.spacing, 'uniform'), samps = round(linspace(1, nRays, nLines.numLines));
 elseif strcmp(nLines.spacing,'random'),   samps = randi(nRays,[nLines.numLines,1]);
-else    error('Unknown spacing parameter %s\n',nLines.spacing);
+else,  error('Unknown spacing parameter %s\n',nLines.spacing);
 end
 if ~isempty(samps)
     rays.drawSamples = samps;

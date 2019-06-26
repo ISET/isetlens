@@ -15,7 +15,7 @@ title('')
 
 [pt, ~, film] = ilInitPLF;
 pt{1} = [0, 0,-500];      % Pretty far away
-film.size = [0.05 0.05];  % In millimeters
+film.size = [0.03 0.03];  % In millimeters
 
 %% A sphere and a planar surface for the diffraction
 
