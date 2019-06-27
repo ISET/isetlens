@@ -15,8 +15,8 @@ classdef lensC <  handle
     %   'wave', vector
     %   'surface array'
     %   'aperture sample'
-    %   'aperture middle d'
-    %   'diffraction enabled'
+    %   'aperture middle d'   - Maximum aperture size
+    %   'diffraction enabled' - 
     %   'figure handle'
     %   'blackbox model'
     %
@@ -92,7 +92,7 @@ classdef lensC <  handle
         description = 'description';   % Patents or related
         fullFileName = '';             % If read from a file
         surfaceArray = surfaceC();     % Set of spherical surfaces and apertures
-        diffractionEnabled = false;    % Not implemented yet
+        % diffractionEnabled = false;    % Not implemented yet
         wave = 400:50:700;             % nm
         focalLength = 50;              % mm, focal length of multi-element lens
         apertureMiddleD = 8;           % mm, diameter of the middle aperture
@@ -138,7 +138,6 @@ classdef lensC <  handle
             %   'wave', vector
             %   'surface array'
             %   'aperture sample'
-            %   'diffraction enabled'
             %   'figure handle'
             %   'blackbox model'
             %
@@ -156,7 +155,7 @@ classdef lensC <  handle
             p.addParameter('aperturesample',[],@isvector);
             p.addParameter('aperturemiddled',[],@isscalar);
             p.addParameter('focallength',[],@isnumeric);
-            p.addParameter('diffractionenabled',[],@islogical);
+            % p.addParameter('diffractionenabled',[],@islogical);
             p.addParameter('wave',[],@isvector)
             p.addParameter('figurehandle',[],@isgraphics);
             p.addParameter('blackboxmodel',[])
@@ -187,9 +186,9 @@ classdef lensC <  handle
                 obj.focalLength = p.Results.focallength;
             end
             if ~isempty(p.Results.wave), obj.set('wave',wave);  end
-            if ~isempty(p.Results.diffractionenabled)
-                obj.diffractionEnabled = p.Results.diffractionenabled;
-            end
+            % if ~isempty(p.Results.diffractionenabled)
+            %     obj.diffractionEnabled = p.Results.diffractionenabled;
+            % end
             
             % Window
             if ~isempty(p.Results.figurehandle)
