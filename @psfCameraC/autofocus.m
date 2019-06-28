@@ -105,4 +105,3 @@ newPos.position(3) = dist0;
 obj.set('film',newPos);
 
 end
-%%
