@@ -16,7 +16,7 @@ classdef lensC <  handle
     %   'surface array'
     %   'aperture sample'
     %   'aperture middle d'   - Maximum aperture size
-    %   'diffraction enabled' - 
+    %   'diffraction enabled' - Run HURB as part of the calculation
     %   'figure handle'
     %   'blackbox model'
     %
@@ -92,7 +92,7 @@ classdef lensC <  handle
         description = 'description';   % Patents or related
         fullFileName = '';             % If read from a file
         surfaceArray = surfaceC();     % Set of spherical surfaces and apertures
-        % diffractionEnabled = false;    % Not implemented yet
+        diffractionEnabled = false;    % Do not run HURB by default
         wave = 400:50:700;             % nm
         focalLength = 50;              % mm, focal length of multi-element lens
         apertureMiddleD = 8;           % mm, diameter of the middle aperture
@@ -139,6 +139,7 @@ classdef lensC <  handle
             %   'surface array'
             %   'aperture sample'
             %   'figure handle'
+            %   'diffraction enabled'  (Run HURB)
             %   'blackbox model'
             %
             
@@ -155,7 +156,7 @@ classdef lensC <  handle
             p.addParameter('aperturesample',[],@isvector);
             p.addParameter('aperturemiddled',[],@isscalar);
             p.addParameter('focallength',[],@isnumeric);
-            % p.addParameter('diffractionenabled',[],@islogical);
+            p.addParameter('diffractionenabled',[],@islogical);
             p.addParameter('wave',[],@isvector)
             p.addParameter('figurehandle',[],@isgraphics);
             p.addParameter('blackboxmodel',[])
