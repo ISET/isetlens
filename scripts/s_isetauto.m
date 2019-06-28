@@ -27,7 +27,8 @@ film.size = [0.03 0.03];   % In millimeters
 camera = psfCameraC('lens',lens,'point source',pt,'film',film);
 camera.get('film position')
 
-% This blurs the image
+% This should blur the image.  But it is not working.
+% Why?
 % camera.set('film position',[0 0 10]);
 
 % The auto focus puts it at the focal length.
