@@ -21,7 +21,7 @@ function [filmDistance, lens] = lensFocus(lensDescription, objDistance, varargin
 %   lens         - lens object created from the name
 %
 % See also
-%   lensFocus
+%   s_lensFocusTable
 
 % Examples:
 %{

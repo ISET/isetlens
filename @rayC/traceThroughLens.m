@@ -33,11 +33,11 @@ for lensEl = lens.numEls:-1:1
     %vectorize this operation later
     for i = 1:size(obj.origin, 1)
         %get the current ray
-        ray.direction = obj.direction(i,:);   %TODO: replace with real ray object
-        ray.origin = obj.origin(i,:);
+        ray.direction  = obj.direction(i,:);   %TODO: replace with real ray object
+        ray.origin     = obj.origin(i,:);
         ray.wavelength = obj.wavelength(i);
         
-        %calculate intersection with spherical lens element
+        % Calculate intersection with spherical lens element
         radicand = dot(ray.direction, ray.origin - curEl.sphereCenter)^2 - ...
             ( dot(ray.origin -curEl.sphereCenter, ray.origin -curEl.sphereCenter)) + curEl.radius^2;
         if (curEl.radius < 0)
@@ -46,9 +46,9 @@ for lensEl = lens.numEls:-1:1
             intersectT = (-dot(ray.direction, ray.origin - curEl.sphereCenter) - sqrt(radicand));
         end
         
-        %make sure that T is > 0
-        if (intersectT < 0)
-            disp('Warning: intersectT less than 0.  Something went wrong here...');
+        % Make sure that intersectT is > 0 or real
+        if (~isreal(intersectT))
+            warning('intersectT not real. Something went wrong here...');
         end
         
         intersectPosition = ray.origin + intersectT * ray.direction;

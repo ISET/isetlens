@@ -85,18 +85,20 @@ for lensEl = 1:nSurfaces
         radicand = dot(rays.direction, rays.origin - repCenter, 2).^2 - ...
             ( dot(rays.origin - repCenter, rays.origin - repCenter, 2)) + repRadius.^2;
         
-        % Calculate something about the ray angle with respect
-        % to the current surface.  AL to figure this one out
-        % and put in a book reference.
+        % Calculate something about the ray angle with respect to the
+        % current surface.  AL to figure this one out and put in a
+        % book reference.
         if (curEl.sRadius < 0)
             intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) + sqrt(radicand));
         else
             intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) - sqrt(radicand));
         end
         
-        %make sure that intersectT is > 0
-        if (min(intersectT(:)) < 0)
-            fprintf('intersectT less than 0 for lens %i',lensEl);
+        % Test that intersectT is real.  Why are there imaginary
+        % terms?  I think these are rays that do not make it through
+        % the pathway.
+        if (~isreal(intersectT(:)))
+            fprintf('Imaginary values intersectT for lens element %d\n',lensEl);
         end
         
         % Figure out the new end point position

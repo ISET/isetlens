@@ -10,7 +10,7 @@ ieInit
 %% Read and draw
 
 lens = lensC('filename','wide.56deg.6.0mm.json');
-lens.apertureSample = [901 901];
+lens.apertureSample = [601 601];
 % lens.draw; grid on; title('')
 
 %%  Set up point, lens, film
