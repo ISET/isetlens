@@ -41,7 +41,14 @@ camera.get('film position')
 nLines = 100;  % Do not draw the rays if 0.
 jitter = true;
 camera.estimatePSF(nLines,jitter);
-set(gca,'xlim',[-15 6]);
+
+% Set x axis to 1 millimeter beyond the film and 15 mm in front of the
+% lens
+xFilm = camera.get('film distance');
+yFilm = get(gca,'ylim');
+hLine = line([xFilm xFilm],yFilm,'LineStyle',':','Color',[0.2 0 0.5]);
+set(gca,'xlim',[-15 (camera.get('film distance') + 1)]);
+
 %% The oi is very dim
 
 oi = camera.oiCreate;

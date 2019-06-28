@@ -90,16 +90,16 @@ classdef psfCameraC <  handle
                     % obj.get('image centroid')
                     % x,y positions (0,0) is center of the image centroid.
                     % Used for calculating centroid of the psf
-
+                    
                     % Figure out center pos by calculating the centroid of illuminance image
                     flm = obj.film;
                     img = flm.image;  img = sum(img,3);
-
+                    
                     % Force to unit area and flip up/down for a point spread
                     img = img./sum(img(:));
                     img = flipud(img);
                     % vcNewGraphWin; mesh(img);
-
+                    
                     % Calculate the weighted centroid/center-of-mass
                     xSample = linspace(-flm.size(1)/2, flm.size(1)/2, flm.resolution(1));
                     ySample = linspace(-flm.size(2)/2, flm.size(2)/2, flm.resolution(2));
@@ -109,48 +109,48 @@ classdef psfCameraC <  handle
                     val.X = sum(sum(img .* filmDistanceX));
                     val.Y = sum(sum(img .* filmDistanceY));
                     
-                 case {'blackboxmodel','blackbox','bbm'} % equivalent BLACK BOX MODEL
-                     if nargin>2
-                         fileType = varargin{1};  %witch field of the black box to get
-                     else
-                         error('Specify also the field of the Black Box Model!')
-                     end
-                     
-                     if nargin>3                         
+                case {'blackboxmodel','blackbox','bbm'} % equivalent BLACK BOX MODEL
+                    if nargin>2
+                        fileType = varargin{1};  %witch field of the black box to get
+                    else
+                        error('Specify also the field of the Black Box Model!')
+                    end
+                    
+                    if nargin>3
                         [val]=obj.bbmGetValue(fileType,varargin{2});
-                     else                         
+                    else
                         [val]=obj.bbmGetValue(fileType);
-                     end
-                     
-                     % val = obj.bbmGetValue(obj.BBoxModel,fileType);
-                        
-                   case {'opticalsystem'; 'optsyst';'opticalsyst';'optical system structure'} 
+                    end
+                    
+                    % val = obj.bbmGetValue(obj.BBoxModel,fileType);
+                    
+                case {'opticalsystem'; 'optsyst';'opticalsyst';'optical system structure'}
                     % Get the equivalent optical system structure generated
-                    % by Michael's script      
+                    % by Michael's script
                     % You can specify refractive indices for object and
                     % image space using varargin {1} and {2}
                     if nargin >2
                         n_ob = varargin{1};    n_im = varargin{2};
                         OptSyst = obj.lens.bbmComputeOptSyst(n_ob,n_im);
                     else
-                        OptSyst = obj.lens.bbmComputeOptSyst();                    
+                        OptSyst = obj.lens.bbmComputeOptSyst();
                     end
                     val = OptSyst;
                     
-                 case {'imagingsystem'; 'imgsyst';'imagingsyst';'imaging system structure'} 
+                case {'imagingsystem'; 'imgsyst';'imagingsyst';'imaging system structure'}
                     % Get the equivalent imaging system structure generated
-                    % by Michael's script      
+                    % by Michael's script
                     % You can specify refractive indices for object and
                     % image space using varargin {1} and {2}
                     % Get inputs
-
+                    
                     pSource=obj.pointSource;
                     %COMPUTE OPTICAL SYSTEM
                     if nargin >2
                         n_ob = varargin{1};    n_im = varargin{2};
                         OptSyst = obj.lens.get('optical system',n_ob,n_im);
                     else
-                        OptSyst = obj.lens.get('optical system');                  
+                        OptSyst = obj.lens.get('optical system');
                     end
                     unit=paraxGet(OptSyst,'unit');
                     
@@ -161,44 +161,48 @@ classdef psfCameraC <  handle
                     F.pp = obj.film.size; %um x um
                     
                     %CREATE an Imaging System
-                   [ImagSyst]=paraxOpt2Imag(OptSyst,F,pSource,unit);       
-                   
-                   % SET OUTPUT
+                    [ImagSyst]=paraxOpt2Imag(OptSyst,F,pSource,unit);
+                    
+                    % SET OUTPUT
                     val = ImagSyst;
                     
-                 case {'film'} 
-                    % get the film structure   
+                case {'film'}
+                    % get the film structure
                     val = obj.film;
                 case {'filmposition'}
                     % Distance to the film
                     val = obj.film.position;
-                case {'pointsource';'psource';'lightsource'} 
-                    % get the point source in the psfCamera   
+                case {'filmdistance'}
+                    val = obj.film.position(3);
+                case {'pointsource';'psource';'lightsource'}
+                    % get the point source in the psfCamera
                     val = obj.pointSource;
-                case {'lens'} 
-                    % get the lens the psfCamera   
-                     val = obj.lens;
-                case {'fftpsf';'psffft'} 
-                    % get the fftPSF 
-                     val = obj.fftPSF;   
-                 case {'fftpsfmodulus';'psffftvalue'} 
-                      % get the fftPSF modolus, 
-                      % Specifying the wavelength if you want a specific PSF
-                    if nargin>2
-                        wave0=varargin{1};
-                        waveV=obj.get('wave');
+                case {'lens'}
+                    % get the lens the psfCamera
+                    val = obj.lens;
+                case {'fftpsf';'psffft'}
+                    % get the fftPSF
+                    val = obj.fftPSF;
+                case {'fftpsfmodulus';'psffftvalue'}
+                    % get the fftPSF modolus,
+                    % Specifying the wavelength if you want a specific PSF
+                    if nargin > 2
+                        wave0 = varargin{1};
+                        wave  = obj.get('wave');
                         indW0=find(wave==wave0);
                         if isempty(indW0)
-                            val=obj.fftPSF.abs;
+                            val = obj.fftPSF.abs;
                             warning (['The specified wavelength does match with the available ones: ',num2str(wave) ,' nm'])
                         else
-                            val=obj.fftPSF.abs(:,:,indW0);
+                            val = obj.fftPSF.abs(:,:,indW0);
                         end
+                        return;
                     end
+                    % All wavelengths?
                     val=obj.fftPSF.abs;
-                    case {'fftpsfcoordinate';'psffftcoord'} 
-                      % get the fftPSF coord, 
-                      % Specifying the wavelength if you want a specific PSF
+                case {'fftpsfcoordinate';'psffftcoord'}
+                    % get the fftPSF coord,
+                    % Specifying the wavelength if you want a specific PSF
                     if nargin>2
                         wave0=varargin{1};
                         waveV=obj.get('wave');
@@ -221,24 +225,24 @@ classdef psfCameraC <  handle
         end
         
         %%
-         function val = set(obj,param,val,varargin)
+        function val = set(obj,param,val,varargin)
             % psfCamera.set('parameter name',value)
             % Start to set up the gets for this object
-
+            
             % We should adjust this so that if the first word is lens or
             % film we call the lens.set or film.set routine.
             param = ieParamFormat(param);
             switch param
-                case {'pointsource';'psource';'lightsource'} 
-                    % set the point source in the psfCamera   
+                case {'pointsource';'psource';'lightsource'}
+                    % set the point source in the psfCamera
                     obj.pointSource= val;
-
-                case {'lens'} 
-                    % set the filmin the psfCamera   
+                    
+                case {'lens'}
+                    % set the filmin the psfCamera
                     obj.lens= val;
-
-                case {'film'} 
-                    % set the film in the psfCamera   
+                    
+                case {'film'}
+                    % set the film in the psfCamera
                     obj.film = val;
                 case {'filmposition'}
                     obj.film.position = val;
@@ -284,11 +288,11 @@ classdef psfCameraC <  handle
                     
                     % abcd Matrix (Paraxial)
                     % The 4 coefficients of the ABCD matrix of the overall
-                    % system 
-                    M = ImagSyst.matrix.abcd; 
+                    % system
+                    M = ImagSyst.matrix.abcd;
                     obj.bbmSetField('abcd',M);
                     
-                    % IMAGE FORMATION                    
+                    % IMAGE FORMATION
                     % Effective F number
                     Fnum=ImagSyst.object{end}.Radiance.Fnumber.eff; %effective F number
                     obj.bbmSetField('fnumber',Fnum);
@@ -303,7 +307,7 @@ classdef psfCameraC <  handle
                     
                     % Lateral magnification
                     magn_lateral=ImagSyst.object{end}.ConjGauss.m_lat; %
-                    obj.bbmSetField('lateralmagnification',magn_lateral);                                   
+                    obj.bbmSetField('lateralmagnification',magn_lateral);
                     
                     % Exit Pupil
                     ExitPupil.zpos=mean(ImagSyst.object{end}.Radiance.ExP.z_pos,2)-z0;
@@ -313,13 +317,13 @@ classdef psfCameraC <  handle
                     % Entrance Pupil
                     EntrancePupil.zpos=mean(ImagSyst.object{end}.Radiance.EnP.z_pos,2)-z0;
                     EntrancePupil.diam=ImagSyst.object{end}.Radiance.EnP.diam(:,1)-ImagSyst.object{end}.Radiance.EnP.diam(:,2);
-                    obj.bbmSetField('entrancepupil',EntrancePupil);                    
+                    obj.bbmSetField('entrancepupil',EntrancePupil);
                     
                     % Gaussian Image Point
                     iP_zpos=ImagSyst.object{end}.ConjGauss.z_im-z0; %image point z position
                     iP_h=psPolar(1).*magn_lateral;% image point distance from the optical axis
                     [iP(:,1),iP(:,2),iP(:,3)]=coordPolar2Cart3D(iP_h,psPolar(2),iP_zpos);
-                    obj.bbmSetField('gaussianimagepoint',iP);                    
+                    obj.bbmSetField('gaussianimagepoint',iP);
                     
                     % Aberration
                     % Primary Aberration
@@ -327,12 +331,12 @@ classdef psfCameraC <  handle
                     obj.bbmSetField('primaryaberration',paCoeff);
                     
                     % Defocus
-                    [obj_x,obj_y,obj_z]=coordPolar2Cart3D(psPolar(1),psPolar(2),psPolar(3)); 
-                    Obj.z=obj_z+paraxGet(ImagSyst,'lastVertex'); 
+                    [obj_x,obj_y,obj_z]=coordPolar2Cart3D(psPolar(1),psPolar(2),psPolar(3));
+                    Obj.z=obj_z+paraxGet(ImagSyst,'lastVertex');
                     Obj.y=sqrt(obj_x.^2 + obj_y.^2); % eccentricity (height)
                     [defCoeff] = paEstimateDefocus(ImagSyst,Obj,'best');
                     obj.bbmSetField('defocus',defCoeff);
-                                        
+                    
                     % REFRACTIVE INDEX
                     % object space
                     n_ob=ImagSyst.n_ob;
