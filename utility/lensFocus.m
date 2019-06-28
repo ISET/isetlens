@@ -1,32 +1,38 @@
-function filmDistance = lensFocus( lensFileName, objDistance )
+function [filmDistance, lens] = lensFocus( lensFileName, objDistance )
 % Compute the film distance to bring a point at object distance into focus
 %
 % Syntax
 %
 % Inputs:
-%   lensFileName - Either a dat or JSON file, I think
-%   objDistance -  In millimeters, I think
+%   lensFileName - A dat file.  Testing for JSON file
+%   objDistance -  Object distance (millimeters)
 %
 % Optional
 %
 % Returns
-%   filmDistance - for best focus, in millimeters, I think
-%
+%   filmDistance - Film distance for best focus (millimeters)
+%   lens         - lens object created from the name
+
 % Refer to CISET t_autofocus.m
 %
 % See also
 %   lensFocus,
 
 %{
-   
+  lensFileName = '2ElLens.json';
+  objDistance = 100;
+  [filmDistJ, lensJ] = lensFocus(lensFileName,objDistance);
+%}
+%{
+  lensFileName = '2ElLens.dat';
+  objDistance = 100;
+  [filmDistD, lensD] = lensFocus(lensFileName,objDistance);
 %}
 
 %%  Initialize a point and a camera
 
 point{1} = [0 0 -objDistance];
 
-% This human eye model has a focal length of 16.5 mm, which we confirm when
-% running ray trace in PBRT and ray trace in CISET. See -
 lens = lensC('fileName',lensFileName);
 
 film = filmC;

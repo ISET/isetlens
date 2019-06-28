@@ -38,11 +38,17 @@ obj.surfaceArray = surfaceC();
 %% Compute surface array centers
 centers = obj.centersCompute(sOffset, sRadius);
 
-for i = 1:length(sOffset)
-    obj.surfaceArray(i) = ...
-        surfaceC('sCenter', centers(i, :), ...
-        'sRadius', sRadius(i), ...
-        'apertureD', sAperture(i), 'n', sN(i, :));
+for ii = 1:length(sOffset)
+    obj.surfaceArray(ii) = ...
+        surfaceC('sCenter', centers(ii, :), ...
+        'sRadius', sRadius(ii), ...
+        'apertureD', sAperture(ii), 'n', sN(ii, :));
+    if sRadius(ii) == 0
+        obj.surfaceArray(ii).subtype = 'diaphragm';
+    else
+        obj.surfaceArray(ii).subtype = 'spherical';
+    end
+    
 end
 
 end
