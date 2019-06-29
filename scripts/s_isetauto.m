@@ -7,40 +7,36 @@
 %%
 ieInit
 
-%% Create lens and draw it.
-% Also set the number of sample rays to use for the calculation and
-% set the middle aperture diameter.
+%% Create lens 
+%
+% Also set the number of sample rays to use for the calculation.
 
 lens = lensC('filename','wide.56deg.6.0mm.json');
-lens.apertureSample = [901 901];          % Number of samples at first lens
-lens.set('middle aperture diameter',2);   % Two millimeter central aperture
+lens.apertureSample = [601 601];          % Number of samples at first lens
 
 % lens.draw; grid on; title('')
 
 %%  Set up point, lens, film
 
 [pt, ~, film] = ilInitPLF;
-pt{1} = [0, 0,-10^6];      % For a point that is far away
-film.size = [0.5 0.5];   % A small bit of film, in millimeters
-
-%% Not sure why this is here
-
-% lens.bbmCreate;
+pt{1}     = [0, 0, -10^6];  % For a point that is far away
+film.size = [0.05 0.05];    % A small bit of film, in millimeters
 
 %% The film is put at the focal length
 camera = psfCameraC('lens',lens,'point source',pt,'film',film);
 
-% Changing the film position should blur the image.  But it is not working.
-% Why?
-%{
-camera.set('film position',[0 0 3.3]);
-%}
-% The auto focus puts it at the focal length.
-% You can check this with lens.get('focal length')
+% The auto focus puts the film at the focal length.
 % {
-camera.autofocus(500,'nm');
+camera.autofocus(550,'nm');
 %}
-camera.get('film position')
+
+%{
+% You could set the value differently, if you like.
+camera.set('film position',[0 0 2.8]);
+%}
+
+fprintf('Film distance:\t%f\nFocal length:\t%f\n',...
+    camera.get('film distance'),lens.get('focal length'));
 
 %% Not sure how to control the quality here
 
@@ -57,10 +53,9 @@ set(gca,'xlim',[-15 (camera.get('film distance') + 1)]);
 
 %% The oi illuminance level is arbitrary
 
-oi = camera.oiCreate;
-oi = oiSet(oi,'mean illuminance',10);
-
+oi = camera.oiCreate('mean illuminance',5);
 oiWindow(oi);
+
 oiPlot(oi,'illuminance mesh linear');
 
 %% Approximate the size of the point image on the sensor
@@ -87,14 +82,14 @@ psArea = sum(ill(:))*sampleSpacing(1);   % This is the pointspread area in meter
 psDiameter = 2*(psArea/pi)^0.5;   % Diameter in microns
 fprintf('\nPoint spread diameter %f um\n',psDiameter);
 
-%% The sensor really sees just a single spot
-%
-% One super-pixel is covered
+%% Render for a sensor with big pixels
 
 sensor = sensorCreate('MT9V024');       % This is a 6 um sensor
 sensor = sensorSetSizeToFOV(sensor,2);  % Make it small
 sensor = sensorCompute(sensor,oi);
-sensorWindow(sensor);
+
+% Bring up the window, with the display intensity scaled to max
+sensorWindow(sensor,'scale',1);
 
 %%
 
