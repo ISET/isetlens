@@ -42,7 +42,7 @@ function [filmDistance, lens] = lensFocus(lensDescription, objDistance, varargin
 
 %% Set up the key parameters
 p = inputParser;
-p.addRequired('lendsDescription',@(x)(ischar(x) || isa(x,'lensC')));
+p.addRequired('lensDescription',@(x)(ischar(x) || isa(x,'lensC')));
 p.addRequired('objDistance',@isnumeric);
 p.addParameter('wavelength',550,@isnumeric);
 
@@ -63,7 +63,7 @@ film = filmC;
 
 camera = psfCameraC('lens',lens,'film',film,'pointsource',point);
 
-%%  Find the film focal length for this wavelength
+%%  Find the film focal length (mm) for this wavelength
 
 % Call autofocus, setting the indices of refraction of air and water
 camera.autofocus(wavelength,'nm',1,1);

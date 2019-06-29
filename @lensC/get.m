@@ -107,7 +107,8 @@ switch pName
         
         % System properties
     case {'focallength'}
-        % Film distance for a point at infinity
+        % Film distance for a point at infinity.  
+        % Units are millimeters.
         % lens.get('focal length')
         % lens.get('focal length',600)
         if isempty(varargin), wave = 550; 
