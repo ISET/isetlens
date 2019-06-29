@@ -1,14 +1,16 @@
 function estimatePSF(obj,nLines, jitterFlag, subsection, diffractionMethod, rtType)
 % Estimate the psfCamera point spread function (PSF)
 %
+% Syntax:
 %   psfCamera.estimatePSF(obj)
 %
-% The psf camera has a cell array of point sources, a lens, and a film
-% surface.  This calculates the images from each of the points in the
-% psfCamera object and then saves the result by calling 'recordOnFilm',
-% which is part of the ray object.
+% Description:
+%  The psf camera has a cell array of point sources, a lens, and a film
+%  surface.  This method calculates the images from each of the points in
+%  the psfCamera object and saves the result by calling 'recordOnFilm',
+%  a ray object method.
 %
-%
+% Inputs:
 %  obj:          psfCamera
 %  nLines:       Show an image of the ray trace lines (0 is none).
 %  jitterFlag:   Jitter position of rays, not regularly sample
@@ -16,13 +18,17 @@ function estimatePSF(obj,nLines, jitterFlag, subsection, diffractionMethod, rtTy
 %  diffractionMethod: Two methods are implemented, Huygens and HURB
 %  rtType:            Realistic or ideal
 %
-% You can visualize it using the optical image derived from the psfCamera
+% You can visualize the point spread using the optical image derived from
+% the psfCamera
 %
-%   psfCamera.oiCreate();
-%
-% Examples:
+%   oi = psfCamera.oiCreate(varargin);
 %
 % AL/BW Vistasoft Team, Copyright 2014
+%
+% See also:
+%  s_isetauto.m
+
+%% Old fashioned parameter decoding
 
 if notDefined('nLines'),     nLines = false;     end
 if notDefined('jitterFlag'), jitterFlag = false; end

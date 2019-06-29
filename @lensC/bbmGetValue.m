@@ -42,7 +42,7 @@ function val = bbmGetValue(obj,param)
 %
 % MP Vistasoft 2014
 
-% Get Black Box equivalente Model
+% Get equivalent Black Box Model
 
 BBoxModel = obj.BBoxModel;
 if isempty (BBoxModel)

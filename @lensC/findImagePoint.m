@@ -1,13 +1,20 @@
 function [iPoint]=findImagePoint(obj,pSource,n_ob,n_im)
-% Find the image point for a given object point 
+% Find the image point for a point source in object space
 %
+% Syntax:
 %   [iPoint] = lens.findImagePoint(obj,pSource,n_ob,n_im)
 %
 % Description:
-%  Find the image location given a point (pSource) in the object space for
-%  each of the wavelengths of the point source. This method works when the
-%  imaging system specification has known principal points (in object space
-%  and image space).
+%  Find the image location of a point (pSource) in object space.
+%  Particularly useful for determining the film distance required to
+%  bring a position in object space into focus.
+%
+%  This position is calculated for each of the wavelengths of the
+%  point source. 
+%
+%  This method works when the imaging system specification has known
+%  principal points (in object space and image space); these are
+%  computed by the 'Black Box Model' (bbmCreate) method.
 %
 % Inputs:
 %   obj:         a lensC object
@@ -20,14 +27,17 @@ function [iPoint]=findImagePoint(obj,pSource,n_ob,n_im)
 %
 % Outputs:
 %  iPoint:  A matrix, with each row containing the image point for a
-%      different wavelength
-%      [iPoint (wave)]= [x y z] (wave)
+%           different wavelength
+%           [iPoint (wave)]= [x y z] (wave)
 %
-%  MP Vistasoft 2014
+% MP Vistasoft 2014
 %
-% See also:  psfCameraC.autofocus, psfCameraCBBoxModel
+% See also:  
+%  psfCameraC.autofocus, psfCameraCBBoxModel
 
-%% CHECK IF BLACK BOX MODEL is EMPTY and (eventually) FILL THAT
+%% CHECK THE BLACK BOX MODEL
+%
+% If it is empty, create it
 if isempty(obj.BBoxModel), obj.bbmCreate(n_ob,n_im); end
 
 %% GET POINT SOURCE POLAR COORDINATEs
@@ -35,19 +45,19 @@ if isempty(obj.BBoxModel), obj.bbmCreate(n_ob,n_im); end
 % get image coordinate in polar coordinate
 % Matlab has a cart2pol.  See the difference.  Maybe use theirs after
 % verifying.
-[ps_height,ps_angle,ps_zpos]=coordCart2Polar3D(pSource(1),pSource(2),pSource(3)); 
+[ps_height,ps_angle,ps_zpos] = coordCart2Polar3D(pSource(1),pSource(2),pSource(3)); 
 
 %% GET LENS PARAMETERs
 
-%principal point in the object space
+% Principal point in the object space
 H_obj = obj.bbmGetValue('object principal point');
 % Hobj=result2.cardinalPoint.ObjectSpace.principalPoint; 
 
-%principal point in the image space
+% Principal point in the image space
 H_im = obj.bbmGetValue('image principal point'); 
 % Him=result2.cardinalPoint.ImageSpace.principalPoint; 
 
-%Focal length
+% Focal length
 focalLength = obj.bbmGetValue('effective focal length'); 
 % focalLength=result2.focallength; %effective focal length
 
@@ -60,7 +70,10 @@ focalLength = obj.bbmGetValue('effective focal length');
 d_ob = H_obj - ps_zpos; 
 
 % distance between image point and related principal point (H_im)
-% equation    n_ob/d_ob  + n_im/d_im =1/efl
+% equation    
+%
+%  n_ob/d_ob  + n_im/d_im = 1/efl
+%
 P    = 1./focalLength;   %optical power
 T1   = P - (n_ob./d_ob);
 d_im = n_im./T1; 
@@ -77,8 +90,8 @@ ip_height = ps_height.*m_lat; %image point distance from the optical axis
 
 % The image point is returned in Cartesian coordinates.
 % The image position should generally be positive.
-% Anything else we could check on?
-% Also, shouldn't we be position cart2pol?
+% Anything else we could check?
+% Also, when we change to cart2pol above, change it here, too.
 [iPoint(:,1),iPoint(:,2),iPoint(:,3)] = coordPolar2Cart3D(ip_height,ps_angle,ip_zpos);
 
 % iPoint=[ip_xpos ip_ypos ip_zpos]; 

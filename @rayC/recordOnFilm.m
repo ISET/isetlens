@@ -87,33 +87,72 @@ elseif(isa(film, 'filmC'))
 else
     error('Invalid film type detected.');
 end
-
-% Count the photons incident on the film at different pixel positions
-
-% MAKE THIS A FUNCTION WITH COMMENTS in utility.
-% say rays2image
+% At this point the positions are recorded in millimeters at the film.
+%  imagePixel.position(:,1) is the x-value on the film in millimeters
+%  and (:,2) is the y-value on the film.
 %
-% This line takes a raw dimension and converts it to a position in
-% terms of pixels
+% ieNewGraphWin; histogram(imagePixel.position(:,1),100);
+
+% Count the number of rays incident on the film at different pixel
+% positions.  This makes a histogram of the rays within each of the
+% bins form the film size and number of film resolution.
+%
+% MAKE THIS A FUNCTION WITH COMMENTS in utility, say rays2image
+%
+% This code takes the locations specified in millimeters and converts
+% them to a film location specified in terms of the film pixels (size and
+% resolution).
+
+% Position  is in millimeters
+% film.size is in millimeters
+% film.resolution is the number of samples across the film
+%
+%{
+sampleSpacing = film.size ./ film.resolution;
+nPositions    = size(imagePixel.position,1);
+imageMiddle   = -film.position(2:-1:1) / sampleSpacing(2) + (film.resolution(2:-1:1) + 1) ./2;
+
+% Position in millimeters is converted to pixel location in the film
+% image by
+%    Position / sampleSpacing + middlePixel
+% So, something at (0,0) goes to the middlePixel
+% Suppose the film is size is 0.5 mm, and the ray is -0.25 mm, then
+% the position in the image is 
+%
+% The first term gives us the sample position as a
+% negative-to-positive value and the second term centers the sample
+% position to 1-positive
+imagePixel.position = ...
+    round(imagePixel.position / sampleSpacing(2) + ...
+    repmat(imageMiddle, [nPositions 1]));
+%}
+% {
+% Older code
 imagePixel.position = ...
     round(imagePixel.position * film.resolution(2)/film.size(2) + ...
     repmat(-film.position(2:-1:1)*film.resolution(2)/film.size(2)  + ...
-    (film.resolution(2:-1:1) + 1)./2, [size(imagePixel.position,1) 1]));   %
+    (film.resolution(2:-1:1) + 1)./2, [size(imagePixel.position,1) 1]));
+% ieNewGraphWin; histogram(imagePixel.position(:,2),100);
+%}
 
 imagePixel.wavelength = liveRays.get('wavelength');
 
 convertChannel = liveRays.waveIndex;
 
-%wantedPixel is the pixel that we wish to add 1 photon to
-%pixel to update
+%wantedPixel is the pixel that we wish to add 1 photon to pixel to update
 wantedPixel = [imagePixel.position(:, 1) imagePixel.position(:,2) convertChannel];
 
-recordablePixels =and(and(and(wantedPixel(:, 1) >= 1,  wantedPixel(:,1) <= film.resolution(1)), (wantedPixel(:, 2) > 1)), wantedPixel(:, 2) <= film.resolution(2));
+recordablePixels = ...
+    and(and(and(wantedPixel(:, 1) >= 1,  wantedPixel(:,1) <= film.resolution(1)), ...
+        (wantedPixel(:, 2) > 1)), ...
+        wantedPixel(:, 2) <= film.resolution(2));
 
-%remove the nonrecordable pixels
+% Remove the nonrecordable pixels
 wantedPixel = wantedPixel(recordablePixels, :);
+% ieNewGraphWin; 
+% plot(wantedPixel(:,1,:),wantedPixel(:,2,:),'o');
 
-%correct for y coordinates
+% Correct for y coordinates
 wantedPixel(:, 1) =  film.resolution(1) + 1 - wantedPixel( :, 1);
 
 %make a histogram of wantedPixel in anticipation of adding

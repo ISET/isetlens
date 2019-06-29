@@ -2,6 +2,7 @@ function res = get(obj,pName,varargin)
 % Get various derived lens properties though this call
 pName = ieParamFormat(pName);
 switch pName
+    % Lens general parameters
     case 'name'
         res = obj.name;
     case 'wave'
@@ -10,6 +11,8 @@ switch pName
         res = length(obj.wave);
     case 'type'
         res = obj.type;
+        
+        % Surface parameters
     case {'nsurfaces','numels'}
         % Should be nsurfaces
         res = length(obj.surfaceArray);
@@ -19,16 +22,6 @@ switch pName
         % position of the first surface is the total size.
         sArray = obj.surfaceArray;
         res    = -1*sArray(1).get('zpos');
-        
-        % We have a special case when rt is the ideal.
-        % Not handled properly yet.  Need a validation for the
-        % 'ideal' case.
-        %
-        %   if strcmp(rtType,'ideal')
-        %   % The 'ideal'thin lens has a front surface at
-        %            res = 0;
-        %   end
-        
     case 'offsets'
         % Offsets format (like PBRT files) from center/zPos
         % data
@@ -38,7 +31,6 @@ switch pName
         if isempty(varargin), res = obj.surfaceArray;
         else,                 res = obj.surfaceArray(varargin{1});
         end
-        
     case {'indexofrefraction','narray'}
         nSurf = obj.get('nsurfaces');
         sWave = obj.surfaceArray(1).wave;
@@ -72,7 +64,6 @@ switch pName
         for ii = 1:length(lst)
             res(:,ii) = obj.surfaceArray(lst(ii)).n(:);
         end
-        
     case 'sradius'
         % spherical radius of curvature of this surface.
         % lens.get('sradius',whichSurface)
@@ -100,22 +91,42 @@ switch pName
             end
         end
     case 'aperturesample'
+        % Number of samples of the aperture?   Not sure.
         res =  obj.apertureSample ;
-    case {'middleapertured','aperturemiddled'}
-        % The middle aperture is the diameter of the diaphragm,
-        % which is normally the middle aperture.  We should
-        % change this somehow for clarity.  Or we should find
-        % the diaphragm and return its diameter.
+    case {'middleapertured','aperturemiddled','diaphragmdiameter'}
+        % There is normally a middle aperture, called a diaphragm. This is
+        % the diameter of that aperture (diaphragm). But this formulation
+        % is not really consistent with the 'get' for the 'diaphragm' (see
+        % above).  Here, we are assuming that the diagram is stored in this
+        % slot.  Confusing to me.
         %
-        % The diameter of the middle aperture
+        % Possibly, we should find the diaphragm and return its diameter.
+        %
         % units are mm
         res = obj.apertureMiddleD;
         
-    case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
-        param=varargin{1};  %witch field of the black box to get
+        % System properties
+    case {'focallength'}
+        % Film distance for a point at infinity.  
+        % Units are millimeters.
+        % lens.get('focal length')
+        % lens.get('focal length',600)
+        if isempty(varargin), wave = 550; 
+        else, wave = varargin{1};
+        end
+        % A billion millimeters seems far enough for a focal length
+        % We could run a billion and 10 billion and check for no
+        % difference.
+        res = lensFocus(obj,10^9,'wavelength',wave);  
+    case {'blackboxmodel';'blackbox';'bbm'}
+        % The BLACK BOX MODEL (bbm).
+        % lens.get('bbm',param)
+        param = varargin{1};  % Which field of the black box to get
         res = obj.bbmGetValue(param);
         
-    case {'lightfieldtransformation';'lightfieldtransf';'lightfield'} % equivalent BLACK BOX MODEL
+    case {'lightfieldtransformation';'lightfieldtransf';'lightfield'}
+        % The light field parameters (ABCD) of the BLACK BOX MODEL
+        % lens.get('light field transformation','2d');
         if nargin >2
             param = varargin{1};  %witch field of the black box to get
             param = ieParamFormat(param);
@@ -124,26 +135,25 @@ switch pName
                     res = obj.bbmGetValue('abcd');
                 case {'4d'}
                     abcd = obj.bbmGetValue('abcd');
-                    nW=size(abcd,3);
-                    dummy=eye(4);
+                    nW = size(abcd,3);
+                    dummy = eye(4);
                     abcd_out = zeros(2,2,nW);
                     for li=1:nW
                         abcd_out(:,:,li)=dummy;
                         abcd_out(1:2,1:2,li)=abcd(:,:,li);
                     end
-                    res=abcd_out;
+                    res = abcd_out;
                 otherwise
-                    error(['Not valid :',param ,' as type for  Light Field tranformation']);
+                    error('Unknown parameter: %s',param);
             end
         else
             res = obj.bbmGetValue('abcd');
         end
-        
     case {'opticalsystem'; 'optsyst';'opticalsyst';'optical system structure'}
-        % Get the equivalent optical system structure generated
-        % by Michael's script
-        % Can be specify refractive indices for object and
-        % image space as varargin {1} and {2}
+        % The optical system structure generated by Michael Pieroni's
+        % script.
+        % lens.get('optical system',n_ob,n_im);
+        % lens.get('optical system');   % In this case n_ob and n_im are 1
         if nargin >2
             n_ob=varargin{1};    n_im=varargin{2};
             OptSyst=obj.bbmComputeOptSyst(n_ob,n_im);
@@ -155,4 +165,5 @@ switch pName
     otherwise
         error('Unknown parameter %s\n',pName);
 end
+
 end

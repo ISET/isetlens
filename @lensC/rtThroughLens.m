@@ -54,7 +54,7 @@ apertureCount = 0;    % We check that there is only 1 aperture
 if ~isstruct(nLines),                     samps = randi(nRays,[nLines,1]);
 elseif strcmp(nLines.spacing, 'uniform'), samps = round(linspace(1, nRays, nLines.numLines));
 elseif strcmp(nLines.spacing,'random'),   samps = randi(nRays,[nLines.numLines,1]);
-else    error('Unknown spacing parameter %s\n',nLines.spacing);
+else,  error('Unknown spacing parameter %s\n',nLines.spacing);
 end
 if ~isempty(samps)
     rays.drawSamples = samps;
@@ -85,18 +85,20 @@ for lensEl = 1:nSurfaces
         radicand = dot(rays.direction, rays.origin - repCenter, 2).^2 - ...
             ( dot(rays.origin - repCenter, rays.origin - repCenter, 2)) + repRadius.^2;
         
-        % Calculate something about the ray angle with respect
-        % to the current surface.  AL to figure this one out
-        % and put in a book reference.
+        % Calculate something about the ray angle with respect to the
+        % current surface.  AL to figure this one out and put in a
+        % book reference.
         if (curEl.sRadius < 0)
             intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) + sqrt(radicand));
         else
             intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) - sqrt(radicand));
         end
         
-        %make sure that intersectT is > 0
-        if (min(intersectT(:)) < 0)
-            fprintf('intersectT less than 0 for lens %i',lensEl);
+        % Test that intersectT is real.  Why are there imaginary
+        % terms?  I think these are rays that do not make it through
+        % the pathway.
+        if (~isreal(intersectT(:)))
+            fprintf('Imaginary values intersectT for lens element %d\n',lensEl);
         end
         
         % Figure out the new end point position

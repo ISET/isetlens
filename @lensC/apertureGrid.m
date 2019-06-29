@@ -2,8 +2,8 @@ function aGrid = apertureGrid(obj,varargin)
 % Find the full grid, mask it and return only the (X,Y) positions inside
 % the masked region.
 %
-% This is the usual set of positions that we use for calculating light
-% fields.
+% These are the sample positions we use for ray tracing and calculating
+% light fields. 
 %
 % Parameters
 %  randJitter
@@ -14,18 +14,22 @@ function aGrid = apertureGrid(obj,varargin)
 
 %%
 p = inputParser;
+
 p.addRequired('obj',@(x)(isa(obj,'lensC')));
-p.addParameter('randJitter',false,@islogical);
+
+p.addParameter('randJitter',false,@islogical);  % Jitter the grid positions
+
 vFunc = @(x)(isempty(x) || isvector(x));
-p.addParameter('subSection',[],vFunc);
-p.addParameter('rtType',[],@ischar);
+p.addParameter('subSection',[],vFunc); % Trace only a portion of the ???
+p.addParameter('rtType',[],@ischar);   % Type of ray trace
 
 p.parse(obj,varargin{:});
 
 randJitter = p.Results.randJitter;
 subSection = p.Results.subSection;
-rtType = p.Results.rtType;
+rtType     = p.Results.rtType;
 
+%%
 if isempty(subSection)
     % Realistic or ideal ray trace type (rtType)
     aGrid = fullGrid(obj,randJitter, rtType);
