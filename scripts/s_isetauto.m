@@ -19,20 +19,25 @@ lens.apertureSample = [601 601];          % Number of samples at first lens
 %%  Set up point, lens, film
 
 [pt, ~, film] = ilInitPLF;
-pt{1}     = [0, 0, -10^6];  % For a point that is far away
-film.size = [0.05 0.05];    % A small bit of film, in millimeters
+pt{1}     = [0, 0, -10^6];          % For a point that is far away
+film.size = [0.5 0.5];              % A small bit of film, in millimeters
+film.resolution = film.size*1e3;    % 1 micron per sample, keeps the estimate constant
 
 %% The film is put at the focal length
 camera = psfCameraC('lens',lens,'point source',pt,'film',film);
 
 % The auto focus puts the film at the focal length.
-% {
+%{
 camera.autofocus(550,'nm');
 %}
 
-%{
+% {
 % You could set the value differently, if you like.
-camera.set('film position',[0 0 2.8]);
+% 0  microns is the in focus plane for this distant point
+% 50 microns blurs a bunch (0.05)
+% 100 microns is much more than a bunch (0.10)
+focalLength = lens.get('focal length');
+camera.set('film position',[0 0 focalLength + 0.1]);
 %}
 
 fprintf('Film distance:\t%f\nFocal length:\t%f\n',...
