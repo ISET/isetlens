@@ -1,33 +1,43 @@
 function aGrid = apertureGrid(obj,varargin)
-% Find the full grid, mask it and return only the (X,Y) positions inside
-% the masked region.
+% Specify a sampling grid on the first surface of the multi-element lens.%
+% 
+% Brief description
+%  Returns the (X,Y) positions inside a region on the front surface.
+%  These sample positions are used for the subsequent ray tracing. We
+%  should be able to specify a sample on the surface (jittered or
+%  regular) as well as just an xFan or yFan on the surface.  Maybe
+%  other shapes?
 %
-% These are the sample positions we use for ray tracing and calculating
-% light fields. 
+% Input
+%  obj -   lensC object
 %
-% Parameters
+% Optional key/values
 %  randJitter
 %  rtType
 %  subSection
 %
+%
+%
 % HB/BW
 
 %%
+varargin = ieParamFormat(varargin);
+
 p = inputParser;
 
 p.addRequired('obj',@(x)(isa(obj,'lensC')));
 
-p.addParameter('randJitter',false,@islogical);  % Jitter the grid positions
+p.addParameter('randjitter',false,@islogical);  % Jitter the grid positions
 
 vFunc = @(x)(isempty(x) || isvector(x));
-p.addParameter('subSection',[],vFunc); % Trace only a portion of the ???
-p.addParameter('rtType',[],@ischar);   % Type of ray trace
+p.addParameter('subsection',[],vFunc); % Trace only a portion of the ???
+p.addParameter('rttype',[],@ischar);   % Type of ray trace
 
 p.parse(obj,varargin{:});
 
-randJitter = p.Results.randJitter;
-subSection = p.Results.subSection;
-rtType     = p.Results.rtType;
+randJitter = p.Results.randjitter;
+subSection = p.Results.subsection;
+rtType     = p.Results.rttype;
 
 %%
 if isempty(subSection)

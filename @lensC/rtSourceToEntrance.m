@@ -59,7 +59,9 @@ switch rtType
         % clarity.
         
     case 'ideal'
-                
+        % Not sure I understand this case.  More comments! (BW)
+        % --------center ray calculation -------
+
         %trace ray from point source to lens center, to image.
         obj.centerRay.origin = pointSource;
         
@@ -67,18 +69,16 @@ switch rtType
         obj.centerRay.direction = [ 0 0 obj.centerZ] - obj.centerRay.origin;
         obj.centerRay.direction = obj.centerRay.direction./norm(obj.centerRay.direction);
         
-        %calculate the z-position of the in-focus plane using
-        %thin lens equation.
+        % Calculate the z-position of the in-focus plane using
+        % thin lens equation.  Should be using lensFocus, I think.
         inFocusDistance = 1/(1/obj.focalLength - -1/pointSource(3));
         
         % Calculates the 3-vector for the in-focus position.
         % The in-focus position is the intersection of the
         % in-focus plane and the center-ray
-        %
         inFocusT = (inFocusDistance - obj.centerRay.origin(3))/obj.centerRay.direction(3);
         obj.inFocusPosition = obj.centerRay.origin + inFocusT .* obj.centerRay.direction;
         
-        % --------center ray calculation -------
     case 'linear'
         % VoLT Method.  Not yet implemented or maybe not needed.  AL to
         % check.
@@ -86,7 +86,6 @@ switch rtType
     otherwise
         error('Unknown ray trace method:  %s\n',rtType)
 end
-
 
 %% Set up the aperture grid on the front surface
 
