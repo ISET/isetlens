@@ -195,18 +195,35 @@ classdef rayC < matlab.mixin.Copyable
                 case 'liverays'
                     % Set the rays without a wavelength to empty  These
                     % remaining rays are the live rays.
-                    %                     val = rayC();
-                    %                     val.copy(obj);
+                    %     val = rayC();
+                    %     val.copy(obj);
+                    %
                     val = obj.copy;
                     liveIndices = val.get('live indices');
                     val.origin(~liveIndices, : ) = [];
                     val.direction(~liveIndices, : ) = [];
                     val.waveIndex(~liveIndices) = [];
-                    
+                case {'fanxindices'}
+                    % Get the indices of rays whose position at the
+                    % input aperture is near [0,Y].  These are the
+                    % most useful rays for tracing through the lens
+                    % diagram.
+                    XY    = obj.aEntranceInt.XY;
+                    % Five percent of the rays
+                    delta = range(XY(:,1))/20;   
+                    val   = find(abs(XY(:,1)) < delta);
+                case {'fanyindices'}
+                    % Get the indices of rays whose position at the
+                    % input aperture is near [X,0].
+                    XY    = obj.aEntranceInt.XY;
+                    % Five percent of the rays
+                    delta = range(XY(:,2))/20;   
+                    val   = find(abs(XY(:,2)) < delta);  
                 case 'origin'
-
-                    %if no additional parameters are given, return raw
-                    %origin matrix
+                    % if no additional parameters are given, return raw
+                    % origin matrix
+                    % Possible additional specifications are
+                    % 'wavelength' and 'live'
                     val = obj.origin;
                     if (mod(length(varargin), 2) ~= 0)
                         error('Incorrect parameter request. \n');
@@ -239,11 +256,10 @@ classdef rayC < matlab.mixin.Copyable
                     end
                     
                 case 'direction'
-                    
                     %if no additional parameters are given, return raw
                     %direction matrix
                     %consider putting this in a function so we don't need
-                    %to define twice
+                    %to define twice (see above).
                     val = obj.direction;
                     if (mod(length(varargin), 2) ~= 0)
                         error('Incorrect parameter request. \n');

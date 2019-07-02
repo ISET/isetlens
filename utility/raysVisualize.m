@@ -5,11 +5,12 @@ function [samps,h] = raysVisualize(origin,endPoint,varargin)
 %
 % Origin points: (X,Y,Z) 
 % End points:    (X,Y,Z)
-% nLines:   Number of samples to draw (an integer), or
-%           a structure.  This is not completely supported yet.  We don't
-%           know if this is necessary though. Leave it here for now. If a
-%           struct the fields are 'spacing' or and 'numLines'.  Spacing can
-%           be either 'uniform' or 'random'
+% nLines:   Number of random samples to draw (an integer), or a string
+%    that guides which of the rays to draw. This is not completely
+%    supported yet.  We don't know if this is necessary though. Leave
+%    it here for now. If a struct the fields are 'spacing' or and
+%    'numLines'.  Spacing can be either 'uniform' or 'random'  or
+%    'midline'.
 % lens:    Lens object
 % threeD:  Show the rays in 3D (default is true)
 % h:       Figure handle
@@ -24,7 +25,7 @@ p = inputParser;
 
 p.addRequired('origin',@ismatrix);
 p.addRequired('endPoint',@ismatrix);
-p.addParameter('nLines',[]);
+p.addParameter('nLines','random');
 p.addParameter('surface',[],@(x)(isa(x,'surfaceC')));
 p.addParameter('fig',[],@(x)(isa(x,'matlab.ui.Figure')));
 p.addParameter('samps',[],@isvector);
@@ -58,8 +59,7 @@ lColor = [0 0.5 1]; % Blue color
 lStyle = '-';       % Solid line
 
 % Which sample rays to visualize
-
-if ~isstruct(nLines) && nRays > 0,                     samps = randi(nRays,[nLines,1]);
+if ~isstruct(nLines) && nRays > 0,        samps = randi(nRays,[nLines,1]);
 elseif strcmp(nLines.spacing, 'uniform'), samps = round(linspace(1, nRays, nLines.numLines));
 elseif strcmp(nLines.spacing,'random'),   samps = randi(nRays,[nLines.numLines,1]);
 else,   error('Unknown spacing parameter %s\n',nLines.spacing);

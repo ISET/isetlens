@@ -89,6 +89,11 @@ end
 
 
 %% Set up the aperture grid on the front surface
+
+% For PSF calculations, we sample across the front aperture fully.
+% But for drawing the rays in an image, we might want to only sample
+% rays along the x-axis or y-axis.  These are the xFan and yFan
+% conditions.
 aGrid = obj.apertureGrid('randJitter',jitterFlag, ...
                          'rtType',rtType, ...
                          'subSection',subSection);

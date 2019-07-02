@@ -37,6 +37,9 @@ if notDefined('diffractionMethod'), diffractionMethod = 'HURB'; end
 if notDefined('rtType'), rtType = 'realistic'; end
 
 if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
+    % This path and what is computed here is no longer clear to me (BW).  
+    %
+    
     % Trace from the point source to the entrance aperture of the
     % multi-element lens
     wbar = waitbar(0,'Huygens wavelength and job');
@@ -60,10 +63,10 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
     % if nLines > 0; obj.rays.draw(obj.film); end
     
     % intersect with "film" and add to film
-    %obj.rays.recordOnFilm(obj.film, nLines);
+    % obj.rays.recordOnFilm(obj.film, nLines);
         
     % Huygens ray-trace portion (PUT THIS IN A FUNCTION)
-    % use a preset sensor size and pitch for now... somehow integrate this
+    % use a preset sensor size and pitch for now ... somehow integrate this
     % with PSF camera later
     binSize = [obj.film.size(1)/obj.film.resolution(1) obj.film.size(2)/obj.film.resolution(2)] .* 1e6;
     numPixels = [obj.film.resolution(1) obj.film.resolution(2)];
@@ -94,7 +97,9 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
         endLocations1DX = linspace(-numPixels(1)/2 * binSize(1), numPixels(1)/2 * binSize(1), numPixels(1));
         endLocations1DY = linspace(-numPixels(2)/2 * binSize(2), numPixels(2)/2 * binSize(2), numPixels(2));
         [endLGridX, endLGridY] = meshgrid(endLocations1DX, endLocations1DY);
-        endLGridXFlat = endLGridX(:);    %flatten the meshgrid
+        
+        %flatten the meshgrid
+        endLGridXFlat = endLGridX(:);    
         endLGridYFlat = endLGridY(:);
         endLGridZFlat = ones(size(endLGridYFlat)) * imagePlaneDist;
         
@@ -148,6 +153,7 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
     close(wbar);
     %End Huygens ray-trace
 else
+    % This is the main and typical path
     
     % There may be more than one point in the camera structure.
     for ii=1:length(obj.pointSource)
