@@ -92,7 +92,8 @@ end
 % For PSF calculations, we sample across the front aperture fully.
 % But for drawing the rays in an image, we might want to only sample
 % rays along the x-axis or y-axis.  These are the xFan and yFan
-% conditions.
+% conditions.  We would use the subSection parameter to define that
+% type of sampling scheme.
 aGrid = obj.apertureGrid('randJitter',jitterFlag, ...
                          'rtType',rtType, ...
                          'subSection',subSection);
@@ -100,7 +101,8 @@ aGrid = obj.apertureGrid('randJitter',jitterFlag, ...
 % These are the end points of the ray in the aperture plane
 ePoints = [aGrid.X(:),aGrid.Y(:),aGrid.Z(:)];
 
-%% Directions from the point source to the end  points in the aperture
+%% Directions from the point source to the end points in the aperture
+
 nPts = size(ePoints,1);
 rays.origin    = repmat(pointSource, [nPts, 1, 1] );
 rays.direction = rayDirection(rays.origin,ePoints);
@@ -222,8 +224,10 @@ rays.aEntranceInt.XY = [aGrid.X(:), aGrid.Y(:)];
 rays.aEntranceInt.Z  = aGrid.Z(1);  % Saves one value only
 rays.aEntranceDir    = rays.direction;
 
-% Initialize the space for the intersection positions (XY) of the rays in
-% the middle aperture and the exit aperture.  They will be stored here.
+% Initialize the memory for the ray intersection positions (XY) in the
+% middle aperture and the exit aperture.  They will be stored here
+% when they are computed at the middle aperture and at the exit
+% aperture.
 rays.aMiddleInt.XY = zeros(length(aGrid.X), 2);
 rays.aExitInt.XY   = zeros(length(aGrid.X), 2);
 

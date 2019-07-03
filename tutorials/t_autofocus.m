@@ -33,9 +33,23 @@ camera.film.position(3)
 
 %% Estimate the PSF and show the ray trace
 nLines = 50;
-jitter = true;
-camera.estimatePSF(nLines,jitter);
-set(gca,'xlim',[-5 20]); grid on
+jitterFlag = true;
+
+% This is the whole point spread function
+camera.estimatePSF(nLines,jitterFlag);
+set(gca,'xlim',[-15 20]); grid on
+
+%%
+% These are for a normalized position on the first aperture, 
+% between [-1 1].  The function scales them to the position of the
+% first aperture diameter.
+
+nLines = 10;
+jitterFlag = false;
+yFan(1) = 0; yFan(3) = 0;
+yFan(2) = -1; yFan(4) = 1;
+camera.estimatePSF(nLines,jitterFlag, yFan);
+set(gca,'xlim',[-15 20]); grid on
 
 %% Next dgauss test case
 lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.6.0mm.dat');

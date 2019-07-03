@@ -239,7 +239,6 @@ for lensEl = 1:nSurfaces
     
     end
    
-    
 end
 
 end

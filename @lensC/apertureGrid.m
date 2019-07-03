@@ -1,5 +1,5 @@
 function aGrid = apertureGrid(obj,varargin)
-% Specify a sampling grid on the first surface of the multi-element lens.%
+% Specify a sampling grid on the first surface of the multi-element lens
 % 
 % Brief description
 %  Returns the (X,Y) positions inside a region on the front surface.
@@ -16,11 +16,13 @@ function aGrid = apertureGrid(obj,varargin)
 %  rtType
 %  subSection
 %
-%
+% Output
+%   aGrid
 %
 % HB/BW
 
-%%
+%% Parse inputs
+
 varargin = ieParamFormat(varargin);
 
 p = inputParser;
@@ -49,7 +51,15 @@ if isempty(subSection)
     aGrid.Y = aGrid.Y(aMask);
     
 else
-    % Define the grid on the subsection
+    % Define the grid on a subsection
+    % Perhaps we can implement xFan and yFan this way?
+    %
+    % For example, for yFan we could set
+    %   subSection(1) = 0; subSection(3) = 0
+    %   subSection(2) = -Y; subSection(4) = Y;
+    %
+    % where Y is the radius of the first surface.
+    
     leftX  = subSection(1); lowerY = subSection(2);
     rightX = subSection(3); upperY = subSection(4);
     
