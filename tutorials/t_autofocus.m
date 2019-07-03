@@ -37,6 +37,8 @@ jitterFlag = true;
 
 % This is the whole point spread function
 camera.estimatePSF(nLines,jitterFlag);
+oi = camera.oiCreate;
+oiWindow(oi);
 
 %% Now, show the ray trace for the yFan case
 
@@ -59,6 +61,9 @@ height    = lens.get('lens height');
 set(gca,'xlim',[-2*thickness xFilm+1]); 
 set(gca,'ylim',[-1*height,height])
 grid on
+
+%%
+camera.draw;
 
 %% Next dgauss test case
 lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.6.0mm.dat');

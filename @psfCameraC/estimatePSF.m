@@ -47,9 +47,8 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
     lensMode = true;  %set false if ideal lens focused at infinity
     
     % Get up to the entrance aperture
-    ppsfCFlag = false;
     obj.lens.diffractionEnabled = false;
-    obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource,ppsfCFlag,jitterFlag,rtType,subsection);
+    obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource,jitterFlag,rtType,subsection);
     
     % Duplicate the existing rays for each wavelength
     % Note that both lens and film have a wave, sigh.
