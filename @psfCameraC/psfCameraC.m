@@ -77,7 +77,7 @@ classdef psfCameraC <  handle
                     val1 = obj.lens.wave(:);
                     val2 = obj.film.wave(:);
                     if isequal(val1,val2), val = val1; return;
-                    else warning('Lens and film wavelength differ.  Using lens.');
+                    else, warning('Lens and film wavelength differ.  Using lens.');
                     end
                     val = val1;
                     
@@ -109,9 +109,12 @@ classdef psfCameraC <  handle
                     val.X = sum(sum(img .* filmDistanceX));
                     val.Y = sum(sum(img .* filmDistanceY));
                     
-                case {'blackboxmodel','blackbox','bbm'} % equivalent BLACK BOX MODEL
+                case {'blackboxmodel','blackbox','bbm'} 
+                    % Equivalent BLACK BOX MODEL
+                    % 
+                    % Which field of the black box to get
                     if nargin>2
-                        fileType = varargin{1};  %witch field of the black box to get
+                        fileType = varargin{1};  
                     else
                         error('Specify also the field of the Black Box Model!')
                     end
@@ -125,6 +128,13 @@ classdef psfCameraC <  handle
                     % val = obj.bbmGetValue(obj.BBoxModel,fileType);
                     
                 case {'opticalsystem'; 'optsyst';'opticalsyst';'optical system structure'}
+                    % It seems OK to get the BBM from the lens.  The
+                    % psfCameraC, however, should have its own BBM.
+                    % So, this should probablyk be
+                    %    psfCameraC.get('lens optical system')
+                    %
+                    % rather than psfCameraC.get('optical system')
+                    % 
                     % Get the equivalent optical system structure generated
                     % by Michael's script
                     % You can specify refractive indices for object and

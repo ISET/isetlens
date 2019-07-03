@@ -1,25 +1,37 @@
-
-
-
-function [val]=bbmGetValue(obj,fileType,varargin)
-
-% Get the corresponding field value for th given Black Box Model 
+function  val = bbmGetValue(obj,fileType,varargin)
+% Get a field value from the Black Box Model 
 %
-%  function val=bbmGetValue(BBoxModel,fileType)
+% Syntax:
+%  val = bbmGetValue(BBoxModel,fileType)
 %
 %
 %INPUT
-%fileType: specify which field {'all';'focallength';'focalradius';'imagefocalpoint';'imageprincipalpoint';'imagenodalpoint';'objectfocalpoint';'objectprincipalpoint';'objectnodalpoint';'abcd'}
-% varargin{1}  for 'defocus' or 'primaryaberration', specify the unit of
-% the output coeffs  ('mm' or '#wave')
+%fileType: specify which field from this list:
+%
+%   'all'
+%   'focallength'
+%   'focalradius'
+%   'imagefocalpoint'
+%   'imageprincipalpoint'
+%   'imagenodalpoint'
+%   'objectfocalpoint'
+%   'objectprincipalpoint'
+%   'objectnodalpoint'
+%   'abcd'
+%   
+% varargin{1}  
+%    Applies to 'defocus' or 'primaryaberration', 
+%     specify the unit of the output coeffs  ('mm' or '#wave')
+%
 % OUTPUT
-%   val : selected value
+%   val: returned value of the parameter
 %
 % MP Vistasoft 2014
 
 
-%% Get equivalente  Black Box Model
+%% Get equivalent  Black Box Model from the object
 BBoxModel=obj.BBoxModel;
+
 %BBoxModel: struct
 %              .focal.length: focal length; 
 %              .focal.radius: focal plane radius;

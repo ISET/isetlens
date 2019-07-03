@@ -1,5 +1,9 @@
 function ImagSyst = bbmCreate(obj,varargin)
-% Create the black box model and add it to the psfCamera structure 
+% Deprecated?
+% Create the black box model and add it to the psfCameraC structure
+%
+% I think the lens has a bbm, but I don't think the camera should have
+% one.  Am I wrong?
 %
 % The BBM is a simplification of the lens is used to make various
 % calculations about the paraxial approximation (first order optics)
@@ -19,8 +23,8 @@ function ImagSyst = bbmCreate(obj,varargin)
 % See also:  psfCameraC.autofocus, lensC.findImagePoint
 
 %% Get inputs
-% lens=obj.lens; %NOT NEEDED in this function
-% film=obj.film;  %NOT NEEDED in this function
+% lens=obj.lens;  % NOT NEEDED in this function
+% film=obj.film;  % NOT NEEDED in this function
 pSource = obj.pointSource;
 
 %%  CHECK number of INPUTs and set refractive indices of the medium

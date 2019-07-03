@@ -1,33 +1,50 @@
-
-function [out]=drawMarginalRay(obj,pointSource,pupilname,wave0,wave,coord_type)
-
-% DRAW the marginal rays from the projection of the  point  on the optical axis to the rims of the specify pupil
+function drawMarginalRay(camera,varargin)
+% DRAW the marginal rays from a point  on the optical axis to the rims of the specify pupil 
 %
-% [out]=MarginalRay(obj,pointSource,pupilname,wave0,wave,coord_type)
+% Syntax:
+%   out = drawMarginalRay(psfCameraC,varargin)
 %
 % INPUT
-% pointSource: [x,y,z]
-% pupilname: 'entrance' or 'exit' pupil
-% wave0: specify the wavelength to plot
-% wave: set of all possible wavelength
-% coord_type: specify which coordinate to plot {'x';'y'}
- %                  
- %OUTPUT
-%out: 0 or 1
+%  obj:         psfCameraC
+%  wave0:       specify the wavelength to plot
+%  pupil_type:  'entrance' or 'exit' pupil
+%  coord_type:  specify which coordinate to plot {'x';'y'}
+%                  
+% OUTPUT
+%   N/A
 %
-% MP Vistasoft 2014
+% MP/BW Vistasoft 2014
 
+% Examples:
+%{
+ camera.drawMarginalRay();
+%}
 
+%% Parse
+
+varargin = ieParamFormat(varargin);
+
+p = inputParser;
+p.addRequired('camera',@(x)(isa(x,'psfCameraC')));
+p.addParameter('wave0',550,@isscalar);
+p.addParameter('coord_type','y_axis',@ischar);  % Not sure ...
+p.addParameter('pupil_type','exitpupil',@ischar);     % Either entrance or exit
+p.parse(camera,varargin{:});
 
 %% CHECK if wavelength matches
 
-wave0=550; %nm   select a wavelengt
-indW=find(wave==wave0);
+lens = camera.get('lens');
+wave = camera.get('wave');
+pointSource = camera.pointSource{1};  % Could be parameterized by index
+
+% wave0 = 550; %nm   select a wavelengt
+indW = find(wave==wave0);
 
 if isempty(indW)
     error(['Not valid matching between wavelength ',wave0,' among ',wave])
 end
 
+%%
 if size(pointSource,1)==1
     pZ=pointSource(3);%Z coord
     switch coord_type
@@ -58,29 +75,29 @@ end
 
 
 %% PUPIL
-switch pupilname
+switch pupil_type
     case {'entrancepupil';'EnP';'EntrancePupil';'EntPupil'}
-        [Pupil]=obj.bbmGetValue('entrancepupil');
+        [Pupil]=camera.bbmGetValue('entrancepupil');
         
     case {'exitpupil';'ExP';'ExitPupil'}
-        [Pupil]=obj.bbmGetValue('exitpupil');
+        [Pupil]=camera.bbmGetValue('exitpupil');
     otherwise
         error(['Not valid "',pupilname,'" as pupil type'])
 end
         
-P_zpos=mean(Pupil.zpos(indW,:)); %Z coord
-P_upH=mean(Pupil.diam(indW,:))/2; % Upper rim of the pupil
-P_loH=-mean(Pupil.diam(indW,:))/2; % lower rim of the pupil
+P_zpos =  mean(Pupil.zpos(indW,:));   % Z coord
+P_upH  =  mean(Pupil.diam(indW,:))/2; % Upper rim of the pupil
+P_loH  = -mean(Pupil.diam(indW,:))/2; % lower rim of the pupil
 
 
 %% Parameters for the PLOT
 switch pupilname
     case {'entrancepupil';'EnP';'EntrancePupil';'EntPupil'}
-        [Pupil]=obj.bbmGetValue('entrancepupil');
+        Pupil = camera.bbmGetValue('entrancepupil');
         colorLine='--r'; %black line
     case {'exitpupil';'ExP';'ExitPupil'}
-        [Pupil]=obj.bbmGetValue('exitpupil');
-        colorLine='--m'; %black line
+        Pupil = camera.bbmGetValue('exitpupil');
+        colorLine = '--m'; %black line
     otherwise
         error(['Not valid "',pupilname,'" as pupil type'])
 end
@@ -93,5 +110,5 @@ plot([pZ P_zpos],[0 P_upH],colorLine,'LineWidth',Lwidth)
 % LowerComa Ray
 plot([pZ P_zpos],[0 P_loH],colorLine,'LineWidth',Lwidth)
 
-%% SET OUTPUT
-out=1;
+
+%%

@@ -10,19 +10,18 @@ function [cardPoints]=paraxMatrix2CardinalPoints(M,n_ob,n_im,matrix_type)
 %  matrix_type: string describing which type of matrix has to be computer : %for 'reduced' or 'non-reduced'  parameters
 %
 %
-%NB: 'unit' of the distance is which M is computed
+% NB: 'unit' of the distance is which M is computed
 %
 %OUTPUT
-%M: (2x2xN): surface paraxial matrix for the N wavelength
-%cardPoints: cardinal points
-%.ni,.fi,.dFi,.dHi,.dNi,.no.fo,.dFo,.dHo,.dNo,  d_distance from the vertex and refractive index ni, no
+%  M: (2x2xN): surface paraxial matrix for the N wavelength
+%  cardPoints: cardinal points
+%    .ni,.fi,.dFi,.dHi,.dNi,.no.fo,.dFo,.dHo,.dNo, d_distance from the vertex and refractive index ni, no
 %
 % MP Vistasoft 2014
 
-    
-cardPoints.ni=n_im; cardPoints.no=n_ob;
-    
-    
+  
+cardPoints.ni = n_im; cardPoints.no = n_ob;
+
 switch matrix_type
     case {'reduced','red'}
         ared=squeeze(M(1,1,:));bred=squeeze(M(1,2,:));cred=squeeze(M(2,1,:));dred=squeeze(M(2,2,:));
@@ -52,7 +51,7 @@ switch matrix_type
         cardPoints.dNo=-(1-d)./(c); %Principal point distance from vertex  dNo=-(1-d)/c
         
     otherwise
-        warning('Not fount a valid M matrix type!! Returned EMPTY !!')
+        warning('M matrix type is not valid. Returning EMPTY cardinal points.')
 end
 
 end

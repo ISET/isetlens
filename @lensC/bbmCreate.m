@@ -24,12 +24,14 @@ function [varargout] = bbmCreate(obj,varargin)
 %
 % MP Vistasoft 2014
 
-%% CHECK INPUT and BUILD OPTICAL SYSTEM
+%% CHECK INPUT PARAMETERS and BUILD OPTICAL SYSTEM
+
 if nargin>1, n_ob=varargin{1}; n_im=varargin{2};
 else, n_ob=1; n_im=1;
 end
 
-OptSyst=obj.get('optical system',n_ob,n_im);
+% This 'get' does the work
+OptSyst = obj.get('optical system',n_ob,n_im);
 
 %% Append Optical System field to the Black Box Model of the lens
 obj.set('black box model',OptSyst);  

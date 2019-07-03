@@ -1,20 +1,29 @@
 function [samps,h] = raysVisualize(origin,endPoint,varargin)
 % Draw rays from origin to endPoint
 %
-%  raysVisualize(origin,endPoint,nLines,surface)
+% Syntax:
+%  [samps,figHdl] = raysVisualize(origin,endPoint,varargin)
 %
-% Origin points: (X,Y,Z) 
-% End points:    (X,Y,Z)
-% nLines:   Number of random samples to draw (an integer), or a string
+% Inputs
+%  Origin points: (X,Y,Z) 
+%  End points:    (X,Y,Z)
+% 
+% Optional key/value pairs
+%  nLines:   Number of random samples to draw (an integer), or a string
 %    that guides which of the rays to draw. This is not completely
 %    supported yet.  We don't know if this is necessary though. Leave
 %    it here for now. If a struct the fields are 'spacing' or and
 %    'numLines'.  Spacing can be either 'uniform' or 'random'  or
 %    'midline'.
-% lens:    Lens object
-% threeD:  Show the rays in 3D (default is true)
-% h:       Figure handle
+%  samps
+%  surface
+%  fig:       Figure handle
+%  threeD:  Show the rays in 3D (default is true)
 % 
+% Outputs
+%   samps
+%   figHdl
+%
 % Wandell, CISET, 2016
 
 % TODO
@@ -26,9 +35,9 @@ p = inputParser;
 p.addRequired('origin',@ismatrix);
 p.addRequired('endPoint',@ismatrix);
 p.addParameter('nLines','random');
+p.addParameter('samps',[],@isvector);
 p.addParameter('surface',[],@(x)(isa(x,'surfaceC')));
 p.addParameter('fig',[],@(x)(isa(x,'matlab.ui.Figure')));
-p.addParameter('samps',[],@isvector);
 p.addParameter('threeD',true,@islogical);
 
 p.parse(origin,endPoint,varargin{:});
@@ -62,28 +71,28 @@ lStyle = '-';       % Solid line
 if ~isstruct(nLines) && nRays > 0,        samps = randi(nRays,[nLines,1]);
 elseif strcmp(nLines.spacing, 'uniform'), samps = round(linspace(1, nRays, nLines.numLines));
 elseif strcmp(nLines.spacing,'random'),   samps = randi(nRays,[nLines.numLines,1]);
-else,   error('Unknown spacing parameter %s\n',nLines.spacing);
+else,  error('Unknown spacing parameter %s\n',nLines.spacing);
 end
 
+% The x,y coordinates are in the columns of the origin and endpoints
 if threeD
-    % The x,y coordinates are in the columns of the xImage, yImage matrices
     xImage = [origin(samps,3) endPoint(samps,3)]';
     yImage = [origin(samps,2) endPoint(samps,2)]';
     zImage = [origin(samps,1) endPoint(samps,1)]';
     
     % Plot and pause briefly
     line(xImage,yImage,zImage,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
-    pause(0.1);
+    drawnow
+    % pause(0.05);
     
 else
-    
     % The x,y coordinates are in the columns of the xImage, yImage matrices
     xImage = [origin(samps,3) endPoint(samps,3)]';
     yImage = [origin(samps,2) endPoint(samps,2)]';
     
     % Plot and pause briefly
     line(xImage,yImage,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
-    pause(0.1);
+    drawnow; % pause(0.05);
 end
 
 end

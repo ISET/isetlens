@@ -156,7 +156,8 @@ classdef rayC < matlab.mixin.Copyable
                 case 'wave'
                     val = obj.wave;
                 case 'waveindex'
-                    
+                    % rayC.get('waveindex')
+                    % rayC.get('waveindex','survivedraysonly')
                     val = obj.waveIndex;
                     if (mod(length(varargin), 2) ~= 0)
                         error('Incorrect parameter request. \n');
@@ -220,10 +221,16 @@ classdef rayC < matlab.mixin.Copyable
                     delta = range(XY(:,2))/20;   
                     val   = find(abs(XY(:,2)) < delta);  
                 case 'origin'
-                    % if no additional parameters are given, return raw
-                    % origin matrix
-                    % Possible additional specifications are
-                    % 'wavelength' and 'live'
+                    % rayC.get('origin')
+                    % rayC.get('origin','waveindex',widx)
+                    % rayC.get('origin','survivedraysonly',true/false)
+                    % rayC.get('origin','waveindex',widx,'survivedraysonly',true/false)
+                    %
+                    % Returns all the entries in the raysC origin slot
+                    % (a matrix). Possible additional specifications
+                    % are 'wavelength' and 'survivedraysonly', which
+                    % returns only the rays with a certain wavelength
+                    % index or that have survived through the optics.
                     val = obj.origin;
                     if (mod(length(varargin), 2) ~= 0)
                         error('Incorrect parameter request. \n');
@@ -236,9 +243,11 @@ classdef rayC < matlab.mixin.Copyable
                             p = ieParamFormat(varargin{ii});
                             switch p
                                 case 'waveindex'
+                                    % Which wavelength indices
                                     wantedWaveIndex = varargin{ii+1};
                                     wantedWave = obj.get('waveIndex');
-                                    if(~notDefined('survivedFlag') && survivedFlag) %handles case if survivedrays called first
+                                    % Handles case if survivedrays called first
+                                    if(~notDefined('survivedFlag') && survivedFlag) 
                                         wantedWave = wantedWave(survivedRays);
                                     end
                                     wantedWave = (wantedWave == wantedWaveIndex);
@@ -246,8 +255,9 @@ classdef rayC < matlab.mixin.Copyable
                                 case 'survivedraysonly'
                                     survivedFlag = varargin{ii+1};
                                     if(survivedFlag)
-                                       survivedRays = ~isnan(val(1,:)); %removes nans based off first coordinate
-                                       val =  val(:, survivedRays);
+                                        % removes nans based off first coordinate
+                                        survivedRays = ~isnan(val(1,:));
+                                        val =  val(:, survivedRays);
                                     end
                                 otherwise
                                     error('Unknown parameter %s\n',varargin{ii});
@@ -256,10 +266,17 @@ classdef rayC < matlab.mixin.Copyable
                     end
                     
                 case 'direction'
-                    %if no additional parameters are given, return raw
-                    %direction matrix
-                    %consider putting this in a function so we don't need
-                    %to define twice (see above).
+                    % If no additional parameters are given, return
+                    % the direction matrix.  Optional parameters are
+                    % waveindex and survivedraysonly, as above.
+                    %
+                    % rayC.get('direction','waveindex',widx)
+                    % rayC.get('direction','survivedraysonly',true/false)
+                    % rayC.get('direction','waveindex',widx,'survivedraysonly',true/false)
+                    %
+                    % We should put this in a function with proper
+                    % parameter parsing so we don't need to define
+                    % twice (see above).
                     val = obj.direction;
                     if (mod(length(varargin), 2) ~= 0)
                         error('Incorrect parameter request. \n');
