@@ -31,7 +31,7 @@ camera.autofocus(550,'nm',1,1);
 % Show adjusted position for focus
 camera.film.position(3)
 
-%% Estimate the PSF and do not show the ray trace
+%% Estimate the PSF and do not show the ray trace.  Faster.
 nLines = 0;
 jitterFlag = true;
 
@@ -48,11 +48,16 @@ jitterFlag = false;
 yFan(1) =  0; yFan(3) = 0;
 yFan(2) = -1; yFan(4) = 1;
 
-% Re-write this for showRayTrace
+% Re-write this as a new method, say showRayTrace
+% Then figure out how to make it nicer by choosing the rays and
+% following them more accurately.
 camera.estimatePSF(nLines,jitterFlag, yFan);
+xFilm     = camera.get('film distance');
 thickness = lens.get('lens thickness');
-set(gca,'xlim',[-2*thickness 1.5*film.position(3)]); 
-set(gca,'ylim',[-1.5*lens.surfaceArray(1).apertureD/2,1.5*lens.surfaceArray(1).apertureD/2])
+height    = lens.get('lens height');
+
+set(gca,'xlim',[-2*thickness xFilm+1]); 
+set(gca,'ylim',[-1*height,height])
 grid on
 
 %% Next dgauss test case

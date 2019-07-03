@@ -16,6 +16,9 @@ switch pName
     case {'nsurfaces','numels'}
         % Should be nsurfaces
         res = length(obj.surfaceArray);
+    case {'lensheight'}
+        % Total height (diameter) of the front surface element
+        res = obj.surfaceArray(1).apertureD;
     case {'lensthickness','totaloffset'}
         % This is the size (in mm) from the front surface to
         % the back surface.  The last surface is at 0, so the

@@ -45,16 +45,9 @@ fprintf('Film distance:\t%f\nFocal length:\t%f\n',...
 
 %% Not sure how to control the quality here
 
-nLines = 100;  % Do not draw the rays if 0.
+nLines = 0;  % Do not draw the rays if 0.
 jitter = true;
 camera.estimatePSF(nLines,jitter);
-
-% Set x axis to 1 millimeter beyond the film and 15 mm in front of the
-% lens
-xFilm = camera.get('film distance');
-yFilm = get(gca,'ylim');
-hLine = line([xFilm xFilm],yFilm,'LineStyle',':','Color',[0.2 0 0.5]);
-set(gca,'xlim',[-15 (camera.get('film distance') + 1)]);
 
 %% The oi illuminance level is arbitrary
 
@@ -62,6 +55,28 @@ oi = camera.oiCreate('mean illuminance',5);
 oiWindow(oi);
 
 oiPlot(oi,'illuminance mesh linear');
+
+%% Now ray trace just to have a look
+
+% These are for a normalized position on the first aperture, 
+% between [-1 1].  The function scales them to the position of the
+% first aperture diameter.
+nLines = 20;
+jitterFlag = false;
+yFan(1) =  0; yFan(3) = 0;
+yFan(2) = -1; yFan(4) = 1;
+
+% Re-write this as a new method, say showRayTrace
+% Then figure out how to make it nicer by choosing the rays and
+% following them more accurately.
+camera.estimatePSF(nLines,jitterFlag, yFan);
+xFilm     = camera.get('film distance');
+thickness = lens.get('lens thickness');
+height    = lens.get('lens height');
+
+set(gca,'xlim',[-2*thickness xFilm+1]); 
+set(gca,'ylim',[-1*height,height])
+grid on
 
 %% Approximate the size of the point image on the sensor
 
