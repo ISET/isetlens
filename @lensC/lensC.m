@@ -1,15 +1,15 @@
 classdef lensC <  handle
     % Create a multiple element lens object
     %
+    % Syntax:
     %   lens = lensC(varargin);
     %
     % Inputs:
     %   N/A
-    % Outputs:
-    %   lens object
+    %
     % Optional key/value pairs
-    %   'filename',...,
-    %   'name', string
+    %   'filename' - string to lens file name descriptor (JSON or dat)
+    %   'name', string - Name of this lens
     %   'type', string
     %   'units', {'um','mm','m'}
     %   'wave', vector
@@ -19,6 +19,9 @@ classdef lensC <  handle
     %   'diffraction enabled' - Run HURB as part of the calculation
     %   'figure handle'
     %   'blackbox model'
+    %
+    % Outputs:
+    %   lens - a lensC object
     %
     % Distance units are millimeters, unless otherwise specified.
     %
