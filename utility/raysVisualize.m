@@ -50,14 +50,15 @@ h        = p.Results.fig;
 samps    = p.Results.samps;
 threeD   = p.Results.threeD;
 
-%% Draw the lines
+%% Confirm we have something to draw
 
 if isempty(nLines), return; end
 
 nRays = size(origin,1);
 if nRays == 0, return; end
 
-if isempty(h),  h = vcNewGraphWin; hold on; end
+%%
+if isempty(h),  h = ieNewGraphWin; hold on; end
 figure(h);
 
 if ~isempty(surface), surface.draw('fig',h); end
@@ -80,8 +81,11 @@ if threeD
     yImage = [origin(samps,2) endPoint(samps,2)]';
     zImage = [origin(samps,1) endPoint(samps,1)]';
     
-    % Plot and pause briefly
-    line(xImage,yImage,zImage,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
+    % Plot and pause briefly.
+    % Not sure why we have complex points some times.  We should delete
+    % these before we get here.
+    line(real(xImage),real(yImage),real(zImage),...
+        'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
     drawnow
     % pause(0.05);
     

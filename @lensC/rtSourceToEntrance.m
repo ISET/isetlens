@@ -1,15 +1,18 @@
 function rays = rtSourceToEntrance(obj, pointSource, jitterFlag, rtType, subSection)
-% Ray trace from a point to the aperture grid on the first lens surface
+% Calculate rays from a point to the aperture grid on the first lens surface
 % (the lens furthest from the sensor).
 %
+% Syntax:
 %  rays = rtSourceToEntrance(obj, pointSource, jitterFlag, rtType)
 %
-% Rays have 1 wavelength assigned to them.  There is no particular
-% wavelength dependence in air, so there is no need to have multiple
-% indices of refraction or wavelength for this calculation.
+% Description:
+%  THe rays are calculated, but not drawn.  Each ray as one wavelength
+%  assigned, but there is no wavelength dependence in air, so there is no
+%  need to have multiple indices of refraction or wavelength for this
+%  calculation.
 %
-% The rays will be "expanded" later to save on computations that handle
-% wavelength differences.
+%  The rays will be "expanded" later to save on computations that handle
+%  wavelength differences.
 %
 % Inputs:
 %  obj:          A lens object
@@ -29,11 +32,8 @@ function rays = rtSourceToEntrance(obj, pointSource, jitterFlag, rtType, subSect
 %% PROGRAMMING NOTES
 %
 %  I don't think we are handling the case of multiple points.  That would
-%  be a big step forward.
+%  be a step forward.
 %
-%  The section around depthTriangles argument and related section of the
-%  code below are experimental and not yet debugged.  Don't try to run it.
-%  THink about it.
 
 %% Parameter checking
 
