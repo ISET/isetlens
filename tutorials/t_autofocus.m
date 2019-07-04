@@ -36,17 +36,22 @@ camera.film.position(3) = camera.film.position(3) + 0.3;
 jitterFlag = true;
 
 % This is the whole point spread function
-camera.estimatePSF(nLines,jitterFlag);
+camera.estimatePSF(jitterFlag);
+camera.rays.plot('entrance pupil');
 
 %% Create the OI - The film size does not seem right.
 
 % Debug oiCreate because the film size does not seem right.
 oi = camera.oiCreate;
 oiWindow(oi);
+fprintf('PSF diameter: %.2f um\n',oiPSF(oi,'diameter','units','um'));
 
 %% Now, show the ray trace for the yFan case
 nLines = 20;
 camera.draw(nLines);
+
+%% Notice that we now have the entrance pupil in the yFan sample points
+camera.rays.plot('entrance pupil');
 
 %% Next dgauss test case
 lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.6.0mm.dat');
@@ -66,13 +71,19 @@ camera.film.position(3) = camera.film.position(3) + 0.1;
 
 % This is the whole point spread function
 camera.estimatePSF();
+camera.rays.plot('entrance pupil');
 
-% Create the OI
+%% Create the OI
 oi = camera.oiCreate;
 oiWindow(oi);
+fprintf('PSF diameter: %.2f um\n',oiPSF(oi,'diameter','units','um'));
+
+%%
+camera.rays.plot('entrance pupil');
 
 %%
 camera.draw(nLines);
+
 
 %% END
 

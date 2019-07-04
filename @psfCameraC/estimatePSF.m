@@ -1,4 +1,4 @@
-function camera = estimatePSF(camera,nLines, jitterFlag, subsection, diffractionMethod, rtType)
+function camera = estimatePSF(camera,jitterFlag,subsection,diffractionMethod,rtType)
 % Estimate the psfCamera point spread function (PSF)
 %
 % Syntax:
@@ -12,7 +12,6 @@ function camera = estimatePSF(camera,nLines, jitterFlag, subsection, diffraction
 %
 % Inputs:
 %  obj:          psfCameraC
-%  nLines:       Show an image of the ray trace lines (0 is none).
 %  jitterFlag:   Jitter position of rays, not regularly sample
 %  subsection:   Only allow rays through a subsection of the front aperture
 %  diffractionMethod: Two methods are implemented, Huygens and HURB
@@ -30,16 +29,17 @@ function camera = estimatePSF(camera,nLines, jitterFlag, subsection, diffraction
 
 %% Old fashioned parameter decoding
 
-if notDefined('nLines'),     nLines = false;     end
 if notDefined('jitterFlag'), jitterFlag = false; end
 if notDefined('subsection'), subsection = []; end
 if notDefined('diffractionMethod'), diffractionMethod = 'HURB'; end
 if notDefined('rtType'), rtType = 'realistic'; end
 
+% Use camera.draw, no lines in this case.
+nLines = 0;
+
 %%
 if isequal(diffractionMethod, 'HURB') 
     % This is the main and typical path
-    nLines = 0;
     
     % There may be more than one point in the camera structure.
     for ii=1:length(camera.pointSource)
@@ -66,7 +66,7 @@ if isequal(diffractionMethod, 'HURB')
 elseif isequal(diffractionMethod, 'huygens') && camera.lens.diffractionEnabled
     % This path and what is computed here is no longer clear to me (BW).
     %
-    
+
     % Trace from the point source to the entrance aperture of the
     % multi-element lens
     wbar = waitbar(0,'Huygens wavelength and job');
