@@ -5,22 +5,30 @@ function oi = oiCreate(camera,varargin)
 %  oi = camera.oiCreate(varargin);
 %
 % Inputs:
-%  camera - psfCameraC object
+%  camera - psfCameraC 
 %
 % Optional Key/value pairs
-%   mean illuminance  - Returned oi is set to this mean illuminance
+%   mean illuminance  - Returned oi is set to this mean illuminance.
+%                       Default is 10 lux
 %
 % Outputs
 %   oi - ISET Optical image structure
 %
 % Description:
-%   Used to render various simple images, say the estimated point
-%   spread function of a lens.
+%   We create an ISET optical image from the film image in a psfCameraC.
+%   We have used this with isetlens, mainly, to have a look at lenses and
+%   understand their pointspread function or in general the ray trace
+%   through the lens.
+%
+%   This routine abuses the OI specification of the focal length.  It makes
+%   the focal length equal to the film distance, not the true focal length
+%   of the lens.  That is necessary for the size geometry to work out
+%   correctly.
 %
 % AL/BW Vistasoft Team, Copyright 2014
 %
 % See also:
-%   s_isetauto.m
+%   s_isetauto.m, t_autofocus.m, lensFocus
 
 %% Parse inputs
 varargin = ieParamFormat(varargin);
@@ -47,14 +55,16 @@ oi = oiSet(oi,'photons',camera.film.image);
 
 %% Estimate the horizontal field of view
 
-% Use the distance to the film/sensor from the back of the lens to
-% compute the size of the sensor and the geometry.  N.B. The film
-% distance is not necessarily at the focal length.
-filmDistance = camera.get('film distance'); 
+% ** Use the distance to the film/sensor from the back of the lens to
+% compute the size of the oi image and the geometry. **
+filmDistance = camera.get('film distance');
 hfov = rad2deg(2*atan2(camera.film.size(1)/2,filmDistance));
-oi = oiSet(oi,'hfov', hfov);
 
-% oi = oiSet(oi, 'optics focal length', camera.lens.get('focal length') * 10^-3);
+% ** N.B. The film  distance is not always at the focal length.  But we set
+% the focal length to the film distance so that the geometry will work out
+% correctly with field of view and other calculations. **
+oi = oiSet(oi,'optics focal length',filmDistance*1e-3);
+oi = oiSet(oi,'hfov', hfov);
 
 % Set the name based on the distance of the film (sensor) from the
 % final lens surface.  This may not be the focal length of the lens.

@@ -1,67 +1,57 @@
-function draw(obj,toFilm,nLines,apertureD)
-% Draw the camera lens and rays, possibly to the film plane
+function draw(camera,nLines)
+% Draw the camera lens and rays to the film plane
 %
-%    psfCamera.draw(toFilm,nLines,apertureD)
+% Syntax:
+%    psfCamera.draw(nLines)
 %
-% toFilm:    Logical that specifies whether to draw to film
-%            surface.  If true, then a very low curvature surface is added
-%            in the film plane to force the draw. Default is false. 
-% nLines:    Number of rays to use for the drawing
-%            Default is 200
-% apertureD: Sets the size of the film, when toFilm is true.
-%            Default is 100mm (really big)
+% Inputs
+%   camera:  psfCameraC object
+%   nLines:  Number of rays to draw
+%            Default is 20
 %
-% Show the ray trace lines to the film (sensor) plane
+% Description
+%   Show the ray trace lines to the film (sensor) plane
 %
 % AL/BW Vistasoft Team, Copyright 2014
+%
+% See also:
+%   
 
-if ieNotDefined('toFilm'), toFilm = false; end
-if ieNotDefined('nLines'), nLines = 200; end
+%% Parameters
 
-% Always true, for nicer picture, I guess.
+if ieNotDefined('nLines'), nLines = 20; end
+
+%% Drawing to film surface
+
+% Set up for yFan picture.  Could be an option
+yFan(1) =  0; yFan(3) = 0;
+yFan(2) = -1; yFan(4) = 1;
+
 jitterFlag = true;
-
-% Not sure what to do here
-ppsfCFlag = false;
-
-% If toFilm is true, add the film surface as if it is an
-% aperture.  This will force the ray trace to continue to that
-% plane
-sArray = obj.lens.surfaceArray;  % Store the original
-
-wave      = obj.lens.wave;
-
-if toFilm
-    disp('Drawing to film surface')
-    
-    % SHOULD BE Planar object.  But it won't draw to that
-    sRadius   = 1e5;  % Many millimeters
-    zPosition = obj.film.position(3);
-    
-    % We need a principled way to set this.
-    if ieNotDefined('apertureD'), apertureD = 100; end
-    
-    obj.lens.surfaceArray(end+1) = ...
-        surfaceC('wave',wave,...
-        'aperture diameter',apertureD,...
-        'sRadius',sRadius,...
-        'zPosition',zPosition);
-end
-
-% Not sure why we need the ppsfCFlag (BW)
-obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag);
+camera.rays = camera.lens.rtSourceToEntrance(camera.pointSource{1},jitterFlag,'realistic',yFan);
 
 % Duplicate the existing rays for each wavelength
 % Note that both lens and film have a wave, sigh.
 % obj.rays.expandWavelengths(obj.film.wave);
-obj.rays.expandWavelengths(wave);
+camera.rays.expandWavelengths(camera.get('wave'));
 
 %lens intersection and raytrace
-obj.lens.rtThroughLens(obj.rays, nLines);
+figHdl = camera.lens.rtThroughLens(camera.rays, nLines);
 
-% Put it back the way you found it.
-if toFilm
-    obj.lens.surfaceArray = sArray;
-end
+% intersect with "film" and draw the film
+camera.rays.recordOnFilm(camera.film, 'nLines',nLines,'fig',figHdl);
+% title('Final surface to film');
+
+% Set the window limits
+xFilm     = camera.get('film distance');
+lens      = camera.get('lens');
+thickness = lens.get('lens thickness');
+height    = lens.get('lens height');
+
+% Set the axes so the rays on the left show and we see 1 mm past the film
+% plane.  And set twice the height of the lens.
+set(gca,'xlim',[-2*thickness xFilm+1]); 
+set(gca,'ylim',[-1*height,height])
+grid on
 
 end

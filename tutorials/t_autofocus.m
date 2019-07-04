@@ -12,47 +12,78 @@ ieInit
 
 %%  Initialize a point and a camera
 
-point{1} = [0 0 -10000];   % Negative is in object space
+point{1} = [0 0 -1000];   % Negative is in object space
 
 lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.12.5mm.dat');
 lens = lensC('fileName',lensFileName);
+lens.apertureSample = [301 301];          % Number of samples at first lens
 
 film   = filmC;
+film.size = [1 1];                  % A small bit of film, in millimeters
+film.resolution = film.size*1e3;    % 1 micron per sample, keeps the estimate constant
+
 camera = psfCameraC('lens',lens,'film',film,'point source',point);
 
 %%  Find the film focal length for this wavelength
-
-% Current film position
-camera.film.position(3)
 
 % Call autofocus, setting the indices of refraction of air and water
 camera.autofocus(550,'nm',1,1);
 
 % Show adjusted position for focus
-camera.film.position(3)
+camera.film.position(3) = camera.film.position(3) + 0.3; 
 
-% Estimate the PSF and show the ray trace
-nLines = 50;
-jitter = true;
-camera.estimatePSF(nLines,jitter);
-set(gca,'xlim',[-5 20]); grid on
+%% Estimate the PSF and do not show the ray trace.  Faster.
+jitterFlag = true;
+
+% This is the whole point spread function
+camera.estimatePSF(jitterFlag);
+camera.rays.plot('entrance pupil');
+
+%% Create the OI - The film size does not seem right.
+
+% Debug oiCreate because the film size does not seem right.
+oi = camera.oiCreate;
+oiWindow(oi);
+fprintf('PSF diameter: %.2f um\n',oiPSF(oi,'diameter','units','um'));
+
+%% Now, show the ray trace for the yFan case
+nLines = 20;
+camera.draw(nLines);
+
+%% Notice that we now have the entrance pupil in the yFan sample points
+camera.rays.plot('entrance pupil');
 
 %% Next dgauss test case
 lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.6.0mm.dat');
 lens = lensC('fileName',lensFileName);
 
-film = filmC;
 camera = psfCameraC('lens',lens,'film',film,'pointsource',point);
 
 %%  Find the film focal length for this wavelength
-
-% Current film position
-camera.film.position(3)
 
 % Call autofocus, setting the indices of refraction of air and water
 camera.autofocus(550,'nm',1,1);
 
 % Show adjusted position for focus
-camera.film.position(3)
+camera.film.position(3) = camera.film.position(3) + 0.1; 
+
+%% Estimate the PSF and do not show the ray trace.  Faster.
+
+% This is the whole point spread function
+camera.estimatePSF();
+camera.rays.plot('entrance pupil');
+
+%% Create the OI
+oi = camera.oiCreate;
+oiWindow(oi);
+fprintf('PSF diameter: %.2f um\n',oiPSF(oi,'diameter','units','um'));
 
 %%
+camera.rays.plot('entrance pupil');
+
+%%
+camera.draw(nLines);
+
+
+%% END
+

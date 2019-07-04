@@ -1,16 +1,23 @@
 function obj = recordOnFilm(obj, film, varargin)
 % Records the rays on the film surface
 %
-%  rays.recordOnFilm(obj, film, 'nLines',nLines,'fig',h)
+% Syntax:
+%  rays.recordOnFilm(obj, film, varargin)
+%
+% Brief description:
+%  The rays from the final lens element are transformed to the film
+%  surface.  They are binned into the pixels at the film resolution to
+%  create an image in the film.image slot. 
 %
 % Inputs
-%   obj:    Rays
-%   film:   Sensor - can be either a plane or a spherical surface
-%   nLines: number of lines to draw for the illustration
-%           If 0, then no image is produced.
-%   fig:    Matlab.ui.figure
+%   obj:    A rayC object
+%   film:   The filmC object can be either a plane or a spherical surface
 %
-% The rays are recorded on the film.image slot.
+% Optional key/value pairs
+%   nLines: number of lines to draw for the illustration. If 0, then no
+%           lines are drawn 
+%   fig:    Matlab.ui.figure where the lines are drawn.  Default is gcf.
+%
 %
 % AL Copyright Vistasoft Team, 2014
 
@@ -28,7 +35,7 @@ h      = p.Results.fig;
 % There are cases we don't want a figure to pop up.  Need to figure out how
 % to suppress.  If we can do it without another parameter, that would be
 % good.
-if isempty(h), h = vcNewGraphWin; end
+if isempty(h) && (nLines > 0), h = ieNewGraphWin; end
 
 % We need to separate out the case of plenoptic rays and standard rays
 
@@ -53,11 +60,16 @@ if (nLines > 0)
     xlabel('mm'); ylabel('mm');
 end
 
-% This section calculates imagePixel.position  The computation is managed
-% separately for the planar film (typical) and spherical case.
+%% This section calculates imagePixel.position of the rays
+%
+% The computation is managed separately for the planar film (typical) and
+% spherical case.
+%
+% The ray positions are still in millimeters after this section.
+
 if(isa(film, 'filmSphericalC'))
+    % Project spherical film
     
-    % Project spherical sensor
     sensorRadius = film.radius;
     sensorCenter = film.get('sphericalCenter');
     intersectPosition = liveRays.sphereIntersect(sensorCenter,sensorRadius);
@@ -77,8 +89,7 @@ if(isa(film, 'filmSphericalC'))
     vcNewGraphWin; hist(phi);
     
 elseif(isa(film, 'filmC'))
-    
-    % When it is the plane, this ....
+    % When the filmC is the plane, this ....
     intersectPosition = liveRays.origin;
     
     %imagePixel is the pixel that will gain a photon due to the traced ray
@@ -87,6 +98,12 @@ elseif(isa(film, 'filmC'))
 else
     error('Invalid film type detected.');
 end
+
+%% Count the rays into row/col bins on the film
+%
+% This makes an image histogram of the ray positions on the film.  I think
+% we have other imageHistogram functions, and they might be used here.
+
 % At this point the positions are recorded in millimeters at the film.
 %  imagePixel.position(:,1) is the x-value on the film in millimeters
 %  and (:,2) is the y-value on the film.
@@ -106,27 +123,24 @@ end
 % Position  is in millimeters
 % film.size is in millimeters
 % film.resolution is the number of samples across the film
-%
-%{
 sampleSpacing = film.size ./ film.resolution;
 nPositions    = size(imagePixel.position,1);
 imageMiddle   = -film.position(2:-1:1) / sampleSpacing(2) + (film.resolution(2:-1:1) + 1) ./2;
 
-% Position in millimeters is converted to pixel location in the film
-% image by
-%    Position / sampleSpacing + middlePixel
-% So, something at (0,0) goes to the middlePixel
-% Suppose the film is size is 0.5 mm, and the ray is -0.25 mm, then
-% the position in the image is 
+% Position in millimeters on the film is converted to pixel location in the
+% (row,col) film image by
 %
-% The first term gives us the sample position as a
-% negative-to-positive value and the second term centers the sample
-% position to 1-positive
+%    Position / sampleSpacing + middlePixel
+%
+% So, something at (0,0) goes to the middlePixel.
+% Example: Suppose the film is size is 0.5 mm, and the ray is -0.25 mm,
+% then the position in the image is less than the middle pixel.
+%
 imagePixel.position = ...
     round(imagePixel.position / sampleSpacing(2) + ...
     repmat(imageMiddle, [nPositions 1]));
-%}
-% {
+
+%{
 % Older code
 imagePixel.position = ...
     round(imagePixel.position * film.resolution(2)/film.size(2) + ...

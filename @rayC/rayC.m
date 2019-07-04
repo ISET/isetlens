@@ -156,7 +156,8 @@ classdef rayC < matlab.mixin.Copyable
                 case 'wave'
                     val = obj.wave;
                 case 'waveindex'
-                    
+                    % rayC.get('waveindex')
+                    % rayC.get('waveindex','survivedraysonly')
                     val = obj.waveIndex;
                     if (mod(length(varargin), 2) ~= 0)
                         error('Incorrect parameter request. \n');
@@ -181,6 +182,10 @@ classdef rayC < matlab.mixin.Copyable
                     end
                     
                 case 'wavelength'
+                    % w = rayC.get('wavelength');
+                    % Converts the wavelength indices into wavelength in
+                    % nanometers. It appears to do this only for the live
+                    % rays.
                     val = zeros(size(obj.waveIndex));
                     val(isnan(obj.waveIndex)) = NaN;
                     liveInd = obj.get('liveIndices');
@@ -195,18 +200,45 @@ classdef rayC < matlab.mixin.Copyable
                 case 'liverays'
                     % Set the rays without a wavelength to empty  These
                     % remaining rays are the live rays.
-                    %                     val = rayC();
-                    %                     val.copy(obj);
+                    %     val = rayC();
+                    %     val.copy(obj);
+                    %
                     val = obj.copy;
                     liveIndices = val.get('live indices');
                     val.origin(~liveIndices, : ) = [];
                     val.direction(~liveIndices, : ) = [];
                     val.waveIndex(~liveIndices) = [];
-                    
+                case {'xfanindices'}
+                    % Get the indices of rays whose position at the
+                    % input aperture is near [0,Y].  These are the
+                    % most useful rays for tracing through the lens
+                    % diagram.
+                    XY    = obj.aEntranceInt.XY;
+                    % Five percent of the rays
+                    delta = range(XY(:,1))/20;   
+                    val   = find(abs(XY(:,1)) < delta);
+                case {'yfanindices'}
+                    % Get the indices of rays whose position at the
+                    % input aperture is near [X,0].
+                    XY    = obj.aEntranceInt.XY;
+                    % Five percent of the rays
+                    delta = range(XY(:,2))/20;   
+                    val   = find(abs(XY(:,2)) < delta);  
                 case 'origin'
-
-                    %if no additional parameters are given, return raw
-                    %origin matrix
+                    % Get the origin points for rays with a particularly
+                    % wave index and/or that are still live (survived).
+                    % See TODO, below.
+                    %
+                    % rayC.get('origin')
+                    % rayC.get('origin','waveindex',widx)
+                    % rayC.get('origin','survivedraysonly',true/false)
+                    % rayC.get('origin','waveindex',widx,'survivedraysonly',true/false)
+                    %
+                    % Returns all the entries in the raysC origin slot
+                    % (a matrix). Possible additional specifications
+                    % are 'wavelength' and 'survivedraysonly', which
+                    % returns only the rays with a certain wavelength
+                    % index or that have survived through the optics.
                     val = obj.origin;
                     if (mod(length(varargin), 2) ~= 0)
                         error('Incorrect parameter request. \n');
@@ -218,19 +250,26 @@ classdef rayC < matlab.mixin.Copyable
                         for ii=1:2:length(varargin)
                             p = ieParamFormat(varargin{ii});
                             switch p
+                                case 'wave'
+                                    % We should use rayC.wave2index and allow
+                                    % specifying the get based on the wave,
+                                    % not the index.
                                 case 'waveindex'
+                                    % Which wavelength indices
                                     wantedWaveIndex = varargin{ii+1};
                                     wantedWave = obj.get('waveIndex');
-                                    if(~notDefined('survivedFlag') && survivedFlag) %handles case if survivedrays called first
+                                    % Handles case if survivedrays called first
+                                    if(~notDefined('survivedFlag') && survivedFlag) 
                                         wantedWave = wantedWave(survivedRays);
                                     end
                                     wantedWave = (wantedWave == wantedWaveIndex);
-                                    val = val(:, wantedWave);
+                                    val = val(wantedWave, :);
                                 case 'survivedraysonly'
                                     survivedFlag = varargin{ii+1};
                                     if(survivedFlag)
-                                       survivedRays = ~isnan(val(1,:)); %removes nans based off first coordinate
-                                       val =  val(:, survivedRays);
+                                        % removes nans based off first coordinate
+                                        survivedRays = ~isnan(val(1,:));
+                                        val =  val(survivedRays,:);
                                     end
                                 otherwise
                                     error('Unknown parameter %s\n',varargin{ii});
@@ -239,11 +278,17 @@ classdef rayC < matlab.mixin.Copyable
                     end
                     
                 case 'direction'
-                    
-                    %if no additional parameters are given, return raw
-                    %direction matrix
-                    %consider putting this in a function so we don't need
-                    %to define twice
+                    % If no additional parameters are given, return
+                    % the direction matrix.  Optional parameters are
+                    % waveindex and survivedraysonly, as above.
+                    %
+                    % rayC.get('direction','waveindex',widx)
+                    % rayC.get('direction','survivedraysonly',true/false)
+                    % rayC.get('direction','waveindex',widx,'survivedraysonly',true/false)
+                    %
+                    % We should put this in a function with proper
+                    % parameter parsing so we don't need to define
+                    % twice (see above).
                     val = obj.direction;
                     if (mod(length(varargin), 2) ~= 0)
                         error('Incorrect parameter request. \n');
@@ -263,18 +308,56 @@ classdef rayC < matlab.mixin.Copyable
                                         wantedWave = wantedWave(survivedRays);
                                     end
                                     wantedWave = (wantedWave == wantedWaveIndex);
-                                    val = val(:, wantedWave);
+                                    val = val(wantedWave,:);
                                 case 'survivedraysonly'
                                     survivedFlag = varargin{ii+1};
                                     if(survivedFlag)
                                        survivedRays = ~isnan(val(1,:)); %removes nans based off first coordinate
-                                       val =  val(:, survivedRays);
+                                       val =  val(survivedRays,:);
                                     end
                                 otherwise
                                     error('Unknown parameter %s\n',varargin{ii});
                             end
                         end
                     end
+                case 'distance'
+                    val = obj.distance;
+                    if (mod(length(varargin), 2) ~= 0)
+                        error('Incorrect parameter request. \n');
+                    end
+                    if (~isempty(varargin))
+                        % this part deals with customized gets for specific
+                        % wave indices and survived rays
+                        
+                        for ii=1:2:length(varargin)
+                            p = ieParamFormat(varargin{ii});
+
+                            switch p
+                                case 'waveindex'
+                                    wantedWaveIndex = varargin{ii+1};
+                                    wantedWave = obj.get('waveIndex');
+                                    if(~notDefined('survivedFlag') && survivedFlag) %handles case if survivedrays called first
+                                        wantedWave = wantedWave(survivedRays);
+                                    end
+                                    wantedWave = (wantedWave == wantedWaveIndex);
+                                    val = val(wantedWave);
+                                case 'survivedraysonly'
+                                    survivedFlag = varargin{ii+1};
+                                    if(survivedFlag)
+                                       survivedRays = ~isnan(val(1,:)); %removes nans based off first coordinate
+                                       val =  val(survivedRays);
+                                    end
+                                otherwise
+                                    error('Unknown parameter %s\n',varargin{ii});
+                            end
+                        end
+                    end
+                case 'endpoint'
+                    % We should be able to get the origin, direction, and
+                    % distance and return the endpoint.  I think.
+                    %
+                    disp('Endpoint NYI');
+                    
                 otherwise
                     error('Unknown parameter %s\n',p);
             end
