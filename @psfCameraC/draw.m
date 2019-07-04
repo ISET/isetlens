@@ -6,7 +6,7 @@ function draw(camera,nLines)
 %
 % Inputs
 %   camera:  psfCameraC object
-%   nLines:  Number of rays to use for the drawing
+%   nLines:  Number of rays to draw
 %            Default is 20
 %
 % Description
@@ -48,6 +48,8 @@ lens      = camera.get('lens');
 thickness = lens.get('lens thickness');
 height    = lens.get('lens height');
 
+% Set the axes so the rays on the left show and we see 1 mm past the film
+% plane.  And set twice the height of the lens.
 set(gca,'xlim',[-2*thickness xFilm+1]); 
 set(gca,'ylim',[-1*height,height])
 grid on

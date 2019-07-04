@@ -1,5 +1,17 @@
 function res = get(obj,pName,varargin)
-% Get various derived lens properties though this call
+% Get various derived lensC properties 
+%
+% Syntax:
+%   lensC.get(parameter,varargin)
+%
+% Parameters:
+%    'name'
+%    'wave'
+%      ...
+%
+% See also
+%
+
 pName = ieParamFormat(pName);
 switch pName
     % Lens general parameters
@@ -114,13 +126,33 @@ switch pName
         % Units are millimeters.
         % lens.get('focal length')
         % lens.get('focal length',600)
-        if isempty(varargin), wave = 550; 
-        else, wave = varargin{1};
-        end
+        wave = 550;
+        if ~isempty(varargin), wave = varargin{1}; end
+        
         % A billion millimeters seems far enough for a focal length
         % We could run a billion and 10 billion and check for no
         % difference.
-        res = lensFocus(obj,10^9,'wavelength',wave);  
+        res = lensFocus(obj,10^9,'wavelength',wave);
+    case {'infocusdistance'}
+        % Distances are in millimeters
+        %
+        % distance = 50; wave = 550;
+        % lens.get('infocus distance',distance,wave)
+        % 
+        % Find the film distance to focus an object at a particular
+        % distance and wavelength.  Defaults to returning focal length at
+        % 550 nm if there are no varargin entries.
+        %
+        % The returned 
+        objectDistance = 10^9; 
+        wave = 550;
+        if length(varargin) > 1
+            wave = varargin{2}; objectDistance = varargin{1};
+        elseif length(varargin) == 1
+            objectDistance = varargin{1};
+        end
+        res = lensFocus(obj,objectDistance,'wavelength',wave);
+        
     case {'blackboxmodel';'blackbox';'bbm'}
         % The BLACK BOX MODEL (bbm).
         % lens.get('bbm',param)
