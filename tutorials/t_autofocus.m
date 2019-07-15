@@ -1,11 +1,15 @@
-%% Illustrate the use of the black box model for autofocus
+%% Illustrate psfCameraC, autofocus, and PSF 
 %
-%  psfCamera.autofocus(wave0, waveUnit, [n_ob], [n_im])
+%  * Creates a psfCameraC based on a point source, lens, and film.
+%  * Sets the film position using autofocus method
+%  * Renders the point and converts it to an ISETCam optical image
+%  * Calls oiPSF to estimate the size of the point spread
+%  * Plots a ray trace through the lens
 %
-% The numbers for autofocus here are always a little short compared to
-% the file name.  Need to comment and understand
-%
-% BW SCIEN STANFORD
+% BW, SCIEN, 2019
+% 
+% See also
+%   psfCameraC.autofocus
 
 %%
 ieInit

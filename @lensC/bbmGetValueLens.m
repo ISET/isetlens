@@ -1,14 +1,21 @@
 function val = bbmGetValue(obj,param)
-% Get the corresponding field value for th given Black Box Model 
+% Get the corresponding field value for the given lens Black Box Model 
 %
+% Syntax:
 %  val = bbmGetValue(BBoxModel,param)
 %
-% Either copy or calculate values from the BBM structure
-% Note that this should bbmGet for now and ultimately bbm should become and
-% object and this should be bbm.get(param).
+% Description:
+%  Typically called as lens.get('bbm',param);
+%
+%  Either copy or calculate values from the BBM structure. This
+%  is bbmGet for now and ultimately bbm should become and object and
+%  this should be bbm.get(param).
+%
 %
 %INPUT
-% 
+%  obj:   lensC
+%  param: string of the value to get
+%
 %params: 
 %     {'all';
 %      'focallength';
@@ -22,20 +29,20 @@ function val = bbmGetValue(obj,param)
 %      'abcd'}
 %
 % Required fields
-% BBoxModel: struct
-%              .focal.length: focal length; 
-%              .focal.radius: focal plane radius;
-%              .imSpace.focalPoint: focal point in image space
-%              .imSpace.principalPoint: principal point in image space
-%              .imSpace.nodalPoint: principal point in image space
-%              .obSpace.focalPoint:     focal point in object space
-%              .obSpace.principalPoint: principal point in object space
-%              .obSpace.nodalPoint:     principal point in object space
-%              .abcdMatrix:             abcd equivalent matrix; 
+%  BBoxModel: struct
+%    .focal.length:           focal length; 
+%    .focal.radius:           focal plane radius;
+%    .imSpace.focalPoint:     focal point in image space
+%    .imSpace.principalPoint: principal point in image space
+%    .imSpace.nodalPoint:     principal point in image space
+%    .obSpace.focalPoint:     focal point in object space
+%    .obSpace.principalPoint: principal point in object space
+%    .obSpace.nodalPoint:     principal point in object space
+%    .abcdMatrix:             abcd equivalent matrix; 
 %
 %
 % OUTPUT
-%   val : selected value
+%   val: returned value
 %
 % Example:
 %   lens.get('bbm','efl');

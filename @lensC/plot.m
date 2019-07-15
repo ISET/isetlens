@@ -36,9 +36,9 @@ switch(pType)
         %   s_focusLensTable
         %
         FLname = fullfile(ilensRootPath,'data','lens',[obj.name,'.FL.mat']);
-        load(FLname,'dist','focalDistance');
+        load(FLname,'objDistance','filmDistance');
         hdl = vcNewGraphWin;
-        semilogx(dist,focalDistance); grid on;
+        semilogx(objDistance,filmDistance,'ko-','LineWidth',1); grid on;
         xlabel('Obj dist (mm)');
         ylabel('Focal distance (mm)');
         title(sprintf('Lens name: %s',obj.name));

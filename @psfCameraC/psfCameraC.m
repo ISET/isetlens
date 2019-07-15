@@ -109,28 +109,34 @@ classdef psfCameraC <  handle
                     val.X = sum(sum(img .* filmDistanceX));
                     val.Y = sum(sum(img .* filmDistanceY));
                     
+                    % THIS IS VERY CONFUSING.
+                    % BW SHOULD COMMENT AND REORGANIZE
+                    % BBM, Optical System and Imaging System are all here.
+                    % What is that about?
                 case {'blackboxmodel','blackbox','bbm'} 
                     % Equivalent BLACK BOX MODEL
                     % 
                     % Which field of the black box to get
                     if nargin>2
-                        fileType = varargin{1};  
+                        parameter = varargin{1};  
                     else
                         error('Specify also the field of the Black Box Model!')
                     end
                     
                     if nargin>3
-                        [val]=obj.bbmGetValue(fileType,varargin{2});
+                        val = obj.bbmGetValue(parameter,varargin{2});
                     else
-                        [val]=obj.bbmGetValue(fileType);
+                        val = obj.bbmGetValue(parameter);
                     end
                     
-                    % val = obj.bbmGetValue(obj.BBoxModel,fileType);
+                    % val = obj.bbmGetValue(obj.BBoxModel,parameter);
                     
                 case {'opticalsystem'; 'optsyst';'opticalsyst';'optical system structure'}
                     % It seems OK to get the BBM from the lens.  The
-                    % psfCameraC, however, should have its own BBM.
-                    % So, this should probablyk be
+                    % psfCameraC could have its own BBM, but I am not sure
+                    %
+                    % So, this should probably be
+                    %
                     %    psfCameraC.get('lens optical system')
                     %
                     % rather than psfCameraC.get('optical system')
