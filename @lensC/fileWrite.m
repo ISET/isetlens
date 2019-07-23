@@ -106,6 +106,7 @@ end
 [~,~,e] = fileparts(fullFileName);
 if strcmp(e,'.json'),    fileFormat = 'json';
 elseif strcmp(e,'.txt'), fileFormat = 'txt';
+elseif strcmp(e,'.dat'), fileFormat = 'txt';
 end
 
 %% Tell the person if we are over-writing a lens file
