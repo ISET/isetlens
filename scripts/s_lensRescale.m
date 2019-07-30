@@ -13,10 +13,13 @@
 ieInit
 
 %%
-desiredFLength = 3;    % Units:   millimeters
+referenceFLength = 100;
 
-lenses = {'wide.56deg','dgauss.22deg','fisheye.87deg','tessar.22deg','wide.40deg','2el.XXdeg','petzval.12deg'};
+desiredFLengths = [3.0 6.0, 12.5, 50.0];    % Units:   millimeters
 
+lenses = {'petzval.12deg'};
+
+for d=1:length(desiredFLengths)
 for l=1:length(lenses)
     
     baseLens = lenses{l};
@@ -27,7 +30,7 @@ for l=1:length(lenses)
     % Read a lens file and create a lens
     % We assume that the base file describes a lens with 100mm focal
     % length.
-    lensFileName = fullfile(ilensRootPath,'data','lens',sprintf('%s.100.0mm.dat',baseLens));
+    lensFileName = fullfile(ilensRootPath,'data','lens',sprintf('%s.%.1fmm.dat',baseLens,referenceFLength));
     
     % This is a small number of numerical samples in the aperture.  
     nSamples = 351;
@@ -46,7 +49,7 @@ for l=1:length(lenses)
     scaledLens = lensC('apertureSample', [nSamples nSamples], ...
         'fileName', lensFileName, ...
         'apertureMiddleD', apertureMiddleD);
-    scaleFactor = desiredFLength/scaledLens.focalLength;
+    scaleFactor = desiredFLengths(d)/scaledLens.focalLength;
     
     for ii=1:length(scaledLens.surfaceArray)
         scaledLens.surfaceArray(ii).sRadius = scaledLens.surfaceArray(ii).sRadius * scaleFactor;
@@ -55,8 +58,8 @@ for l=1:length(lenses)
     end
     
     scaledLens.bbmCreate();
-    scaledLens.focalLength = desiredFLength;
-    scaledLens.name = sprintf('%s.%.1fmm',baseLens,desiredFLength);
+    scaledLens.focalLength = desiredFLengths(d);
+    scaledLens.name = sprintf('%s.%.1fmm',baseLens,desiredFLengths(d));
     scaledLens.draw
     
     
@@ -82,4 +85,5 @@ for l=1:length(lenses)
     
     fileWrite(scaledLens,fullfile(ilensRootPath,'data','lens',sprintf('%s.dat',scaledLens.name)));
     fileWrite(scaledLens,fullfile(ilensRootPath,'data','lens',sprintf('%s.json',scaledLens.name)));
+end
 end
