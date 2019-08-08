@@ -13,9 +13,9 @@
 ieInit
 
 %%
-desiredFLength = 6;    % Units:   millimeters
+desiredFLength = 3;    % Units:   millimeters
 
-lenses = {'wide.56deg','dgauss.22deg','fisheye.87deg','tessar.22deg','wide.40deg','2el.XXdeg'};
+lenses = {'wide.56deg','dgauss.22deg','fisheye.87deg','tessar.22deg','wide.40deg','2el.XXdeg','petzval.12deg'};
 
 for l=1:length(lenses)
     
@@ -27,7 +27,7 @@ for l=1:length(lenses)
     % Read a lens file and create a lens
     % We assume that the base file describes a lens with 100mm focal
     % length.
-    lensFileName = fullfile(rtbsRootPath,'SharedData',sprintf('%s.100.0mm.dat',baseLens));
+    lensFileName = fullfile(ilensRootPath,'data','lens',sprintf('%s.100.0mm.dat',baseLens));
     
     % This is a small number of numerical samples in the aperture.  
     nSamples = 351;
@@ -78,7 +78,8 @@ for l=1:length(lenses)
         'resolution',[300 300],...
         'wave', wave);
     camera = psfCameraC('lens',scaledLens,'film',sensor,'pointsource',point);
-    camera.estimatePSF(100,true);
+    camera.estimatePSF(true);
     
-    fileWrite(scaledLens,[scaledLens.name '.dat']);
+    fileWrite(scaledLens,fullfile(ilensRootPath,'data','lens',sprintf('%s.dat',scaledLens.name)));
+    fileWrite(scaledLens,fullfile(ilensRootPath,'data','lens',sprintf('%s.json',scaledLens.name)));
 end
