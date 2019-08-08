@@ -220,9 +220,9 @@ classdef psfCameraC <  handle
                     % get the fftPSF coord,
                     % Specifying the wavelength if you want a specific PSF
                     if nargin>2
-                        wave0=varargin{1};
-                        waveV=obj.get('wave');
-                        indW0=find(wave==wave0);
+                        wave0 = varargin{1};
+                        wave  = obj.get('wave');
+                        indW0 = find(wave==wave0);
                         if isempty(indW0)
                             val.x=obj.fftPSF.x;
                             val.y=obj.fftPSF.y;
@@ -369,7 +369,7 @@ classdef psfCameraC <  handle
                     % Specifying the wavelength if you want a specific PSF
                     if nargin>3
                         wave0=varargin{1};
-                        % waveV=obj.get('wave');
+                        wave=obj.get('wave');
                         indW0=find(wave==wave0);
                         if isempty(indW0)
                             obj.fftPSF.abs=val;
@@ -384,7 +384,7 @@ classdef psfCameraC <  handle
                     % Specifying the wavelength if you want a specific PSF
                     if nargin>3
                         wave0=varargin{1};
-                        waveV=obj.get('wave');
+                        wave=obj.get('wave');
                         indW0=find(wave==wave0);
                         if isempty(indW0)
                             obj.fftPSF.x=val.x;

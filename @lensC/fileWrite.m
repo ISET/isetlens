@@ -155,6 +155,11 @@ switch fileFormat
             jsonLens.surfaces(ii).semi_aperture = dataMatrix(ii,4)/2;
         end
         
+        % If it has microlens data, add it and store it
+        if ~isempty(obj.microlens)
+            jsonLens.microlens = obj.microlens;
+        end
+        
         opts.indent = ' ';
         jsonwrite(fullFileName,jsonLens,opts)
         

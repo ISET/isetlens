@@ -140,7 +140,9 @@ switch fileFormat
         else,                       error('No non-refractive (aperture/diaphragm) element found');
         end
     case 'json'
-        % Read the JSON file with the lens definition
+        % Read the JSON file with the lens definition.
+        % If there is a microlens slot, we add that to the lens object,
+        % too.  It is used for plotting and can be used by PBRT.
         %
         lensData  = jsonread(fullFileName);
         obj.fullFileName = fullFileName;
@@ -174,6 +176,37 @@ switch fileFormat
         
         obj.elementsSet(sOffset, sRadius, sApertureDiameter, sIOR)
 
+        % Stash the microlens data
+        if isfield(lensData,'microlens')
+            microLens = lensC;
+            microLens.type = 'microlens';
+
+            % By default there is a lensname+microlensName syntax
+            %
+            microLens.fullFileName = fullFileName;
+            tmp = strsplit(fullFileName,'+');
+            if numel(tmp)>1, microLens.name = tmp{2};
+            else, microLens.name = 'unknown';
+            end
+            microLens.description = 'microlens';
+            
+            jSurfaces = lensData.microlens.surfaces;
+            nSurfaces = numel(jSurfaces);
+            sIOR = zeros(nSurfaces,1);
+            sRadius = sIOR; sOffset = sIOR; sApertureDiameter = sIOR;
+            for ii =1:nSurfaces
+                sIOR(ii)    = jSurfaces(ii).ior;
+                sRadius(ii) = jSurfaces(ii).radius;   % Radius of curvature
+                sApertureDiameter(ii) = 2*jSurfaces(ii).semi_aperture;
+                sOffset(ii) = jSurfaces(ii).thickness;
+            end
+            sOffset = [sOffset(end); sOffset(1:(end-1))]*unitScale;
+            
+            microLens.elementsSet(sOffset, sRadius, sApertureDiameter, sIOR)
+            
+            obj.microlens = microLens;
+        end
+        
         
         % To make this work with current isetlens, we need to convert
         % the parameters

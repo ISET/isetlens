@@ -9,6 +9,12 @@ function res = get(obj,pName,varargin)
 %    'wave'
 %      ...
 %
+%    'microlens aperture'
+%    'microlens radius'
+%    'microlens ior'
+%    'microlens thickness'
+%    'microlens dimensions'
+%
 % See also
 %
 
@@ -47,6 +53,8 @@ switch pName
         else,                 res = obj.surfaceArray(varargin{1});
         end
     case {'indexofrefraction','narray'}
+        % n is often used as the symbol for index of refraction
+        % Perhaps we should allow 'ior' here, as well
         nSurf = obj.get('nsurfaces');
         sWave = obj.surfaceArray(1).wave;
         res = zeros(length(sWave),nSurf);
@@ -196,6 +204,53 @@ switch pName
             OptSyst=obj.bbmComputeOptSyst();
         end
         res = OptSyst;
+        
+        % Could be pulled out into microlensGet and the 'microlens' name
+        % could be detected at the top of the file, like oiGet and 'optics'
+        % stuff.
+        %
+        % Also, could allow user to specify just one of the surfaces for,
+        % say, the aperture or radius or ...
+    case {'microlensdimensions'}
+        % Microlens array dimensions (nrow, ncol)
+        res = obj.microlens.dimensions;
+        
+    case {'microlensaperture'}
+        % Aperture of the microlens surfaces
+        nSurfaces = numel(obj.microlens.surfaces);
+        res = zeros(nSurfaces,1);
+        for ii=1:nSurfaces
+            res(ii) = obj.microlens.surfaces(ii).semi_aperture;
+        end
+        res = res*2;
+        
+    case {'microlensradius'}
+        % Radius of curvature of the microlens surfaces
+        nSurfaces = numel(obj.microlens.surfaces);
+        res = zeros(nSurfaces,1);
+        for ii=1:nSurfaces
+            res(ii) = obj.microlens.surfaces(ii).radius;
+        end
+        
+    case {'microlensior'}
+        % Index of refraction of the microlens surfaces
+        % Each number refers to the next medium after this surface
+        nSurfaces = numel(obj.microlens.surfaces);
+        res = zeros(nSurfaces,1);
+        
+    case {'microlensnsurfaces'}
+        % Number of surfaces in the microlens
+        % Could calculate the number of refractive surfaces, say with a
+        % logical index, as above.
+        res = numel(obj.microlens.surfaces);
+       
+    case {'microlensthickness'}
+        % Thickness of the microlens surfaces
+        nSurfaces = numel(obj.microlens.surfaces);
+        res = zeros(nSurfaces,1);
+        for ii=1:nSurfaces
+            res(ii) = obj.microlens.surfaces(ii).thickness;
+        end
         
     otherwise
         error('Unknown parameter %s\n',pName);

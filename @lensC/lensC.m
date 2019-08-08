@@ -14,6 +14,7 @@ classdef lensC <  handle
     %   'units', {'um','mm','m'}
     %   'wave', vector
     %   'surface array'
+    %   'microlens'
     %   'aperture sample'
     %   'aperture middle d'   - Maximum aperture size
     %   'diffraction enabled' - Run HURB as part of the calculation
@@ -95,6 +96,7 @@ classdef lensC <  handle
         description = 'description';   % Patents or related
         fullFileName = '';             % If read from a file
         surfaceArray = surfaceC();     % Set of spherical surfaces and apertures
+        microlens = [];                % Optional microlens array definition
         diffractionEnabled = false;    % Do not run HURB by default
         wave = 400:50:700;             % nm
         focalLength = 50;              % mm, focal length of multi-element lens
