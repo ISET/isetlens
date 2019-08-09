@@ -96,11 +96,10 @@ classdef lensC <  handle
         description = 'description';   % Patents or related
         fullFileName = '';             % If read from a file
         surfaceArray = surfaceC();     % Set of spherical surfaces and apertures
-        microlens = [];                % Optional microlens array definition
         diffractionEnabled = false;    % Do not run HURB by default
         wave = 400:50:700;             % nm
         focalLength = 50;              % mm, focal length of multi-element lens
-        apertureMiddleD = 8;           % mm, diameter of the middle aperture
+        apertureMiddleD = [];           % mm, diameter of the middle aperture
         apertureSample = [151 151];    % Number of spatial samples in the aperture.  Use odd number
         centerZ = 0;                   % Theoretical center of lens (length-wise) in the z coordinate
         
@@ -118,10 +117,10 @@ classdef lensC <  handle
         % computations, largely in Matlab
         BBoxModel=[]; % Empty
         
-        % Microlens Model - Will be used extensively for camera development
-        % and testing, largely in PBRT
-        MLensModel = []; % Empty
-        
+        % microlens array definition used by PBRT
+        microlens = [];         % lensC
+        microlensarray = [];    % number of microlenses in x,y dim
+        microlenstofilm = [];   % Distance in mm
     end
     
     properties (SetAccess = private)
@@ -185,12 +184,7 @@ classdef lensC <  handle
             if ~isempty(p.Results.aperturesample)
                 obj.apertureSample = p.Results.aperturesample;
             end
-            if ~isempty(p.Results.aperturemiddled)
-                obj.apertureMiddleD = p.Results.aperturemiddled;
-            end
-            if ~isempty(p.Results.focallength)
-                obj.focalLength = p.Results.focallength;
-            end
+
             if ~isempty(p.Results.wave), obj.set('wave',wave);  end
             % if ~isempty(p.Results.diffractionenabled)
             %     obj.diffractionEnabled = p.Results.diffractionenabled;
@@ -204,6 +198,23 @@ classdef lensC <  handle
             % Advanced
             if ~isempty(p.Results.blackboxmodel)
                 obj.BBoxModel = p.Results.blackboxmodel;
+            end
+            
+            % Find the middle aperture (diaphragm) and set this parameter
+            % equal to it.  I think we rely on this is a short-cut
+            % somewhere.
+            if ~isempty(p.Results.aperturemiddled)
+                obj.apertureMiddleD = p.Results.aperturemiddled;
+            else
+                obj.apertureMiddleD = obj.get('middle aperture d');
+            end
+            
+            % Set the focal length (compute it unless the user says
+            % otherwise).
+            if ~isempty(p.Results.focallength)
+                obj.focalLength = p.Results.focallength;
+            else
+                obj.focalLength = lensFocus(obj,1e6);
             end
             
         end

@@ -102,9 +102,9 @@ switch pName
         else, this = varargin{1};
         end
         res = obj.surfaceArray(this).apertureD;
-    case {'aperture','diaphragm'}
+    case {'diaphragm','aperture'}
         % lens.get('aperture')
-        % Returns the surface number of the aperture
+        % Returns the surface number corresponding to the limiting aperture
         % (diaphragm)
         s = obj.surfaceArray;
         for ii=1:length(s)
@@ -118,15 +118,11 @@ switch pName
         res =  obj.apertureSample ;
     case {'middleapertured','aperturemiddled','diaphragmdiameter'}
         % There is normally a middle aperture, called a diaphragm. This is
-        % the diameter of that aperture (diaphragm). But this formulation
-        % is not really consistent with the 'get' for the 'diaphragm' (see
-        % above).  Here, we are assuming that the diagram is stored in this
-        % slot.  Confusing to me.
-        %
-        % Possibly, we should find the diaphragm and return its diameter.
+        % the diameter of the diaphragm.
         %
         % units are mm
-        res = obj.apertureMiddleD;
+        idx = obj.get('aperture');
+        res = obj.surfaceArray(idx).apertureD;
         
         % System properties
     case {'focallength'}
@@ -211,21 +207,22 @@ switch pName
         %
         % Also, could allow user to specify just one of the surfaces for,
         % say, the aperture or radius or ...
-    case {'microlensdimensions'}
+    case {'microlensarray'}
         % Microlens array dimensions (nrow, ncol)
-        res = obj.microlens.dimensions;
+        % Or maybe ncol,nrow (xdim,ydim)
+        res = obj.microlensarray;
         
     case {'microlensaperture'}
-        % Aperture of the microlens surfaces
+        % Apertures of the all the microlens surfaces
         nSurfaces = numel(obj.microlens.surfaces);
-        res = zeros(nSurfaces,1);
+        res = zeros(1,nSurfaces);
         for ii=1:nSurfaces
             res(ii) = obj.microlens.surfaces(ii).semi_aperture;
         end
         res = res*2;
         
     case {'microlensradius'}
-        % Radius of curvature of the microlens surfaces
+        % Radius of curvature of all the microlens surfaces
         nSurfaces = numel(obj.microlens.surfaces);
         res = zeros(nSurfaces,1);
         for ii=1:nSurfaces
@@ -237,6 +234,9 @@ switch pName
         % Each number refers to the next medium after this surface
         nSurfaces = numel(obj.microlens.surfaces);
         res = zeros(nSurfaces,1);
+        for ii=1:nSurfaces
+            res(ii) = obj.microlens.surfaces(ii).ior;
+        end
         
     case {'microlensnsurfaces'}
         % Number of surfaces in the microlens

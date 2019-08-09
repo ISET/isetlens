@@ -2,12 +2,14 @@
 %
 % Re-scaling lens lengths to a new focal length.
 %
-%  Convert a lens design file to a new focal length from an existing
-%  lens design file. The lens parameters (# surfaces, materials) don't
-%  change, but their dimensions do, in order to accommodate the new
-%  focal length.
+% Convert a lens design file to a new focal length from an existing lens
+% design file. The lens parameters (# surfaces, materials) don't change,
+% but their dimensions do, in order to accommodate the new focal length.
 %
 %  Copyright, VISTALAB 2017
+%
+% See also
+%    lensC.scale
 
 %%
 ieInit

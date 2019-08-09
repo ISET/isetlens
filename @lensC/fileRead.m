@@ -149,18 +149,6 @@ switch fileFormat
         obj.name = lensData.name;
         obj.description = lensData.description;
         
-        %{
-        offset = str2double(import{2});
-        offset = offset(dStart:length(firstColumn));
-        offset = [0; offset(1:(end-1))]; % Shift to account for different convention
-        offset = offset*unitScale;
-        if sum(isnan(offset)) > 0
-            warning('Error reading lens file offset');
-            lst = find(isnan(offset));
-            fprintf('Bad indices %d\n',lst);
-        end
-        %}
-        
         % For each surface transform the data into the lensC format
         jSurfaces = lensData.surfaces;
         nSurfaces = numel(jSurfaces);
@@ -178,18 +166,19 @@ switch fileFormat
 
         % Stash the microlens data
         if isfield(lensData,'microlens')
-            microLens = lensC;
-            microLens.type = 'microlens';
+            microlens = lensC;
+            microlens.type = 'microlens';
 
             % By default there is a lensname+microlensName syntax
-            %
-            microLens.fullFileName = fullFileName;
+            % We try to split the filename that way
+            microlens.fullFileName = fullFileName;
             tmp = strsplit(fullFileName,'+');
-            if numel(tmp)>1, microLens.name = tmp{2};
-            else, microLens.name = 'unknown';
+            if numel(tmp)>1, microlens.name = tmp{2};
+            else, microlens.name = 'unknown';
             end
-            microLens.description = 'microlens';
+            microlens.description = 'microlens';
             
+            % Parse the surfaces
             jSurfaces = lensData.microlens.surfaces;
             nSurfaces = numel(jSurfaces);
             sIOR = zeros(nSurfaces,1);
@@ -202,9 +191,12 @@ switch fileFormat
             end
             sOffset = [sOffset(end); sOffset(1:(end-1))]*unitScale;
             
-            microLens.elementsSet(sOffset, sRadius, sApertureDiameter, sIOR)
+            % Convert from PBRT to isetlens format
+            microlens.elementsSet(sOffset, sRadius, sApertureDiameter, sIOR)
             
-            obj.microlens = microLens;
+            % Save the microlens in the imaging lens object
+            obj.microlens = microlens;
+            obj.microlensarray = lensData.microlens.dimensions;
         end
         
         
