@@ -1,8 +1,8 @@
-function scale(thisLens,factor,varargin)
+function height = scale(thisLens,factor,varargin)
 % Scale the lens surface size by a factor
 %
 % Syntax
-%    lensC.scale(factor,varargin)
+%    height = lensC.scale(factor,varargin)
 %
 % Brief description
 %  Change all of the spatial dimensions of the lens by the specified scale
@@ -21,7 +21,7 @@ function scale(thisLens,factor,varargin)
 %   'aperture'  - Scale apertureD
 % 
 % Outputs
-%    N/A
+%    height     - scaled lens height in millimeters
 %
 % Wandell
 %
@@ -69,5 +69,7 @@ end
 thisLens.bbmCreate();
 thisLens.focalLength = lensFocus(thisLens,1e6);
 thisLens.apertureMiddleD = thisLens.get('middle aperture d');
+
+if nargout > 0, height = thisLens.get('lens height'); end
 
 end
