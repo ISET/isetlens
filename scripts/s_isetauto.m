@@ -30,7 +30,7 @@ lens.apertureSample = [601 601];          % Number of samples at first lens
 %%  Set up point, lens, film
 
 [pt, ~, film] = ilInitPLF;
-pt{1}     = [0, 0, -10^6];          % For a point that is far away
+pt{1}     = [0, 0, -1e2];          % For a point that is far away
 film.size = [0.5 0.5];              % A small bit of film, in millimeters
 film.resolution = film.size*1e3;    % 1 micron per sample, keeps the estimate constant
 
@@ -48,7 +48,11 @@ camera.autofocus(550,'nm');
 %  0.000 mm is the in focus plane for this distant point
 %  0.050 mm blurs some
 %  0.100 mm is much more 
-camera.set('film position',[0 0 lens.get('infocus distance',400)]);
+
+% Set the camera to be in focus for an object at 400 mm
+camera.set('film position',[0 0 lens.get('infocus distance',10000)]);
+
+% Then we 
 fprintf('Film distance:\t%f\nFocal length:\t%f\n',...
     camera.get('film distance'),lens.get('focal length'));
 

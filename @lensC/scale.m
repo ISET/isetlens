@@ -1,8 +1,8 @@
-function scale(thisLens,factor)
+function scale(thisLens,factor,varargin)
 % Scale the lens surface size by a factor
 %
 % Syntax
-%    lensC.scale(factor)
+%    lensC.scale(factor,varargin)
 %
 % Brief description
 %  Change all of the spatial dimensions of the lens by the specified scale
@@ -15,7 +15,10 @@ function scale(thisLens,factor)
 %    factor   - scale factor
 %
 % Optional key/value inputs
-%    N/A
+%   'all'       - Scale all of radius, center and aperture (default)
+%   'radius'    - Scale sRadius
+%   'center'    - Scale sCenter
+%   'aperture'  - Scale apertureD
 % 
 % Outputs
 %    N/A
@@ -29,26 +32,42 @@ function scale(thisLens,factor)
 %{
  microLensName   = 'microlens.2um.Example.json';
  thisLens = lensC('filename',microLensName);
- fprintf('height: %f\n',microlens.get('lens height'));
+ lensFocus(thisLens,1e6)
+
+ fprintf('height: %f\n',thisLens.get('lens height'));
  thisLens.scale(4);
- fprintf('height: %f\n',microlens.get('lens height'))
+ fprintf('height: %f\n',thisLens.get('lens height'))
+ lensFocus(thisLens,1e6)
+ thisLens
 %}
 
 %%
 p = inputParser;
 p.addRequired('thisLens',@(x)(isa(x,'lensC')));
 p.addRequired('factor',@isscalar);
-p.parse(thisLens,factor);
+p.addParameter('radius',true,@islogical);
+p.addParameter('center',true,@islogical);
+p.addParameter('aperture',true,@islogical);
+
+p.parse(thisLens,factor,varargin{:});
+
 
 %% Scale all the surfaces by the specified scale factor
 
 for ii=1:numel(thisLens.surfaceArray)
-    thisLens.surfaceArray(ii).sRadius = thisLens.surfaceArray(ii).sRadius * factor;
-    thisLens.surfaceArray(ii).sCenter = thisLens.surfaceArray(ii).sCenter * factor;
-    thisLens.surfaceArray(ii).apertureD = thisLens.surfaceArray(ii).apertureD * factor;
+    if p.Results.radius
+        thisLens.surfaceArray(ii).sRadius = thisLens.surfaceArray(ii).sRadius * factor;
+    end
+    if p.Results.center
+        thisLens.surfaceArray(ii).sCenter = thisLens.surfaceArray(ii).sCenter * factor;
+    end
+    if p.Results.aperture
+        thisLens.surfaceArray(ii).apertureD = thisLens.surfaceArray(ii).apertureD * factor;
+    end
 end
 
-% Adjust the focal length
+% Recalculate the focal length and black box model
+thisLens.bbmCreate();
 thisLens.focalLength = lensFocus(thisLens,1e6);
 thisLens.apertureMiddleD = thisLens.get('middle aperture d');
 
