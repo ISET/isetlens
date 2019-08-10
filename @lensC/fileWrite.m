@@ -2,10 +2,9 @@ function fileWrite(obj, fullFileName, varargin)
 % Writes PBRT lens file, either as text of JSON
 %
 % Syntax:
-%   lens.fileWrite(fullFileName, varargin)
+%   fullFileName = lens.fileWrite(fullFileName, varargin)
 %
 % Description:
-%
 %  The PBRT file has focal length information added to the header. This
 %  function converts the PBRT matrix of data into the format that Scene3d
 %  uses for a multi-element lens.

@@ -10,8 +10,8 @@ function [filmDistance, lens] = lensFocus(lensDescription, objDistance, varargin
 %   distance is huge, the film distance is the focal length.
 %
 % Inputs:
-%   lensDescription - A lens file or a lensC object
-%   objDistance     -  Object distance (millimeters)
+%   lensDescription - A lens file (dat or json) or a lensC object
+%   objDistance     - Vector of object distances (millimeters)
 %
 % Optional
 %   wavelength  - Which wavelength for the point
@@ -28,6 +28,11 @@ function [filmDistance, lens] = lensFocus(lensDescription, objDistance, varargin
   lensFileName = '2ElLens.json';
   objDistance = 100;
   [filmDistJ, lensJ] = lensFocus(lensFileName,objDistance);
+%}
+%{
+  lensFileName = '2ElLens.json';
+  objDistance = [100:25:200];
+  filmDistJ = lensFocus(lensFileName,objDistance);
 %}
 %{
   lensFileName = '2ElLens.dat';
@@ -57,19 +62,25 @@ end
 
 %%  Initialize a point, film, and a camera with this lens
 
-point{1} = [0 0 -objDistance];
+filmDistance = zeros(size(objDistance));
 
-film = filmC;
-
-camera = psfCameraC('lens',lens,'film',film,'pointsource',point);
-
-%%  Find the film focal length (mm) for this wavelength
-
-% Call autofocus, setting the indices of refraction of air and water
-camera.autofocus(wavelength,'nm',1,1);
-
-% Return the position for focus given the lens and a point at this distance
-filmDistance = camera.film.position(3);
+for ii = 1:numel(objDistance)
+    
+    point{1} = [0 0 -objDistance(ii)];
+    
+    film = filmC;
+    
+    camera = psfCameraC('lens',lens,'film',film,'pointsource',point);
+    
+    %%  Find the film focal length (mm) for this wavelength
+    
+    % Call autofocus, setting the indices of refraction of air and water
+    camera.autofocus(wavelength,'nm',1,1);
+    
+    % Return the position for focus given the lens and a point at this distance
+    filmDistance(ii) = camera.film.position(3);
+    
+end
 
 
 end

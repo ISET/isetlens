@@ -30,15 +30,14 @@ function scale(thisLens,factor,varargin)
 
 % Examples:
 %{
- microLensName   = 'microlens.2um.Example.json';
+ microLensName   = 'microlens.json';
  thisLens = lensC('filename',microLensName);
- lensFocus(thisLens,1e6)
+ fprintf('height: %f\nfocal length %f\n',thisLens.get('lens height'),lensFocus(thisLens,1e6));
 
  fprintf('height: %f\n',thisLens.get('lens height'));
  thisLens.scale(4);
- fprintf('height: %f\n',thisLens.get('lens height'))
- lensFocus(thisLens,1e6)
- thisLens
+ fprintf('height: %f\nfocal length %f\n',thisLens.get('lens height'),lensFocus(thisLens,1e6));
+
 %}
 
 %%
