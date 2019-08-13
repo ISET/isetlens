@@ -1,5 +1,5 @@
 function [filmDistance, lens] = lensFocus(lensDescription, objDistance, varargin)
-% Compute the film distance to bring a point at object distance into focus
+% Compute film distance (mm) to focus at object distance (mm)
 %
 % Syntax
 %   [filmDistance, lens] = lensFocus(lensDescription, objDistance, varargin)
@@ -80,6 +80,11 @@ for ii = 1:numel(objDistance)
     % Return the position for focus given the lens and a point at this distance
     filmDistance(ii) = camera.film.position(3);
     
+end
+
+badFocus = (filmDistance < 0);
+if sum(badFocus) > 0
+    warning('Some object distances could not be focused');
 end
 
 
