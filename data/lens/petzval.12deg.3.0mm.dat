@@ -9,7 +9,7 @@
 # Zero is the position of the first lens surface.
 # Positive is towards the sensor (right).
 # Negative is towards the scene (left).
-#  radius	axpos		N		aperture
+# radius 	 axpos 	 N 	 aperture
 5.127300	0.580800	1.517000	2.160000
 -2.306400	0.190200	1.648000	2.160000
 48.231600	0.029100	1.000000	2.160000

@@ -181,10 +181,10 @@ hdr = addText(hdr,str);
 str = sprintf('# Focal length \n');
 hdr = addText(hdr,str);
 
-str = sprintf('%.3f\n',obj.focalLength*unitScale);
+str = sprintf('%.3f\n\n',obj.focalLength*unitScale);
 hdr = addText(hdr,str);
 
-str = sprintf('\n# Each row is a surface.\n');
+str = sprintf('# Each row is a surface.\n');
 hdr = addText(hdr,str);
 
 str = sprintf('# They are ordered from the image to the sensor.\n');
@@ -196,7 +196,7 @@ hdr = addText(hdr,str);
 str = sprintf('# Positive is towards the sensor (right).\n# Negative is towards the scene (left).\n');
 hdr = addText(hdr,str);
 
-str = sprintf('#  radius	axpos	\tN	\taperture\n');
+str = sprintf('# radius \t axpos \t N \t aperture\n');
 hdr = addText(hdr, str);
 
 end
