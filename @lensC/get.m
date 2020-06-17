@@ -34,9 +34,14 @@ switch pName
     case {'nsurfaces','numels'}
         % Should be nsurfaces
         res = length(obj.surfaceArray);
-    case {'lensheight'}
-        % Total height (diameter) of the front surface element
+    case {'lensheight','lensdiameter','diameter'}
+        % obj.get('diameter',spatialUnit)
+        % Total height (diameter) of the front surface element (mm)
         res = obj.surfaceArray(1).apertureD;
+        if ~isempty(varargin)
+            res = res*ieUnitScaleFactor(varargin{1})*1e-3; 
+        end
+            
     case {'lensthickness','totaloffset'}
         % This is the size (in mm) from the front surface to
         % the back surface.  The last surface is at 0, so the
@@ -103,7 +108,7 @@ switch pName
         end
         res = obj.surfaceArray(this).apertureD;
     case {'diaphragm','aperture'}
-        % lens.get('aperture')
+        % lens.get('aperture')  mm, I think
         % Returns the surface number corresponding to the limiting aperture
         % (diaphragm)
         s = obj.surfaceArray;

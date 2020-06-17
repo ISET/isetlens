@@ -17,6 +17,9 @@ switch pName
     case 'surfacearray'
         % lens.set('surface array',surfaceArrayClass);
         obj.surfaceArray = val;
+    case 'microlenssize'
+        % Used for microlens front aperture
+        obj.surfaceArray(1).apertureD = val;
     case 'middleaperturediameter'
         % Set the middle aperture to diameter val (mm)
         middleAperture = obj.get('aperture');

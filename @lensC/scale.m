@@ -1,5 +1,5 @@
 function height = scale(thisLens,factor,varargin)
-% Scale the lens surface size by a factor
+% Scale the lens surfaces size by a factor
 %
 % Syntax
 %    height = lensC.scale(factor,varargin)

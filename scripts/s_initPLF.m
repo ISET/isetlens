@@ -1,6 +1,6 @@
 %% s_initPLF
 %
-% We often need a default point (P), lens (L) and film (F) for debuggin
+% We often need a default point (P), lens (L) and film (F) for debugging
 % This script creates the variables
 %
 %   pts    a set of point locations (
