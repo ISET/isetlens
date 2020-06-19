@@ -1,115 +1,25 @@
 {
- "name": "scaledLens.0.0mm",
- "description": "multi element lens Focal length (mm) ",
+ "name": "microlens",
+ "description": "Exploring microlens options. This one is for a 2 micron pixel.",
  "type": "multi element lens",
  "surfaces": [
   {
-   "radius": 0.00251,
-   "thickness": 8.000000000000001e-05,
-   "ior": 1.713,
-   "semi_aperture": 0.00096
-  },
-  {
-   "radius": 0.00041,
-   "thickness": 0.00035,
-   "ior": 1,
-   "semi_aperture": 0.00041
-  },
-  {
-   "radius": 0.00206,
-   "thickness": 6e-05,
-   "ior": 1.62,
-   "semi_aperture": 0.00045
-  },
-  {
-   "radius": 0.00047,
-   "thickness": 0.00013,
-   "ior": 1,
-   "semi_aperture": 0.000395
-  },
-  {
-   "radius": 0.00058,
-   "thickness": 0.00021,
-   "ior": 1.669,
-   "semi_aperture": 0.000385
-  },
-  {
-   "radius": -0.00161,
-   "thickness": 3e-05,
-   "ior": 1,
-   "semi_aperture": 0.000385
-  },
-  {
-   "radius": -0.00095,
-   "thickness": 4e-05,
-   "ior": 1.694,
-   "semi_aperture": 0.00035
-  },
-  {
-   "radius": 0.00047,
-   "thickness": 0.00015,
-   "ior": 1.668,
-   "semi_aperture": 0.000325
-  },
-  {
-   "radius": -0.00208,
-   "thickness": 2e-05,
-   "ior": 1,
-   "semi_aperture": 0.000325
-  },
-  {
-   "radius": 0.6,
-   "thickness": 6e-05,
-   "ior": 1.518,
-   "semi_aperture": 0.0003
+   "radius": 0.0035,
+   "thickness": 0.00042,
+   "ior": 1.65,
+   "semi_aperture": 0.0014
   },
   {
    "radius": 0,
-   "thickness": 5e-05,
-   "ior": 0,
-   "semi_aperture": 0.0003
+   "thickness": 0.00014,
+   "ior": 1.65,
+   "semi_aperture": 0.0014
   },
   {
-   "radius": 0.6,
-   "thickness": 6e-05,
-   "ior": 1,
-   "semi_aperture": 0.0003
-  },
-  {
-   "radius": 0.6,
-   "thickness": 6e-05,
-   "ior": 1,
-   "semi_aperture": 0.000255
-  },
-  {
-   "radius": -0.03171,
-   "thickness": 0.00013,
-   "ior": 1.497,
-   "semi_aperture": 0.000265
-  },
-  {
-   "radius": -0.00068,
+   "radius": -140000,
    "thickness": 0,
    "ior": 1,
-   "semi_aperture": 0.0003
-  },
-  {
-   "radius": 0.00397,
-   "thickness": 0.00019,
-   "ior": 1.487,
-   "semi_aperture": 0.00031
-  },
-  {
-   "radius": -0.00038,
-   "thickness": 4e-05,
-   "ior": 1.805,
-   "semi_aperture": 0.00031
-  },
-  {
-   "radius": -0.00076,
-   "thickness": 0,
-   "ior": 1,
-   "semi_aperture": 0.000335
+   "semi_aperture": 0.0014
   }
  ]
 }
