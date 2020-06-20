@@ -82,9 +82,10 @@ for ii = 1:numel(objDistance)
     
 end
 
+%% Warn the user
 badFocus = (filmDistance < 0);
 if sum(badFocus) > 0
-    warning('Some object distances could not be focused');
+    warning('Negative means object distances can not be focused');
 end
 
 
