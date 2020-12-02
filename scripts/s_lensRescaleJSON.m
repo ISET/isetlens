@@ -62,7 +62,10 @@ sensor = filmC('position', [0 0 154], ...
     'resolution',[300 300],...
     'wave', wave);
 camera = psfCameraC('lens',scaledLens,'film',sensor,'pointsource',point);
-camera.estimatePSF(100,true);
+
+nLines = 100;
+jitterFlag = true;
+camera.estimatePSF('nlines', nLines, 'jitter flag', jitterFlag);
 
 % fileWrite(scaledLens,[scaledLens.name '.dat']);
 

@@ -23,7 +23,7 @@ camera.get('film position')
 %%
 nLines = 0;  % Do not draw the rays
 jitter = true;
-camera.estimatePSF(nLines,jitter);
+camera.estimatePSF('n lines', nLines, 'jitter flag',jitter);
 %%
 oi = camera.oiCreate;
 % ieAddObject(oi); oiWindow;

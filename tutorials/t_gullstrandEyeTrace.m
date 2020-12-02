@@ -95,7 +95,7 @@ iorImageSpace = 1.336;
 % Estimate the PSF and show the ray trace
 nLines = 500;
 jitter = true;
-camera.estimatePSF(nLines,jitter);
+camera.estimatePSF('n lines', nLines, 'jitter flag',jitter);
 set(gca,'xlim',[-5 20]); grid on
 
 %% Show the point spread in the optical image window
@@ -135,7 +135,7 @@ camera.film.position(3)
 camera.autofocus(550,'nm',1,1.236);   % This gets us really close.
 camera.film.position(3)
 
-camera.estimatePSF(nLines,jitter);
+camera.estimatePSF('n lines', nLines, 'jitter flag',jitter);
 oi = camera.oiCreate;
 ieAddObject(oi); oiWindow;
 

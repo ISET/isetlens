@@ -42,7 +42,9 @@ function files = lensList(varargin)
         'wave', wave);
     camera = psfCameraC('lens',thisLens,'film',sensor,'pointsource',point);
     camera.autofocus(550,'nm')
-    camera.estimatePSF(100,true);
+    nLines = 100;
+    jitterFlag = true;
+    camera.estimatePSF('n lines', nLines, 'jitter flag',jitterFlag);
 %}
 %{
   lensNames = lensList('quiet',true);

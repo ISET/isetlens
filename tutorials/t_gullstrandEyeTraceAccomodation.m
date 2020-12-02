@@ -163,7 +163,7 @@ camera = psfCameraC('lens',lens,'film',sensor,'point',point);
 % Estimate the PSF and show the ray trace
 nLines = 100;
 jitter = true;
-camera.estimatePSF(nLines,jitter);
+camera.estimatePSF('n lines', nLines, 'jitter flag',jitter);
 set(gca,'xlim',[-5 20]); grid on
 
 %% Clean up

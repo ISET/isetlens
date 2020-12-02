@@ -64,6 +64,6 @@ object=[0,ImagSyst.object{end}.y_ecc,ImagSyst.object{end}.z_pos];
 
 %DEBUG
 %  psfCamera = psfCameraC('lens', lens, 'film', film, 'pointsource', object0);
-% psfCamera.estimatePSF(1000,true);
+% psfCamera.estimatePSF('n lines', 1000, 'jitter flag', true);
 %   oi = psfCamera.oiCreate;
 %   vcAddObject(oi); oiWindow;

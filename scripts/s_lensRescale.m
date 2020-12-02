@@ -83,7 +83,8 @@ for l=1:length(lenses)
         'resolution',[300 300],...
         'wave', wave);
     camera = psfCameraC('lens',scaledLens,'film',sensor,'pointsource',point);
-    camera.estimatePSF(true);
+    jitterFlag = true;
+    camera.estimatePSF('jitter flag', jitterFlag);
     
     fileWrite(scaledLens,fullfile(ilensRootPath,'data','lens',sprintf('%s.dat',scaledLens.name)));
     fileWrite(scaledLens,fullfile(ilensRootPath,'data','lens',sprintf('%s.json',scaledLens.name)));

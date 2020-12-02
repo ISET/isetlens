@@ -52,7 +52,7 @@ camera = psfCameraC('lens',lens,'film',sensor,'point source',point);
 % Estimate the PSF and show the ray trace
 nLines = 0;
 jitter = true;
-camera.estimatePSF(nLines,jitter);
+camera.estimatePSF('n lines', nLines, 'jitter flag', jitter);
 
 %% Show the point spread in the optical image window
 
@@ -73,7 +73,7 @@ for dd = dist
     % Sequence of events for estimating the PSF,
     nLines = 0;
     jitter = true;
-    camera.estimatePSF(nLines,jitter);
+    camera.estimatePSF('n lines', nLines, 'jitter flag', jitter);
     
     % Show the point spread in the optical image window
     oi = camera.oiCreate;

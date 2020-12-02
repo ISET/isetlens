@@ -40,7 +40,7 @@ camera.film.position(3) = camera.film.position(3) + 0.3;
 jitterFlag = true;
 
 % This is the whole point spread function
-camera.estimatePSF(jitterFlag);
+camera.estimatePSF('jitter flag', jitterFlag);
 camera.rays.plot('entrance pupil');
 
 %% Create the OI - The film size does not seem right.

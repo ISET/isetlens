@@ -1,4 +1,4 @@
-function camera = estimatePSF(camera,jitterFlag,subsection,diffractionMethod,rtType)
+function camera = estimatePSF(camera, varargin)
 % Estimate the psfCamera point spread function (PSF)
 %
 % Syntax:
@@ -12,9 +12,11 @@ function camera = estimatePSF(camera,jitterFlag,subsection,diffractionMethod,rtT
 %
 % Inputs:
 %  obj:          psfCameraC
-%  jitterFlag:   Jitter position of rays, not regularly sample
+%  jitterFlag:   Jitter position of rays, not regularly sample, first start
+%                with rays on a grid, then jitter the positions
 %  subsection:   Only allow rays through a subsection of the front aperture
-%  diffractionMethod: Two methods are implemented, Huygens and HURB
+%  diffractionMethod: Two methods are implemented, Huygens and HURB,
+%                     Heisenburg uncertainty ray bending.
 %  rtType:            Realistic or ideal
 %
 % You can visualize the point spread using the optical image derived from
@@ -23,12 +25,13 @@ function camera = estimatePSF(camera,jitterFlag,subsection,diffractionMethod,rtT
 %   oi = psfCamera.oiCreate(varargin);
 %
 % AL/BW Vistasoft Team, Copyright 2014
-%
+% ZLY, 2020
 % See also:
 %  s_isetauto.m
 
-%% Old fashioned parameter decoding
 
+%% Old fashioned parameter decoding
+%{
 if notDefined('jitterFlag'), jitterFlag = false; end
 if notDefined('subsection'), subsection = []; end
 if notDefined('diffractionMethod'), diffractionMethod = 'HURB'; end
@@ -36,6 +39,28 @@ if notDefined('rtType'), rtType = 'realistic'; end
 
 % Use camera.draw, no lines in this case.
 nLines = 0;
+%}
+
+%% 
+p = inputParser;
+
+varargin = ieParamFormat(varargin);
+
+p.addRequired('camera');
+p.addParameter('jitterflag', false, @islogical);
+p.addParameter('subsection', []);
+p.addParameter('diffractionmethod', 'HURB', @ischar);
+p.addParameter('rttype', 'realistic', @ischar);
+p.addParameter('nlines', 0, @isnumeric);
+
+p.parse(camera, varargin{:});
+
+camera = p.Results.camera;
+jitterFlag = p.Results.jitterflag;
+subsection = p.Results.subsection;
+diffractionMethod = p.Results.diffractionmethod;
+rtType = p.Results.rttype;
+nLines = p.Results.nlines;
 
 %%
 if isequal(diffractionMethod, 'HURB') 

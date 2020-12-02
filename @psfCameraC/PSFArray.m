@@ -118,7 +118,7 @@ for ii = 1:nFH
         %             'film', film, ...
         %             'pointsource', pointSources{ii,dd});
         
-        obj.estimatePSF(nLines, jitterFlag);
+        obj.estimatePSF('n lines', nLines, 'jitter flag', jitterFlag);
         oi = obj.oiCreate();  % vcAddObject(oi); oiWindow;
         
         % Extract the point spread data

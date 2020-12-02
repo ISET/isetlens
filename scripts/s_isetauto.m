@@ -60,7 +60,7 @@ fprintf('Film distance:\t%f\nFocal length:\t%f\n',...
 
 nLines = 0;  % Do not draw the rays if 0.
 jitter = true;
-camera.estimatePSF(jitter);
+camera.estimatePSF('jitter flag', jitter);
 
 %% The oi illuminance level is arbitrary
 

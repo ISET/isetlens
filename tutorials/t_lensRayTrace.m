@@ -89,7 +89,7 @@ camera.set('pointsource', point);
 % Estimate the PSF and show the ray trace
 nLines = 100;  % Do not draw the rays
 jitter = true;
-camera.estimatePSF(nLines,jitter);
+camera.estimatePSF('n lines',nLines, 'jitter flag',jitter);
 set(gca,'xlim',[-50 40],'ylim',[-15 15])
 
 % Show the point spread in the optical image window

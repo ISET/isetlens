@@ -73,7 +73,10 @@ method = 'HURB';   % Randomized the direction of rays near the edges
 rtType = 'ideal';
 
 % Produced the data for the PSF.
-camera.estimatePSF(nLines,jitter,subsection, method, rtType);
+camera.estimatePSF('n lines', nLines, 'jitter flag', jitter,...
+                   'subection', subsection,...
+                   'diffraction method', method,...
+                   'rt type', rtType);
 
 % Scale the axes so we can see the film plane. 
 set(gca,'xlim',[-5 20]); grid on
@@ -136,7 +139,10 @@ subsection = [];
 %method = 'HURB';
 method = 'huygens';
 rtType = 'ideal';
-camera.estimatePSF(nLines,jitter,subsection, method, rtType);
+camera.estimatePSF('n lines', nLines, 'jitter flag', jitter,...
+                   'subsection', subsection,...
+                   'diffraction method', method,...
+                   'rt type',rtType);
 
 oiHuygens = camera.oiCreate(); 
 oiHuygens = oiSet(oiHuygens,'name','Huygens');

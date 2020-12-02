@@ -84,7 +84,7 @@ psfCamera = psfCameraC('lens',thisLens,'film',film,'pointsource',ps);
 % The estimated PSF is added to the current camera film.
 % N.B. We must clear the film before recomputing, which we do below.
 nLines = 0; jitterFlag = true;
-psfCamera.estimatePSF(nLines,jitterFlag);
+psfCamera.estimatePSF('n lines', nLines, 'jitter flag', jitterFlag);
 
 oi = psfCamera.oiCreate;
 ieAddObject(oi); oiWindow;
@@ -116,7 +116,7 @@ for ii=1:length(d)
     % clearer.
     nLines = 100;        % No debug lines
     jitterFlag = true;
-    psfCamera.estimatePSF(nLines,jitterFlag);
+    psfCamera.estimatePSF('n lines', nLines, 'jitter flag', jitterFlag);
     
     % Show the array of points in ISET
     oi = psfCamera.oiCreate;
