@@ -85,7 +85,16 @@ if isequal(diffractionMethod, 'HURB')
         
         % intersect with "film" and add to film
         camera.rays.recordOnFilm(camera.film, 'nLines',nLines);
-        
+        %% Set Focal point, principle point and nodal point
+        hold all
+        % Image focal point
+        p1 = pointVisualize(camera.lens, 'image focal point', 'p size', 10, 'color', 'b');
+        % Image principle point
+        p2 = pointVisualize(camera.lens, 'image principal point', 'p size', 10, 'color', 'g');
+        % Image nodal point
+        p3 = pointVisualize(camera.lens, 'image nodal point', 'p size', 5, 'color', 'r');
+        legend([p1 p2 p3],...
+            {'Image focal point', 'Image principal point', 'Image nodal point'});
     end
     
 elseif isequal(diffractionMethod, 'huygens') && camera.lens.diffractionEnabled
