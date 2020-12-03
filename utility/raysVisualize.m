@@ -68,11 +68,13 @@ lWidth = 0.1;       % Somewhat thin
 lColor = [0 0.5 1]; % Blue color
 lStyle = '-';       % Solid line
 
-% Which sample rays to visualize
-if ~isstruct(nLines) && nRays > 0,        samps = randi(nRays,[nLines,1]);
-elseif strcmp(nLines.spacing, 'uniform'), samps = round(linspace(1, nRays, nLines.numLines));
-elseif strcmp(nLines.spacing,'random'),   samps = randi(nRays,[nLines.numLines,1]);
-else,  error('Unknown spacing parameter %s\n',nLines.spacing);
+if isempty(samps)
+    % Which sample rays to visualize
+    if ~isstruct(nLines) && nRays > 0,        samps = randi(nRays,[nLines,1]);
+    elseif strcmp(nLines.spacing, 'uniform'), samps = round(linspace(1, nRays, nLines.numLines));
+    elseif strcmp(nLines.spacing,'random'),   samps = randi(nRays,[nLines.numLines,1]);
+    else,  error('Unknown spacing parameter %s\n',nLines.spacing);
+    end
 end
 
 % The x,y coordinates are in the columns of the origin and endpoints

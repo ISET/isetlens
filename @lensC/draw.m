@@ -8,6 +8,9 @@ function obj =  draw(obj, fHdl, thisAxis)
 %   Draw a set of curves showing the lens surfaces (cross section view).
 %   If there is a microlens field, then the figure is drawn with two
 %   panels, for the imaging lens and the microlens.
+%   Tip:
+%       The position of shutter is the place where the aperture size is
+%       zero.
 %
 % Parameters
 %  obj:  A lens object

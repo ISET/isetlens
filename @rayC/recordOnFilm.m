@@ -27,10 +27,12 @@ p.addRequired('obj',@(x)(isa(x,'rayC')));
 p.addRequired('film',@(x)(isa(x,'filmC')));
 p.addParameter('nLines',0);
 p.addParameter('fig',[],@(x)(isa(x,'matlab.ui.Figure')));
+p.addParameter('samps', [], @isvector);
 
 p.parse(obj,film,varargin{:});
 nLines = p.Results.nLines;
 h      = p.Results.fig;
+samps  = p.Results.samps;
 
 % There are cases we don't want a figure to pop up.  Need to figure out how
 % to suppress.  If we can do it without another parameter, that would be
@@ -44,6 +46,11 @@ liveRays = obj.get('live rays');
 
 if isempty(liveRays), warning('No rays at exit aperture'); return; end
 
+%% Get existing samples
+if ~isempty(samps)
+samps = find(ismember(liveRays.origin, obj.origin(samps,:), 'rows') & ...
+             ismember(liveRays.direction, obj.direction(samps,:), 'rows'));
+end
 %% Calculate intersection point of the rays at the sensor z-plane
 
 % Save original origin points for plotting.
@@ -54,8 +61,9 @@ liveRays.origin = rayIntersection(liveRays,film.position(3));
 
 
 %% Plot ray-trace
-if (nLines > 0)
-    raysVisualize(oldOrigin,liveRays.origin,'nLines',nLines,'fig',h);
+if (isnumeric(nLines) && nLines > 0 || isstruct(nLines) && nLines.numLines > 0)
+    raysVisualize(oldOrigin,liveRays.origin,'nLines',nLines,'fig',h,...
+                    'samps', samps);
     film.draw;
     xlabel('mm'); ylabel('mm');
 end

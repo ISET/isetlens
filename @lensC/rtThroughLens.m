@@ -1,4 +1,4 @@
-function figHdl = rtThroughLens(obj, rays, nLines)
+function [figHdl, samps] = rtThroughLens(obj, rays, nLines)
 % Rays at the entrance aperture are traced to the exit aperture
 %
 % Syntax:
@@ -181,6 +181,9 @@ for lensEl = 1:nSurfaces
         % liveIndices = ~isnan(rays.waveIndex);
         liveIndices = rays.get('liveIndices');
         
+        % Update samps. Only keep rays that still alive. (ZLY)
+        samps = intersect(samps, find(liveIndices));
+        
         % Index of refraction of the material in this surface.  This is
         % wavelength dependent.
         curN = ones(size(prevN));
@@ -263,7 +266,7 @@ for lensEl = 1:nSurfaces
         if lensEl == 1 && nLines > 0
             [samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
             hold on
-        elseif nLines > 0
+        elseif isstruct(nLines) && nLines.numLines > 0 || isnumeric(nLines) && nLines > 0
             raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
         end
         

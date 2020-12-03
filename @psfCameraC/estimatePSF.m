@@ -51,7 +51,7 @@ p.addParameter('jitterflag', false, @islogical);
 p.addParameter('subsection', []);
 p.addParameter('diffractionmethod', 'HURB', @ischar);
 p.addParameter('rttype', 'realistic', @ischar);
-p.addParameter('nlines', 0, @isnumeric);
+p.addParameter('nlines', 0);
 
 p.parse(camera, varargin{:});
 
@@ -78,23 +78,19 @@ if isequal(diffractionMethod, 'HURB')
         camera.rays.expandWavelengths(camera.lens.wave);
         
         %lens intersection and raytrace
-        camera.lens.rtThroughLens(camera.rays, nLines);
+        [h, samps] = camera.lens.rtThroughLens(camera.rays, nLines);
         % title('Point source to final surface')
         %         obj.lens.rays.aExitInt.XY = origin
         %         obj.lens.rays.aExitInt.XY = direction
         
         % intersect with "film" and add to film
-        camera.rays.recordOnFilm(camera.film, 'nLines',nLines);
-        %% Set Focal point, principle point and nodal point
-        hold all
-        % Image focal point
-        p1 = pointVisualize(camera.lens, 'image focal point', 'p size', 10, 'color', 'b');
-        % Image principle point
-        p2 = pointVisualize(camera.lens, 'image principal point', 'p size', 10, 'color', 'g');
-        % Image nodal point
-        p3 = pointVisualize(camera.lens, 'image nodal point', 'p size', 5, 'color', 'r');
-        legend([p1 p2 p3],...
-            {'Image focal point', 'Image principal point', 'Image nodal point'});
+        if isempty(h)
+            camera.rays.recordOnFilm(camera.film, 'nLines',nLines);
+        else
+            camera.rays.recordOnFilm(camera.film, 'nLines',nLines,...
+                    'fig', h, 'samps', samps);
+        end
+
     end
     
 elseif isequal(diffractionMethod, 'huygens') && camera.lens.diffractionEnabled
@@ -213,5 +209,16 @@ elseif isequal(diffractionMethod, 'huygens') && camera.lens.diffractionEnabled
     close(wbar);
     %End Huygens ray-trace
 end
-
+if isnumeric(nLines) && nLines || isstruct(nLines) && nLines.numLines
+%% Set Focal point, principle point and nodal point
+hold all
+% Image focal point
+p1 = pointVisualize(camera.lens, 'image focal point', 'p size', 10, 'color', 'b');
+% Image principle point
+p2 = pointVisualize(camera.lens, 'image principal point', 'p size', 10, 'color', 'g');
+% Image nodal point
+p3 = pointVisualize(camera.lens, 'image nodal point', 'p size', 5, 'color', 'r');
+legend([p1 p2 p3],...
+    {'Image focal point', 'Image principal point', 'Image nodal point'});
+end
 end
