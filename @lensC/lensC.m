@@ -214,13 +214,13 @@ classdef lensC <  handle
             if ~isempty(p.Results.focallength)
                 obj.focalLength = p.Results.focallength;
             else
-                %{
+                % {
                     % Was here. But this is not focal length, but the
-                    position of focal point
+                    % position of focal point
                     obj.focalLength = lensFocus(obj,1e6);
                 %}
-                obj.bbmCreate;
-                obj.focalLength = mean(obj.get('bbm', 'effective focal length'));
+%                 obj.bbmCreate;
+%                 obj.focalLength = mean(obj.get('bbm', 'effective focal length'));
             end
             
         end
