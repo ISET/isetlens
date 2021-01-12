@@ -204,6 +204,7 @@ classdef lensC <  handle
             % equal to it.  I think we rely on this is a short-cut
             % somewhere.
             if ~isempty(p.Results.aperturemiddled)
+                obj.set('middle aperture diameter', p.Results.aperturemiddled);
                 obj.apertureMiddleD = p.Results.aperturemiddled;
             else
                 obj.apertureMiddleD = obj.get('middle aperture d');

@@ -6,17 +6,15 @@ function [scaleFactor, newFL] = fovScale(thisLens, newFOV, filmSz, varargin)
 %
 % Brief description
 %   Given a lens and a film size, we find the scale factor that can be
-%   applied to the lens to achieve a specific field of view.
-%
-%
-
+%   applied to the lens to achieve a specific field of view. 
+%   Useful link: https://www.dxomark.com/google-pixel-4a-camera-review-excellent-single-camera-smartphone/
 %
 % Inputs
 %   thisLens - lensC object
 %   newFOV   - desired field of view (FOV) in the units of degrees
 %   filmSz   - target film size in the units of mm
 %
-% Outputs
+% Returns
 %   scaleFactor - scaling factor to be applied to the lens
 %   newFL       - new effective focal length after scaling
 %

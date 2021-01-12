@@ -1,6 +1,6 @@
 {
  "name": "dgauss.22deg.3.0mm",
- "description": " Description: multi element lens Focal length (mm) ",
+ "description": "description",
  "type": "multi element lens",
  "surfaces": [
   {
@@ -10,7 +10,7 @@
    "semi_aperture": 0.88075
   },
   {
-   "radius": 5.92969,
+   "radius": 5.9297,
    "thickness": 0.00839,
    "ior": 1,
    "semi_aperture": 0.88075
@@ -37,7 +37,7 @@
    "radius": 0,
    "thickness": 0.31455,
    "ior": 0,
-   "semi_aperture": 0.595905
+   "semi_aperture": 5.825075
   },
   {
    "radius": -1.01321,
@@ -58,7 +58,7 @@
    "semi_aperture": 0.69901
   },
   {
-   "radius": 30.55124,
+   "radius": 30.55125,
    "thickness": 0.22508,
    "ior": 1.717,
    "semi_aperture": 0.69901
