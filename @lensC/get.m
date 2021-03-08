@@ -66,6 +66,19 @@ switch pName
         for ii=1:nSurf
             res(:,ii) = obj.surfaceArray(ii).n(:)';
         end
+    case {'asphericcoeff'}
+        nSurf = obj.get('nsurfaces');
+        res = cell(1, nSurf);
+        for ii=1:nSurf
+            res{ii} = obj.surfaceArray(ii).asphericCoeff;
+        end
+    case {'conicconstant'}
+        nSurf = obj.get('nsurfaces');
+        res = zeros(1, nSurf);
+        for ii=1:nSurf
+            res(ii) = obj.surfaceArray(ii).conicConstant;
+        end
+        
     case {'refractivesurfaces'}
         % logicalList = lens.get('refractive surfaces');
         % Returns

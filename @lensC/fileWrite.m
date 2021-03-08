@@ -142,6 +142,8 @@ switch fileFormat
         % Making the JSON output from the isetlens lensC object  
         
         dataMatrix  = lensMatrix(obj);
+        sAsphericCoeff = obj.get('aspheric coeff');
+        sConicConstant = obj.get('conic constant');
         dataMatrix  = round(dataMatrix*1e5)/1e5;
         nSurfaces = size(dataMatrix,1);
         jsonLens.name = obj.name;
@@ -153,6 +155,12 @@ switch fileFormat
             jsonLens.surfaces(ii).thickness = dataMatrix(ii,2);
             jsonLens.surfaces(ii).ior       = dataMatrix(ii,3);
             jsonLens.surfaces(ii).semi_aperture = dataMatrix(ii,4)/2;
+            if ~isempty(sAsphericCoeff{ii})
+                jsonLens.surfaces(ii).aspheric_coefficients = sAsphericCoeff{ii};
+            end
+            if ~isequal(sConicConstant, 0)
+                jsonLens.surfaces(ii).conic_constant = sAsphericCoeff{ii};
+            end
         end
         
         % If it has microlens data, add it and store it
