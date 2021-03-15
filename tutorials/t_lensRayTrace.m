@@ -84,17 +84,19 @@ fDistance = camera.autofocus(550,'nm');
 
 % set the film at focus
 camera.set('film position',[0 0 fDistance]);
-camera.set('pointsource', point);
 
-% Estimate the PSF and show the ray trace
-nLines = 100;  % Do not draw the rays
-jitter = true;
-camera.estimatePSF('n lines',nLines, 'jitter flag',jitter);
-set(gca,'xlim',[-50 40],'ylim',[-15 15])
+%camera.set('pointsource', point);
+camera.rays=point
 
-% Show the point spread in the optical image window
-oi = camera.oiCreate;
-ieAddObject(oi); oiWindow;
-oiSet(oi,'gamma',0.7);
+% % Estimate the PSF and show the ray trace
+% nLines = 100;  % Do not draw the rays
+% jitter = true;
+% camera.estimatePSF('n lines',nLines, 'jitter flag',jitter);
+% set(gca,'xlim',[-50 40],'ylim',[-15 15])
 
-%%
+% % Show the point spread in the optical image window
+% oi = camera.oiCreate;
+% ieAddObject(oi); oiWindow;
+% oiSet(oi,'gamma',0.7);
+
+% %%

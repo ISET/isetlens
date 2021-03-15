@@ -1,6 +1,6 @@
-function figHdl = rtThroughLens(obj, rays, nLines)
+function [endPoint,direction] = rtThroughLens_output(obj, rays, nLines)
 % Rays at the entrance aperture are traced to the exit aperture
-%
+%  
 % Syntax:
 %  lens.rtThroughLens(rays,nLines)
 %
@@ -128,7 +128,8 @@ for lensEl = 1:nSurfaces
         % terms?  I think these are rays that do not make it through
         % the pathway.
         if (~isreal(intersectT(:)))
-            fprintf('Imaginary values intersectT for lens element %d\n',lensEl);
+            %continue;
+            %fprintf('Imaginary values intersectT for lens element %d\n',lensEl);
         end
         
         % Figure out the new end point position
@@ -137,7 +138,7 @@ for lensEl = 1:nSurfaces
         % Update the drawing before we replace the origin and endpoints
         % rtVisualizeRays(obj,rays,nLines,endPoint,lensEl);
         if lensEl == 1 && ~isempty(samps)
-            [samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
+           % [samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
             
             % Set the axis numerical limits to make the lens visible
             thickness = obj.get('lens thickness');
@@ -147,10 +148,16 @@ for lensEl = 1:nSurfaces
             grid on; hold on
             
         elseif ~isempty(samps) > 0
-            raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
+            %raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
+            
+            % Calculate direction vector compared to horiziontal axis (This
+            % only works for 2D slice)
+            direction=endPoint-rays.origin; direction=direction/norm(direction);
+            
         end
         
-        %disp(['size rays' num2str(size(rays))])
+        
+
         % Set rays outside of the aperture to NaN
         outsideAperture = endPoint(:, 1).^2 + endPoint(:, 2).^2 >= curApSemiDiam^2;
         endPoint(outsideAperture, :) = NaN;
@@ -221,7 +228,7 @@ for lensEl = 1:nSurfaces
         
         % At the last surface, add the rays and store the light field
         if lensEl == nSurfaces
-              intersectZ = repmat(curEl.sCenter(3), [nRays 1]);    % Thomas: this seemed to be missing?
+            intersectZ = repmat(curEl.sCenter(3), [nRays 1]);   
             rays.aExitInt.XY = endPoint(:,1:2);  % only X-Y coords
             rays.aExitInt.Z  = intersectZ;       % aperture Z
             rays.aExitDir    = rays.direction;
@@ -265,10 +272,10 @@ for lensEl = 1:nSurfaces
         apertureCount = 1;   % Check that we never get here again!
         
         if lensEl == 1 && nLines > 0
-            [samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
+            %[samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
             hold on
         elseif nLines > 0
-            raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
+            %raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
         end
         
         % HURB diffraction calculation
