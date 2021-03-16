@@ -29,9 +29,6 @@ load('./poly.mat')
 %% add final surface for tracing (This modifies the lens!)
 lens = lens_addfinalsurface(lens,poly{1}.planes.output);
 
-
-
-
 %% Trace a single ray (full 3D)
 entrance_z=poly{1}.planes.input;
 
@@ -46,8 +43,6 @@ phi=0; % azimuth
 direction = [sind(theta).*cosd(phi)  sind(theta)*sind(phi)  cosd(theta)];
 
 [out_pos,out_direction]=trace_io(lens,origin,direction)
-
-
 
 %% Validation with rotationally independent polynomial
 % Step 1: Define rotation matrix

@@ -18,20 +18,15 @@ lens = lensC('fileName', lensFileName)
 wave = lens.get('wave');
 
 %% Sampling options 
-
-
-spatial_nbSamples=10; % Spatial sampling of [0,radius] domain
-
-phi_nbSamples=10; % Uniform sampling of the azimuth angle 
-
+spatial_nbSamples=20; % Spatial sampling of [0,radius] domain
+phi_nbSamples=20; % Uniform sampling of the azimuth angle 
 theta_max=10; % maximal polar angle of incident ray
-theta_nbSamples=10; %uniform sampling polar angle range
+theta_nbSamples=20; %uniform sampling polar angle range
 
 %% Choose input output plane
 % Offset describes the distance in front of the first lens surface and the
 % distance behind the last lens surface
-offset=0.1;
-
+offset=0.1; % mm
 
 %% Fitting options
 % A polynomial degree of 4 seems to be the minimum required to get a
@@ -39,15 +34,24 @@ offset=0.1;
 % fit. TODO: find a physical reason for this.
 polynomial_degree=4; 
 
-
 %% Generate lookup table
-% This generate a lookup table between (x,u,v) (input plane) and
+% Bringing direction on z axis back just in case it will be used in the
+% future. The polynomial fitting indicates z direction can be ignored.
+
+% This generate a lookup table between (x,u,v,w) (input plane) and
 % (x,y,u,v,w) in the output plane.
 % Because of rotational symmetry we only sample points on the x-axis.
 % A rotation matrix can always be used to rotate an arbitrary coordinate to
 % the position such that the y coordinate is zero.
 
- [input,output,planes] = raytracelookuptable_rotational(lens,spatial_nbSamples,theta_max,theta_nbSamples,phi_nbSamples,offset);
+[input,output,planes] = raytracelookuptable_rotational(lens,spatial_nbSamples,theta_max,theta_nbSamples,phi_nbSamples,offset);
+
+%{
+% Save the input and output rays 
+fName = 'rayIO.mat';
+savePath = fullfile(ilensRootPath, 'local', fName);
+save(savePath, 'input', 'output', 'planes');
+%}
 
 %% Fit polynomial
 % Each output variable will be  predicted
@@ -56,14 +60,14 @@ polynomial_degree=4;
 %
 % An analytical expression can be generated using 'polyn2sym(poly{i})'
 
-
 clear poly
 % Full sampling set
-I = input(:,:)';
+inputP = input(1:3,:,:,:);
+I = inputP(:,:)';
 O = output(:,:)';
 
 % Training set 
-I_train = input(:,1:2:end)';
+I_train = inputP(:,1:2:end)';
 O_train = output(:,1:2:end)';
 
 for i=1:size(O,2)
@@ -97,6 +101,7 @@ for i=1:5
 end
 
 %% Plot relative error
+%{
 predneural=neural(I');
 for i=1:size(pred,2)
    relerr(i)=norm([pred(:,i)-O(i,:)'])/norm(O(i,:)');
@@ -104,6 +109,7 @@ for i=1:size(pred,2)
 end
 figure;
 hist(relerr,100)
+%}
 
 
 
