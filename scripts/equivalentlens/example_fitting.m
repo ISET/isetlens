@@ -21,7 +21,7 @@ wave = lens.get('wave');
 spatial_nbSamples = 10; % Spatial sampling of [0,radius] domain
 phi_nbSamples = 10; % Uniform sampling of the azimuth angle 
 theta_max = 10; % maximal polar angle of incident ray
-theta_nbSamples = 20; %uniform sampling polar angle range
+theta_nbSamples = 10; %uniform sampling polar angle range
 
 %% Choose input output plane
 % Offset describes the distance in front of the first lens surface and the
@@ -80,7 +80,8 @@ end
 
     
 %% Save polynomial to file
-save('poly.mat','poly')
+fPath = fullfile(ilensRootPath, 'local', 'poly.mat');
+save(fPath,'poly')
 
 %% Fit rational functions
 
