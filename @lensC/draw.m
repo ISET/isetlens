@@ -8,6 +8,9 @@ function obj =  draw(obj, fHdl, thisAxis)
 %   Draw a set of curves showing the lens surfaces (cross section view).
 %   If there is a microlens field, then the figure is drawn with two
 %   panels, for the imaging lens and the microlens.
+%   Tip:
+%       The position of shutter is the place where the aperture size is
+%       zero.
 %
 % Parameters
 %  obj:  A lens object
@@ -64,6 +67,19 @@ end
 axis image
 xlabel('mm'); ylabel('mm');
 
+%% Set Focal point, principle point and nodal point
+hold all
+
+% Image focal point
+p1 = pointVisualize(obj, 'image focal point', 'p size', 10, 'color', 'b');
+
+% Image principle point
+p2 = pointVisualize(obj, 'image principal point', 'p size', 10, 'color', 'g');
+
+% Image nodal point
+p3 = pointVisualize(obj, 'image nodal point', 'p size', 5, 'color', 'r');
+legend([p1 p2 p3],...
+    {'Image focal point', 'Image principal point', 'Image nodal point'});
 %% Now the microlens
 if isempty(obj.microlens)
     return;

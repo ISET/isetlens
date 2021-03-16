@@ -59,6 +59,8 @@ classdef surfaceC <  handle
         % Is this the biconic parameter?
         conicConstant = 0;          % ("Q")
         
+        % Ashperhic coefficients
+        asphericCoeff = [];
     end
     
     methods (Access = public)
@@ -109,14 +111,15 @@ classdef surfaceC <  handle
                         if length(obj.n) ~= length(obj.wave)
                             error('Index of refraction vector length does not match wavelength vector length');
                         end
-                    case 'conicConstant' 
+                    case 'conicconstant' 
                         obj.conicConstant = varargin{ii+1};
+                    case 'asphericcoeff'
+                        obj.asphericCoeff = varargin{ii+1};
                         
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end
             end
-            
         end
         
         function res = get(obj,pName,varargin)
@@ -142,6 +145,8 @@ classdef surfaceC <  handle
                     res = obj.sCenter(3) - obj.sRadius;
                 case 'conicconstant'
                     res = obj.conicConstant;
+                case 'asphericcoeff'
+                    res = obj.ashphericCoeff;
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end
@@ -180,19 +185,16 @@ classdef surfaceC <  handle
                         error('Index of refraction vector length does not match wavelength vector length');
                     end
                 
-                case 'conicConstant' % conicConstant parameter (i.e. "Q")
+                case 'conicconstant' % conicConstant parameter (i.e. "Q")
                     obj.conicConstant = val;
-                    
+                case 'ashphericcoeff'
+                    obj.ashphericCoeff = val;
                 case {'subtype'}
                     % Type of surface
                     obj.subtype = val;
-                    
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end
         end
-        
-        
-        
     end
 end

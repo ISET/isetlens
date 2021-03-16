@@ -66,6 +66,19 @@ switch pName
         for ii=1:nSurf
             res(:,ii) = obj.surfaceArray(ii).n(:)';
         end
+    case {'asphericcoeff'}
+        nSurf = obj.get('nsurfaces');
+        res = cell(1, nSurf);
+        for ii=1:nSurf
+            res{ii} = obj.surfaceArray(ii).asphericCoeff;
+        end
+    case {'conicconstant'}
+        nSurf = obj.get('nsurfaces');
+        res = zeros(1, nSurf);
+        for ii=1:nSurf
+            res(ii) = obj.surfaceArray(ii).conicConstant;
+        end
+        
     case {'refractivesurfaces'}
         % logicalList = lens.get('refractive surfaces');
         % Returns
@@ -135,13 +148,16 @@ switch pName
         % Units are millimeters.
         % lens.get('focal length')
         % lens.get('focal length',600)
-        wave = 550;
-        if ~isempty(varargin), wave = varargin{1}; end
+        thisWave = 550;
+        if ~isempty(varargin), thisWave = varargin{1}; end
         
         % A billion millimeters seems far enough for a focal length
         % We could run a billion and 10 billion and check for no
         % difference.
-        res = lensFocus(obj,10^9,'wavelength',wave);
+        % res = lensFocus(obj,10^9,'wavelength',wave);
+        wave = obj.get('wave');
+        res = obj.get('bbm', 'effective focal length');
+        res = interp1(wave(:), res(:), thisWave);
     case {'infocusdistance'}
         % Distances are in millimeters
         %
@@ -161,7 +177,16 @@ switch pName
             objectDistance = varargin{1};
         end
         res = lensFocus(obj,objectDistance,'wavelength',wave);
-        
+    case {'fov', 'fieldofview'}
+        % lens.get('fov', filmSzInmm);
+        focalLength = obj.get('focal length');
+        if isempty(varargin)
+            warning('Using default film size with 1 mm.')
+            filmSz = 1;
+        else
+            filmSz = varargin{1};
+        end
+        res = 2 * atand(filmSz/2/focalLength);
     case {'blackboxmodel';'blackbox';'bbm'}
         % The BLACK BOX MODEL (bbm).
         % lens.get('bbm',param)
@@ -256,7 +281,7 @@ switch pName
         for ii=1:nSurfaces
             res(ii) = obj.microlens.surfaces(ii).thickness;
         end
-        
+       
     otherwise
         error('Unknown parameter %s\n',pName);
 end

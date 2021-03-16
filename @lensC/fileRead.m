@@ -154,15 +154,30 @@ switch fileFormat
         nSurfaces = numel(jSurfaces);
         sIOR = zeros(nSurfaces,1);
         sRadius = sIOR; sOffset = sIOR; sApertureDiameter = sIOR;
+        sAsphericCoeff = cell(nSurfaces, 1);
+        sConicConst = zeros(nSurfaces, 1);
         for ii =1:nSurfaces 
-            sIOR(ii)    = jSurfaces(ii).ior;
-            sRadius(ii) = jSurfaces(ii).radius;   % Radius of curvature
-            sApertureDiameter(ii) = 2*jSurfaces(ii).semi_aperture;
-            sOffset(ii) = jSurfaces(ii).thickness;
+            if isstruct(jSurfaces)
+                thisSurface = jSurfaces(ii);
+            elseif iscell(jSurfaces)
+                thisSurface = jSurfaces{ii};
+            end
+            sIOR(ii)    = thisSurface.ior;
+            sRadius(ii) = thisSurface.radius;   % Radius of curvature
+            sApertureDiameter(ii) = 2*thisSurface.semi_aperture;
+            sOffset(ii) = thisSurface.thickness;
+            if isfield(thisSurface, 'aspheric_coefficients')
+                sAsphericCoeff{ii} = thisSurface.aspheric_coefficients;
+            end
+            if isfield(thisSurface, 'conic_constant') &&...
+                        ~isempty(thisSurface.conic_constant)
+                sConicConst(ii) = thisSurface.conic_constant;
+            end
         end
         sOffset = [sOffset(end); sOffset(1:(end-1))]*unitScale;
         
-        obj.elementsSet(sOffset, sRadius, sApertureDiameter, sIOR)
+        obj.elementsSet(sOffset, sRadius, sApertureDiameter, sIOR,...
+                        sAsphericCoeff, sConicConst);
 
         % Stash the microlens data
         if isfield(lensData,'microlens')
@@ -183,16 +198,31 @@ switch fileFormat
             nSurfaces = numel(jSurfaces);
             sIOR = zeros(nSurfaces,1);
             sRadius = sIOR; sOffset = sIOR; sApertureDiameter = sIOR;
+            sAsphericCoeff = cell(nSurfaces, 1);
+            sConicConst = zeros(nSurfaces, 1);
             for ii =1:nSurfaces
-                sIOR(ii)    = jSurfaces(ii).ior;
-                sRadius(ii) = jSurfaces(ii).radius;   % Radius of curvature
-                sApertureDiameter(ii) = 2*jSurfaces(ii).semi_aperture;
-                sOffset(ii) = jSurfaces(ii).thickness;
+                if isstruct(jSurfaces)
+                    thisSurface = jSurfaces(ii);
+                elseif iscell(jSurfaces)
+                    thisSurface = jSurfaces{ii};
+                end                
+                sIOR(ii)    = thisSurface.ior;
+                sRadius(ii) = thisSurface.radius;   % Radius of curvature
+                sApertureDiameter(ii) = 2*thisSurface.semi_aperture;
+                sOffset(ii) = thisSurface.thickness;
+                if isfield(thisSurface, 'aspheric_coefficients')
+                    sAsphericCoeff{ii} = thisSurface.aspheric_coefficients;
+                end
+                if isfield(thisSurface, 'conic_constant') && ...
+                        ~isempty(thisSurface.conic_constant)
+                    sConicConst(ii) = thisSurface.conic_constant;
+                end
             end
             sOffset = [sOffset(end); sOffset(1:(end-1))]*unitScale;
             
             % Convert from PBRT to isetlens format
-            microlens.elementsSet(sOffset, sRadius, sApertureDiameter, sIOR)
+            microlens.elementsSet(sOffset, sRadius, sApertureDiameter, sIOR,...
+                                  sAsphericCoeff, sConicConst);
             
             % Save the microlens in the imaging lens object
             obj.microlens = microlens;

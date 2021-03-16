@@ -6,7 +6,7 @@ function rays = rtSourceToEntrance(obj, pointSource, jitterFlag, rtType, subSect
 %  rays = rtSourceToEntrance(obj, pointSource, jitterFlag, rtType)
 %
 % Description:
-%  THe rays are calculated, but not drawn.  Each ray as one wavelength
+%  The rays are calculated, but not drawn.  Each ray as one wavelength
 %  assigned, but there is no wavelength dependence in air, so there is no
 %  need to have multiple indices of refraction or wavelength for this
 %  calculation.

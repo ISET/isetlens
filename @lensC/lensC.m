@@ -204,6 +204,7 @@ classdef lensC <  handle
             % equal to it.  I think we rely on this is a short-cut
             % somewhere.
             if ~isempty(p.Results.aperturemiddled)
+                obj.set('middle aperture diameter', p.Results.aperturemiddled);
                 obj.apertureMiddleD = p.Results.aperturemiddled;
             else
                 obj.apertureMiddleD = obj.get('middle aperture d');
@@ -214,7 +215,13 @@ classdef lensC <  handle
             if ~isempty(p.Results.focallength)
                 obj.focalLength = p.Results.focallength;
             else
-                obj.focalLength = lensFocus(obj,1e6);
+                % {
+                    % Was here. But this is not focal length, but the
+                    % position of focal point
+                    obj.focalLength = lensFocus(obj,1e6);
+                %}
+%                 obj.bbmCreate;
+%                 obj.focalLength = mean(obj.get('bbm', 'effective focal length'));
             end
             
         end

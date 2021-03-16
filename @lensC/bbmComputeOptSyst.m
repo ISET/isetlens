@@ -36,6 +36,7 @@ inD = 1;
 %% Get the specific parameters to build the Optical System
  
 %Based on the subtype, fill up the parameters
+sAsphericCoeff = cell(1, nelem);
 for ni=1:nelem
     %Get the structure
     S=obj.surfaceArray(ni);
@@ -58,6 +59,11 @@ for ni=1:nelem
             surftype{ni}='refr';
             N(:,ni)=S.n';           % refractive indices                
             Diam(ni)=S.apertureD;   % aperture diameter
+        case {'aspherical'}
+            surftype{ni} = 'aspherical';
+            N(:, ni) = S.n';
+            Diam(ni) = S.apertureD;
+            sAsphericCoeff{ni} = S.asphericCoeff;
         otherwise
             error ('Unknown surface subtype %s\n',S.subtype);
     end
@@ -80,8 +86,12 @@ for k=1:length(Radius)
     n(:,k)=N(:,k);
     diam(k)=Diam(k);
     switch surftype{k}
-        case {'refr'}          
-            surf{k}=paraxCreateSurface(z_pos(k),diam(k),unit,wave,surftype{k},R(k),n(:,k));
+        case {'refr'}
+            if isempty(sAsphericCoeff{k})
+                surf{k}=paraxCreateSurface(z_pos(k),diam(k),unit,wave,surftype{k},R(k),n(:,k));
+            else
+                surf{k}=paraxCreateSurface(z_pos(k),diam(k),unit,wave,surftype{k},R(k),n(:,k), [], sAsphericCoeff{k});
+            end
         case {'diaphragm','diaph'}
             surf{k}=paraxCreateSurface(z_pos(k),diam(k),unit,wave,surftype{k});
         case {'film'}
