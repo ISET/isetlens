@@ -1,10 +1,26 @@
-
-%%  Reverse lens test
-
-
+function [lensR, lensRPath] = reverselens(lensname, varargin)
+%%
+% Reverse a lens structure
+% 
+% Synopsis:
+%   lensR = reverselens(lensname, varargin)
+%
+% Inputs:
+%   
+% Returns:
+% 
+% Optional:
+%   
+% Description:
+%   
+% Thomas Goossens, 2021
+%
+% Updates:
+%   ZLY(03/15/2021): Make the code generalizable to other lens models.
+%%  Reverse lens test （old code）
+%{
 clear;close all;
 ieInit
-
 %%
 X=[1.768500	0.225600	1.670000	1.512000
 5.089800	0.007200	1.000000	1.512000
@@ -36,41 +52,71 @@ X(7:11,3)= circshift(X(7:11,3),-1);
 
 
 [X0 X]
+%}
+% Examples:
+%{
+lensname = 'dgauss.22deg.3.0mm.json';
+lensR = reverselens(lensname);
+%}
+%{
+lensname = 'tessar.22deg.100.0mm.json';
+lensR = reverselens(lensname);
+%}
+%% Input parser
+p = inputParser;
+p.addRequired('lensname', @ischar);
+p.addParameter('visualize', true, @islogical);
+p.parse(lensname, varargin{:});
+visualize = p.Results.visualize;
+
 %% load and modify json
+lens = lensC('filename', which(lensname));
+[~,f,~] = fileparts(lensname);
+dataMatrix = lensMatrix(lens);
 
-J = jsonread('./lenses/dgauss.22deg.3.0mm.json')
+% Aperture index
+apertureInd = find(dataMatrix(:,1) == 0 & dataMatrix(:,3) == 0);
+% Reverse order
+dataMatrix = flip(dataMatrix,1);
+% Change curvature sign
+dataMatrix(:,1) = -dataMatrix(:,1);
+% Shift relative distances
+dataMatrix(:,2)=circshift(dataMatrix(:,2),-1,1);
+% shift refractive index relative to paerture
+dataMatrix(1:apertureInd-1,3)  = circshift(dataMatrix(1:apertureInd-1,3),-1);
+dataMatrix(apertureInd + 1:end, 3) = circshift(dataMatrix(apertureInd + 1:end,3),-1);
 
-count=1;
-for i=1:size(X,1)
-    s=J.surfaces(i);
-    s.radius=X(i,1);
-    s.thickness=X(i,2);
-    s.ior=X(i,3);
-    s.semi_aperture=0.5*X(i,4);% anders worden de curven te lang getekend
-    surfaces(count)=s;
-    count=count+1;
+% Read in as structure
+J = jsonread(which(lensname));
+
+for i = 1:size(dataMatrix,1)
+    s = J.surfaces(i);
+    s.radius = dataMatrix(i,1);
+    s.thickness = dataMatrix(i,2);
+    s.ior = dataMatrix(i,3);
+    s.semi_aperture = 0.5 * dataMatrix(i,4);% anders worden de curven te lang getekend
+    surfaces(i) = s;
 end
 
 Jnew=J;
-Jnew.name=[J.name '-reverse' ]
+Jnew.name = [J.name '-reverse'];
 Jnew.surfaces =surfaces;
-jsonwrite('./lenses/dgauss.22deg.3.0mm-reverse.json',Jnew)
-
-
-
+opts.indent = ' ';
+lensRPath = fullfile(ilensRootPath, 'local', strcat(f, '-reverse','.json'));
+jsonwrite(lensRPath,Jnew, opts)
 
 %% Read a lens file and create a lens
-lensFileName= fullfile(ilensRootPath,'data','lens','dgauss.22deg.3.0mm.dat');
-lens= lensC('fileName', lensFileName)
+lens = lensC('filename', which(lensname));
 %lensFileName = fullfile('./lenses/dgauss.22deg.3.0mm-reverse.dat');
-lensFileName = fullfile('./dgauss.22deg.3.0mm-reverse.json')
-revlens= lensC('fileName', lensFileName)
-
+lensFileName = lensRPath;
+lensR = lensC('fileName', lensFileName);
 
 %%
+if visualize
 lens.draw; title('lens')
 ax=gca;
-revlens.draw; title(' rev')
+lensR.draw; title(' rev')
 ax2=gca;
 ax2.XLim=ax.XLim;
 ax2.Position=ax.Position;
+end

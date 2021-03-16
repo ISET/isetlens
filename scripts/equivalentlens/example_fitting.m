@@ -12,16 +12,16 @@ ieInit
 
 %% Read a lens file and create a lens
 %lensFileName = fullfile('./lenses/dgauss.22deg.3.0mm.json');
-lensFileName = fullfile('./lenses/dgauss.22deg.3.0mm-reverse.json');
-exist(lensFileName,'file');
-lens = lensC('fileName', lensFileName)
+lensFileName = 'lenses/dgauss.22deg.3.0mm-reverse.json';
+% exist(lensFileName,'file');
+lens = lensC('fileName', lensFileName);
 wave = lens.get('wave');
 
 %% Sampling options 
-spatial_nbSamples=20; % Spatial sampling of [0,radius] domain
-phi_nbSamples=20; % Uniform sampling of the azimuth angle 
-theta_max=10; % maximal polar angle of incident ray
-theta_nbSamples=20; %uniform sampling polar angle range
+spatial_nbSamples = 10; % Spatial sampling of [0,radius] domain
+phi_nbSamples = 10; % Uniform sampling of the azimuth angle 
+theta_max = 10; % maximal polar angle of incident ray
+theta_nbSamples = 20; %uniform sampling polar angle range
 
 %% Choose input output plane
 % Offset describes the distance in front of the first lens surface and the
@@ -75,7 +75,7 @@ for i=1:size(O,2)
     poly{i}.VarNames={'x','u','v'};
     
     % save information about position of input output planes
-    poly{i}.planes =planes
+    poly{i}.planes =planes;
 end
 
     
@@ -92,7 +92,7 @@ for i=1:5
     pred(i,:)= polyvaln(poly{i},I);
     
     subplot(1,5,i); hold on;
-    h=scatter(pred(i,:),O(:,i),'Marker','.','MarkerEdgeColor','r')
+    h = scatter(pred(i,:),O(:,i),'Marker','.','MarkerEdgeColor','r');
     plot(max(abs(O(:,i)))*[-1 1],max(abs(O(:,i)))*[-1 1],'k','linewidth',1)
     xlim([min(O(:,i)) max(O(:,i))])
     title(labels{i})
@@ -110,10 +110,6 @@ end
 figure;
 hist(relerr,100)
 %}
-
-
-
-
 % out_dir =
 % 
 %    -0.2783         0    0.9605
