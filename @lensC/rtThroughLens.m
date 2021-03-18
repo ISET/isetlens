@@ -1,4 +1,4 @@
-function [figHdl, samps] = rtThroughLens(obj, rays, nLines)
+function [figHdl, samps, endPoint, direction] = rtThroughLens(obj, rays, nLines, varargin)
 % Rays at the entrance aperture are traced to the exit aperture
 %
 % Syntax:
@@ -44,7 +44,11 @@ function [figHdl, samps] = rtThroughLens(obj, rays, nLines)
 %
 % See also 
 %   psfCameraC.estimatePSF, rayC.recordOnFilm. psfCameraC.draw, filmC.draw
-
+%%
+p = inputParser;
+p.addParameter('visualize', true, @islogical);
+p.parse(varargin{:});
+vis = p.Results.visualize;
 %% Ray trace calculation starts here
 %
 % The order of ray tracing is from furthest from film to film. This is
@@ -137,8 +141,9 @@ for lensEl = 1:nSurfaces
         % Update the drawing before we replace the origin and endpoints
         % rtVisualizeRays(obj,rays,nLines,endPoint,lensEl);
         if lensEl == 1 && ~isempty(samps)
-            [samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
-            
+            if vis
+                [samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
+            end
             % Set the axis numerical limits to make the lens visible
             thickness = obj.get('lens thickness');
             height    = obj.get('lens height');
@@ -147,7 +152,15 @@ for lensEl = 1:nSurfaces
             grid on; hold on
             
         elseif ~isempty(samps) > 0
-            raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
+            if vis
+                raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
+            end
+            % Calculate direction vector compared to horiziontal axis (This
+            % only works for 2D slice)
+            direction=endPoint-rays.origin; 
+            % Normalize direction
+            % direction=direction/norm(direction);
+            direction = direction ./ repmat(sqrt(sum(direction.^2, 2)), [1, size(direction, 2)]);
         end
         
         %disp(['size rays' num2str(size(rays))])
@@ -271,7 +284,9 @@ for lensEl = 1:nSurfaces
             [samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
             hold on
         elseif isstruct(nLines) && nLines.numLines > 0 || isnumeric(nLines) && nLines > 0
-            raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
+            if vis
+                raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
+            end
         end
         
         % HURB diffraction calculation
