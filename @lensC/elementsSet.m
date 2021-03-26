@@ -1,4 +1,4 @@
-function elementsSet(obj, sOffset, sRadius, sAperture, sN)
+function elementsSet(obj, sOffset, sRadius, sAperture, sN, sAsphericCoeff, sConicConst)
 % Converts lens data from a PBRT file into the the values of surfaceArray
 % object, which is part of the lens.
 %
@@ -39,16 +39,25 @@ obj.surfaceArray = surfaceC();
 centers = obj.centersCompute(sOffset, sRadius);
 
 for ii = 1:length(sOffset)
-    obj.surfaceArray(ii) = ...
-        surfaceC('sCenter', centers(ii, :), ...
-        'sRadius', sRadius(ii), ...
-        'apertureD', sAperture(ii), 'n', sN(ii, :));
+    if notDefined('sAsphericCoeff')
+        obj.surfaceArray(ii) = ...
+            surfaceC('sCenter', centers(ii, :), ...
+            'sRadius', sRadius(ii), ...
+            'apertureD', sAperture(ii), 'n', sN(ii, :));
+    else
+        obj.surfaceArray(ii) = ...
+            surfaceC('sCenter', centers(ii, :), ...
+            'sRadius', sRadius(ii), ...
+            'apertureD', sAperture(ii), 'n', sN(ii, :),...
+            'aspheric coeff', sAsphericCoeff{ii},...
+            'conic constant', sConicConst(ii));
+    end
+
     if sRadius(ii) == 0
         obj.surfaceArray(ii).subtype = 'diaphragm';
     else
-        obj.surfaceArray(ii).subtype = 'spherical';
+        obj.surfaceArray(ii).subtype = 'refr';
     end
-    
 end
 
 end
