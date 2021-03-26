@@ -54,14 +54,17 @@ switch unitScale
         error('Unknown spatial scale');
 end
 
+% We need to handle the *.dat format also for realisticEye case with
+% navarro.dat and so forth.  Let's figure that out.
 fileFormat = 'txt';   % This wil go away after debugging
 [~,~,e] = fileparts(fullFileName);
 if strcmp(e,'.json'), fileFormat = 'json';
 elseif strcmp(e,'.txt'), fileFormat = 'txt';
+elseif strcmp(e,'.dat'), fileFormat = 'dat';
 end
 
 switch fileFormat
-    case 'txt'
+    case {'txt','dat'}
         %% Open the lens file
         fid = fopen(fullFileName);
         if fid < 0, error('File not found %s\n',fullFileName); end
@@ -91,8 +94,8 @@ switch fileFormat
         % each column and save the data.
         radius = str2double(import{1});
         radius = radius(dStart:length(firstColumn)) * unitScale;
-        if sum(isnan(radius)) > 0
-            warning('Error reading lens file radius');
+        if sum(isnan(radius)) > 0 && ~isequal(fileFormat,'dat')
+            warning('Reading lens file radius has NaNs (%s)',fileFormat);
             lst = find(isnan(radius));
             fprintf('Bad indices %d\n',lst);
         end
@@ -109,8 +112,8 @@ switch fileFormat
         offset = offset(dStart:length(firstColumn));
         offset = [0; offset(1:(end-1))]; % Shift to account for different convention
         offset = offset*unitScale;
-        if sum(isnan(offset)) > 0
-            warning('Error reading lens file offset');
+        if sum(isnan(offset)) > 0  && ~isequal(fileFormat,'dat')
+            warning('Reading lens file offset has NaNs');
             lst = find(isnan(offset));
             fprintf('Bad indices %d\n',lst);
         end
@@ -123,8 +126,8 @@ switch fileFormat
         aperture = str2double(import{4});
         aperture = aperture(dStart:length(firstColumn));
         aperture = aperture*unitScale;
-        if sum(isnan(aperture)) > 0
-            warning('Error reading lens file aperture');
+        if sum(isnan(aperture)) > 0  && ~isequal(fileFormat,'dat')
+            warning('Reading lens file aperture has NaNs');
             lst = find(isnan(aperture));
             fprintf('Bad indices %d\n',lst);
         end
@@ -208,7 +211,7 @@ switch fileFormat
         % obj.txtFormat();
         
         % Take the lensData and 
-        
+
     otherwise
         error('Unknown file format %s\n',fileFormat);
 end
