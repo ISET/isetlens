@@ -30,7 +30,8 @@ if nargin>1, n_ob=varargin{1}; n_im=varargin{2};
 else, n_ob=1; n_im=1;
 end
 
-% This 'get' does the work
+% This 'get' does the work.  This get does not account for the lens
+% wavelength correctly.
 OptSyst = obj.get('optical system',n_ob,n_im);
 
 %% Append Optical System field to the Black Box Model of the lens
