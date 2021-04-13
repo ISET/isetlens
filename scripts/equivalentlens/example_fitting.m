@@ -32,7 +32,7 @@ offset=0.1; % mm
 % A polynomial degree of 4 seems to be the minimum required to get a
 % reasonable
 % fit. TODO: find a physical reason for this.
-polynomial_degree=4; 
+polynomial_degree=6; 
 
 %% Generate lookup table
 % Bringing direction on z axis back just in case it will be used in the
@@ -72,6 +72,7 @@ O_train = output(:,1:2:end)';
 
 for i=1:size(O,2)
     poly{i} = polyfitn(I_train,O_train(:,i),polynomial_degree);
+
     poly{i}.VarNames={'x','u','v'};
     
     % save information about position of input output planes
@@ -102,15 +103,12 @@ for i=1:5
 end
 
 %% Plot relative error
-%{
-predneural=neural(I');
+
+
 for i=1:size(pred,2)
    relerr(i)=norm([pred(:,i)-O(i,:)'])/norm(O(i,:)');
    
 end
 figure;
 hist(relerr,100)
-%}
-% out_dir =
-% 
-%    -0.2783         0    0.9605
+
