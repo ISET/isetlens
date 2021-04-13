@@ -12,10 +12,12 @@ ieInit
 
 %% Read a lens file and create a lens
 %lensFileName = fullfile('./lenses/dgauss.22deg.3.0mm.json');
-lensFileName = 'lenses/dgauss.22deg.3.0mm-reverse.json';
+lensFileName = 'lenses/dgauss.22deg.3.0mm.json';
+% lensFileName = 'wide.56deg.3.0mm.json';
+lensR = reverselens(lensFileName);
 % exist(lensFileName,'file');
-lens = lensC('fileName', lensFileName);
-wave = lens.get('wave');
+% lensR = lensC('fileName', lensFileName);
+wave = lensR.get('wave');
 
 %% Sampling options 
 spatial_nbSamples = 10; % Spatial sampling of [0,radius] domain
@@ -44,7 +46,8 @@ polynomial_degree=6;
 % A rotation matrix can always be used to rotate an arbitrary coordinate to
 % the position such that the y coordinate is zero.
 
-[input,output,planes] = raytracelookuptable_rotational(lens,spatial_nbSamples,theta_max,theta_nbSamples,phi_nbSamples,offset);
+[input,output,planes] = raytracelookuptable_rotational(lensR,spatial_nbSamples,...
+        theta_max,theta_nbSamples,phi_nbSamples,offset, 'visualize', true);
 
 %{
 % Save the input and output rays 
@@ -54,25 +57,26 @@ save(savePath, 'input', 'output', 'planes');
 %}
 
 %% Fit polynomial
-% Each output variable will be  predicted
+% Each output variable will be predicted
 % by a multivariate polynomial with three variables: x,u,v.
 % Each fitted polynomial is a struct containing all information about the quality of the fit, powers and coefficients.
 %
 % An analytical expression can be generated using 'polyn2sym(poly{i})'
 
-clear poly
-% Full sampling set
-inputP = input(1:3,:,:,:);
-I = inputP(:,:)';
-O = output(:,:)';
 
-% Training set 
-I_train = inputP(:,1:2:end)';
-O_train = output(:,1:2:end)';
+% % Full sampling set
+% inputP = input(1:3,:,:,:);
+% I = inputP(:,:)';
+% O = output(:,:)';
+% 
+% % Training set 
+% I_train = inputP(:,1:2:end)';
+% O_train = output(:,1:2:end)';
 
-for i=1:size(O,2)
-    poly{i} = polyfitn(I_train,O_train(:,i),polynomial_degree);
-
+I_train = input(1:2:end,1:3);
+O_train = output(1:2:end, :);
+for i=1:size(O_train,2)
+    poly{i} = polyfitn(I_train, O_train(:,i),polynomial_degree);
     poly{i}.VarNames={'x','u','v'};
     
     % save information about position of input output planes
@@ -90,13 +94,14 @@ save(fPath,'poly')
 labels = {'x','y','u','v','w'};
 fig=figure(6);clf;
 fig.Position=[231 386 1419 311];
+pred = zeros(size(input, 1), 5);
 for i=1:5
-    pred(i,:)= polyvaln(poly{i},I);
+    pred(:,i)= polyvaln(poly{i},input(:,1:3));
     
     subplot(1,5,i); hold on;
-    h = scatter(pred(i,:),O(:,i),'Marker','.','MarkerEdgeColor','r');
-    plot(max(abs(O(:,i)))*[-1 1],max(abs(O(:,i)))*[-1 1],'k','linewidth',1)
-    xlim([min(O(:,i)) max(O(:,i))])
+    h = scatter(pred(:,i),output(:,i),'Marker','.','MarkerEdgeColor','r');
+    plot(max(abs(output(:,i)))*[-1 1],max(abs(output(:,i)))*[-1 1],'k','linewidth',1)
+    xlim([min(output(:,i)) max(output(:,i))])
     title(labels{i})
     xlabel('Polynomial')
     ylabel('Ray trace')
@@ -104,11 +109,7 @@ end
 
 %% Plot relative error
 
+ind = find(~isnan(output));
+err = mean(abs(pred(ind) - output(ind)), 1);
 
-for i=1:size(pred,2)
-   relerr(i)=norm([pred(:,i)-O(i,:)'])/norm(O(i,:)');
-   
-end
-figure;
-hist(relerr,100)
 

@@ -1,6 +1,6 @@
 %% Optics diffraction tutorial
 %
-% Edited by TL (3/2018)
+% *** This script requires isetlens on the path ****
 %
 % This script uses the point test file, blurs it in 3 different ways.  
 %
@@ -12,14 +12,25 @@
 % The third way is the classical way using theoretical PSF's and formulae
 % from ISET
 %
+% The idea of this testing is good.  The actual test seems to fail in this
+% context.  Note that this context does not use PBRT HURB.  It's been a
+% long time since we checked this code, and we should do it soon.
+% (BW, 2021).
+%
 % AL, Vistasoft Team, Copyright 2014
 
 %%
 ieInit;
 
+if isempty(which('ilensRootPath'))
+    disp('No isetlens on the path.  Returning')
+    return;
+end
+
 %% Set up a point and a lens file
 
 % Make a point source (approximately infinity)
+% Negative numbers are in front of the lens.
 point = psCreate(0,0,-1e+15);
 
 % Read a lens file and create a lens. The "diffraction" lens consists of a
@@ -32,11 +43,12 @@ nSamples = 401;
 % aperture sizes of less than 2 mm)
 apertureMiddleD = 0.5;   % mm   
 
+% Lens comes back with 400:50:700
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD, ...
     'diffractionEnabled', true);
-lens.set('wave', (400:10:700));
+% lens.set('wave', (400:10:700));
 lens.draw;
 
 %% Create the film
@@ -66,6 +78,8 @@ jitter = true;  % Randomize position of lines
 subsection = [];
 
 % Choose among the diffraction producing methods
+% This code in ISETLENS does not seem to be numerically accurate.  The PBRT
+% code should be, however.  Let's see what is going on here (BW, 2021).
 method = 'HURB';   % Randomized the direction of rays near the edges
 
 % TL: I believe an "ideal" rtType aims rays toward the aperture instead of
@@ -74,7 +88,7 @@ rtType = 'ideal';
 
 % Produced the data for the PSF.
 camera.estimatePSF('n lines', nLines, 'jitter flag', jitter,...
-                   'subection', subsection,...
+                   'subsection', subsection,...
                    'diffraction method', method,...
                    'rt type', rtType);
 
@@ -83,7 +97,7 @@ set(gca,'xlim',[-5 20]); grid on
 
 oiHURB = camera.oiCreate();
 oiHURB = oiAdjustIlluminance(oiHURB,0.1);  %Makes the middle bright
-ieAddObject(oiHURB); oiWindow;
+oiWindow(oiHURB);
     
 
 %% Produce Huygens-Fresnel results 
@@ -185,11 +199,11 @@ optics = opticsSet(optics,'fnumber',fNumber);
 
 % In this example we set the properties of the optics to include cos4th
 % falloff for the off axis vignetting of the imaging lens
-optics = opticsSet(optics,'offaxis','cos4th');
+optics = opticsSet(optics,'offaxis method','cos4th');
 optics = opticsSet(optics,'focallength',focalLength);   % Meters 
 oiT = oiSet(oiT,'optics',optics);
 oiT = oiCompute(scene,oiT);
-ieAddObject(oiT); oiWindow;
+oiWindow(oiT);
 
 %% Plot mesh plots for all techniques
 
@@ -200,7 +214,7 @@ PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) size(oiPhotons, 3)
 plotBound = sensorWidth/2 * 10^3;
 
 [X, Y] = meshgrid(400:10:700, linspace(plotBound, -plotBound, size(PSFLineSpectral, 1)));
-vcNewGraphWin;
+ieNewGraphWin;
 mesh(X, Y, PSFLineSpectral./max(PSFLineSpectral(:)));
 xlabel('Wavelength (nm)')
 ylabel('Position (um)')
@@ -213,8 +227,8 @@ PSFLineSpectral = sum(oiPhotons, 1);
 PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) size(oiPhotons, 3)]);
 plotBound = sensorWidth/2 * 10^3;
 
-[X, Y] = meshgrid(400:10:700, linspace(plotBound, -plotBound, size(PSFLineSpectral, 1)));
-vcNewGraphWin; mesh(X, Y, PSFLineSpectral./max(PSFLineSpectral(:)));
+[X, Y] = meshgrid(lens.get('wave'), linspace(plotBound, -plotBound, size(PSFLineSpectral, 1)));
+ieNewGraphWin; mesh(X, Y, PSFLineSpectral./max(PSFLineSpectral(:)));
 xlabel('Wavelength (nm)')
 ylabel('Position (um)')
 zlabel('Intensity (rel.)');
@@ -229,7 +243,7 @@ PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) size(oiPhotons, 3)
 plotBound = sensorWidth/2 * 10^3;
 
 [X, Y] = meshgrid(400:10:700, linspace(plotBound, -plotBound, size(PSFLineSpectral, 1)));
-vcNewGraphWin; mesh(X, Y, PSFLineSpectral./max(PSFLineSpectral(:)));
+ieNewGraphWin; mesh(X, Y, PSFLineSpectral./max(PSFLineSpectral(:)));
 xlabel('Wavelength (nm)')
 ylabel('Position (um)')
 zlabel('Intensity (rel.)');  
@@ -251,14 +265,15 @@ PSFLineTS = PSFLineT /max(PSFLineT(:));
 % PSFLineHURBTuned = sum(oiPhotonsTemp(:,:,16), 1);
 % PSFLineHURBTuned = PSFLineHURBTuned / max(PSFLineHURBTuned);
 
+midWave = round(lens.get('nwave')/2);
 oiPhotonsTemp = oiGet(oiHURB, 'photons');
-PSFLineHURB = sum(oiPhotonsTemp(:,:,16), 1);
+PSFLineHURB = sum(oiPhotonsTemp(:,:,midWave), 1);
 PSFLineHURB = PSFLineHURB / max(PSFLineHURB);
 
 positionT = linspace(-sensorWidth/2 *1000, sensorWidth/2 *1000, length(PSFLineT));
 position = linspace(-sensorWidth/2 * 1000, sensorWidth/2 * 1000, length(PSFLineHURB));
 
-vcNewGraphWin;
+ieNewGraphWin;
 plot( positionT, PSFLineTS, position, PSFLineHURB);
 %plot( positionT, PSFLineTS, position, PSFLineHURB, position, PSFLineHuygens);
 
@@ -292,7 +307,7 @@ PSFLineHURB = PSFLineHURB / max(PSFLineHURB);
 positionT = linspace(-sensorWidth/2 *1000, sensorWidth/2 *1000, length(PSFLineT));
 position = linspace(-sensorWidth/2 * 1000, sensorWidth/2 * 1000, length(PSFLineHURB));
 
-vcNewGraphWin;
+ieNewGraphWin;
 % plot( positionT, PSFLineTS, position, PSFLineHURB, position, PSFLineHuygens);
 plot( positionT, PSFLineTS, position, PSFLineHURB);
 
@@ -302,3 +317,5 @@ xlabel('um')
 %axis([-40 40 0 1]);  %don't show the bad part of the theoretical plot
 ylabel('Relative radiance');
 legend('Theoretical', 'HURB', 'Huygens-Fresnel');
+
+%% END
