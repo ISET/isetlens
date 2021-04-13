@@ -34,7 +34,7 @@ offset=0.1; % mm
 % A polynomial degree of 4 seems to be the minimum required to get a
 % reasonable
 % fit. TODO: find a physical reason for this.
-polynomial_degree=6; 
+polynomial_degree=4; 
 
 %% Generate lookup table
 % Bringing direction on z axis back just in case it will be used in the

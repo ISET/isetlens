@@ -22,6 +22,7 @@ lens = lensC('fileName', lensFileName)
 wave = lens.get('wave');
 
 
+
 %% Load polynomial
 load('./poly.mat')
 
