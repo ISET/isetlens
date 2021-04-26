@@ -15,15 +15,15 @@
 clear;
 lensFileName = fullfile('./lenses/dgauss.22deg.3.0mm-reverse.json');
 exist(lensFileName,'file');
-lensFileName='telephoto.250mm.json'
+
 
 lens = lensC('fileName', lensFileName)
 
 
 %% Modifcation of lens parameters if desired
 diaphragm_diameter=0.6;
-%lens.surfaceArray(6).apertureD=diaphragm_diameter
-%lens.apertureMiddleD=diaphragm_diameter
+lens.surfaceArray(6).apertureD=diaphragm_diameter
+lens.apertureMiddleD=diaphragm_diameter
 
 % Note there seems to be a redundancy in the lens which can get out of
 % sync: lens.apertureMiddleD en lens.surfaceArray{i}.apertureD (i= index of
