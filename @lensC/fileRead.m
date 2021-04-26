@@ -54,10 +54,13 @@ switch unitScale
         error('Unknown spatial scale');
 end
 
+% We have an issue with reading the navarro.dat files (other human eye
+% models too, I suppose).  They are treated as .txt.
 fileFormat = 'txt';   % This wil go away after debugging
 [~,~,e] = fileparts(fullFileName);
 if strcmp(e,'.json'), fileFormat = 'json';
 elseif strcmp(e,'.txt'), fileFormat = 'txt';
+elseif strcmp(e,'.dat'), warning(' .dat files may not be read correctly.');
 end
 
 switch fileFormat
