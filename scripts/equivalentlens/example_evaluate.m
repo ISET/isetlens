@@ -16,14 +16,15 @@ ieInit
 
 %% Read a lens file and create a lens
 %lensFileName = fullfile('./lenses/dgauss.22deg.3.0mm.json');
-lensFileName = fullfile('./lenses/dgauss.22deg.3.0mm-reverse.json');
+lensFileName = fullfile(ilensRootPath, 'local', 'dgauss.22deg.3.0mm-reverse.json');
 exist(lensFileName,'file');
 lens = lensC('fileName', lensFileName)
 wave = lens.get('wave');
 
 
 %% Load polynomial
-load('./poly.mat')
+fPath = fullfile(ilensRootPath, 'local', 'poly.mat');
+load(fPath)
 
 
 %% add final surface for tracing (This modifies the lens!)
@@ -48,7 +49,7 @@ direction = [sind(theta).*cosd(phi)  sind(theta)*sind(phi)  cosd(theta)];
 % Step 1: Define rotation matrix
 % here we know alpha directly, in PBRT you will have to calculate this
 % manually as alpha=atand(origin(2)/origin(1))
-a=-alpha; 
+a= 90 - alpha; 
 rot = [cosd(a) -sind(a);
        sind(a)  cosd(a)]; 
 irot= inv(rot); % inverse rotation for rotating back

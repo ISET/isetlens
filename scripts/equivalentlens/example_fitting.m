@@ -14,7 +14,7 @@ ieInit
 %lensFileName = fullfile('./lenses/dgauss.22deg.3.0mm.json');
 lensFileName = 'lenses/dgauss.22deg.3.0mm.json';
 % lensFileName = 'wide.56deg.3.0mm.json';
-lensR = reverselens(lensFileName);
+lensR = lensReverse(lensFileName);
 % exist(lensFileName,'file');
 % lensR = lensC('fileName', lensFileName);
 wave = lensR.get('wave');
@@ -22,7 +22,7 @@ wave = lensR.get('wave');
 %% Sampling options 
 spatial_nbSamples = 10; % Spatial sampling of [0,radius] domain
 phi_nbSamples = 10; % Uniform sampling of the azimuth angle 
-theta_max = 10; % maximal polar angle of incident ray
+theta_max = 20; % maximal polar angle of incident ray - should be saved
 theta_nbSamples = 10; %uniform sampling polar angle range
 
 %% Choose input output plane
@@ -46,7 +46,7 @@ polynomial_degree=4;
 % A rotation matrix can always be used to rotate an arbitrary coordinate to
 % the position such that the y coordinate is zero.
 
-[input,output,planes] = raytracelookuptable_rotational(lensR,spatial_nbSamples,...
+[input,output,planes] = raytraceLightField(lensR,spatial_nbSamples,...
         theta_max,theta_nbSamples,phi_nbSamples,offset, 'visualize', true);
 
 %{

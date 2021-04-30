@@ -137,6 +137,8 @@ classdef rayC < matlab.mixin.Copyable
                         error('Unknown parameter %s\n',varargin{ii});
                 end
            end
+           
+           obj.distance = zeros(size(obj.direction, 1), 1);
         end
         
         function val = get(obj,param,varargin)
@@ -196,7 +198,7 @@ classdef rayC < matlab.mixin.Copyable
                     % path. We return the indices of rays that are still
                     % alive. We aren't sure why waveIndex is the right slot
                     % to check ... but it appears to be (BW).
-                    val = ~isnan(obj.waveIndex);
+                    val = ~isnan(obj.waveIndex) & isreal(obj.waveIndex);
                 case 'liverays'
                     % Set the rays without a wavelength to empty  These
                     % remaining rays are the live rays.

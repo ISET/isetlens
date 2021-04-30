@@ -21,7 +21,8 @@ jPath = polyJsonGenerate(fname);
 %%
 varargin = ieParamFormat(varargin);
 p = inputParser;
-p.addRequired('fPolyPath', @(x)exist(x, 'file'));
+p.addRequired('fPolyPath', @(x)(iscell(x)) || exist(x, 'file'));
+p.addParameter('planes', struct(), @isstruct);
 p.addParameter('description', 'equivalent lens poly', @ischar);
 p.addParameter('name', 'polynomial', @ischar);
 p.addParameter('outpath', fullfile(ilensRootPath, 'local', 'polyjson.json'), ...
@@ -30,25 +31,36 @@ p.parse(fPolyPath, varargin{:});
 description = p.Results.description;
 name = p.Results.name;
 jsonPath = p.Results.outpath;
+planes = p.Results.planes;
 %% Load polynomial term file
-poly = cell(1, 5);
-load(fPolyPath);
+if ischar(fPolyPath)
+    polyModel = cell(1, 5);
+    load(fPolyPath);
+elseif iscell(fPolyPath)
+    polyModel = fPolyPath;
+end
 js.description = description;
 js.name = name;
+if ~isempty(planes)
+    js.thickness = abs(planes.input - planes.output);
+else
+    warning('No plane info!')
+    js.thickness = 0;
+end
 %%
 % x, y, u, v, w
-outName = ['x', 'y', 'u', 'v', 'w'];
+outName = ['x', 'y', 'u', 'v'];
 termName = ['r', 'u', 'v'];
-for ii=1:5
+for ii=1:4
     thisOut.outputname = strcat('out', outName(ii));
     
     % term
     for jj=1:3
         thisTermName = strcat('term', termName(jj));
-        thisOut.(thisTermName) = poly{ii}.ModelTerms(:, jj)';
+        thisOut.(thisTermName) = polyModel{ii}.ModelTerms(:, jj)';
     end
     % coefficients
-    thisOut.coeff = poly{ii}.Coefficients;
+    thisOut.coeff = polyModel{ii}.Coefficients;
     
     js.poly(ii) = thisOut;
 end

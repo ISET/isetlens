@@ -1,5 +1,6 @@
-function [lensR, lensRPath] = reverselens(lensname, varargin)
+function [lensR, lensRPath] = lensReverse(lensname, varargin)
 %%
+% TODO: Turn this to be a lens class method
 % Reverse a lens structure
 % 
 % Synopsis:

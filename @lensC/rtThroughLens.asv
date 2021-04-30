@@ -114,13 +114,13 @@ for lensEl = 1:nSurfaces
         % The intersectT calculation produces imaginary numbers for some
         % cases. It becomes imaginary if the extending the ray will never 
         % intersect with the sphere lens.
+        % In some cases, this calculation produces
+        % imaginary values.  This is a problem.
         %
-        % Also the ray may intersect with the sphere but outside the
-        % aperture. We delete these rays and the ones above.
+        % <http://www.starkeffects.com/snells-law-vector.shtml>
         
         % Radicand: The value inside the radical symbol. 'Radical': the
-        % square root symbol. Zheng will create a picture showing the
-        % geometry of this calculation.
+        % square root symbol.
         radicand = dot(rays.direction, rays.origin - repCenter, 2).^2 - ...
             ( dot(rays.origin - repCenter, rays.origin - repCenter, 2)) + repRadius.^2;
         
@@ -132,6 +132,17 @@ for lensEl = 1:nSurfaces
         else
             intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) - sqrt(radicand));
         end
+        
+        % Test that intersectT is real.  Why are there imaginary
+        % terms?  I think these are rays that do not make it through
+        % the pathway.
+        % ZLY: It means the rays won't intersect with lens surface
+        
+        %{
+        if (~isreal(intersectT(:)))
+            fprintf('Imaginary values intersectT for lens element %d\n',lensEl);
+        end
+        %}
         
         % Figure out the new end point position
         endPoint = rays.endPoint(intersectT);

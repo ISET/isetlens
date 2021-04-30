@@ -1,4 +1,4 @@
-function [input,output,planes] = raytracelookuptable_rotational(lens,spatial_nbSamples,theta_max,theta_nbSamples,phi_nbSamples,offset, varargin)
+function [input,output,planes] = raytraceLightField(lens,spatial_nbSamples,theta_max,theta_nbSamples,phi_nbSamples,offset, varargin)
 % Coordinate defination
 %{
 ^ (y axis)
@@ -10,12 +10,16 @@ function [input,output,planes] = raytracelookuptable_rotational(lens,spatial_nbS
 (inside plane - x axis)
 %}
 %% Parse inputs
+varargin = ieParamFormat(varargin);
 p = inputParser;
+p.addParameter('maxradius', 0, @isnumeric);
+p.addParameter('minradius', 0, @isnumeric);
 p.addParameter('visualize', true, @islogical);
 
 p.parse(varargin{:});
 vis = p.Results.visualize;
-
+maxradius = p.Results.maxradius;
+minradius = p.Results.minradius;
 %% Lens add additional lens surface for final ray trace (HACK)
 % The script as I found only traces until the last lens surface. 
 % I added an additional flat surface behind the lens which acts as the "output plane".
@@ -30,12 +34,21 @@ lens.draw
 
 % Spatial sampling on the x-axis
 firstEle=lens.surfaceArray(1); % First lens element surface
-entrance_radius=firstEle.apertureD/2; % Radius of enter pupil radius
-y = linspace(0,entrance_radius,spatial_nbSamples); % Using y axis for a better ray tracing visualization
+if isequal(maxradius, 0)
+    maxradius =firstEle.apertureD/2; % Radius of enter pupil radius
+end
 
+if spatial_nbSamples == 1
+    y = 0;
+else
+    y = linspace(minradius, maxradius,spatial_nbSamples); % Using y axis for a better ray tracing visualization
+end
 % Position of the input plane: an offset in front of first lens surface:
 % Offset can be treated as the film distance (?)
-entrance_z = firstEle.sCenter(3)-firstEle.sRadius-offset; % Seems working, but why
+% ZLY: Is this in mm?
+%
+firstVertex = firstEle.sCenter(3)-firstEle.sRadius;
+entrance_z = firstVertex-offset; % Offset the distance by certain number in front of the surface
 
 % Initialize input ray start position
 entrance = zeros(3, numel(y));
@@ -45,7 +58,7 @@ end
 
 % Sampling Range unit directions vectors (parameterized using spherical coordinates)
 thetas=linspace(0,theta_max,theta_nbSamples); % polar angle
-phis = linspace(0,350,phi_nbSamples); % Azimuth angle
+phis = linspace(0,round(360 - 360/phi_nbSamples),phi_nbSamples); % Azimuth angle
 
 % Initialize input and output samples
 input = zeros(numel(y) * numel(thetas) * numel(phis), 4);
@@ -88,44 +101,6 @@ output(:, 2)=pOut(:, 2);
 output(:, 3) = pOutDir(:, 1); % theta
 output(:, 4) = pOutDir(:, 2);
 output(:, 5) = pOutDir(:, 3);
-%{
-% Initialize input ray: (r, u, v, w)
-input = zeros(4, numel(y), numel(thetas), numel(phis)); 
-% Initialize output ray: (x, y, u, v, w)
-output = zeros(5, numel(y), numel(thetas), numel(phis));
-
-for i=1:numel(y)
-    % Starting point of the ray
-    origin= entrance(:,i)';
-    for t=1:numel(thetas)
-        for p=1:numel(phis)
-            % Direction vector of the input ray (using spherical parameterization)
-            theta=thetas(t); phi=phis(p);
-            start_direction = [sind(theta).*cosd(phi)  sind(theta)*sind(phi)  cosd(theta)];
-            
-            % Calculate input variable
-            input(1,i,t,p)=sqrt(origin(1).^2+origin(2).^2); % radius
-            input(2,i,t,p)=start_direction(1);
-            input(3,i,t,p)=start_direction(2);
-            % In principle z axis can be ignored indeed. Bring it back for
-            % now just in case it will be used in future.
-            % Ignoring z gives still good fit but nu problems with bad conditioning
-            input(4,i,t,p)=start_direction(3); 
-%             rays = rayC('origin',origin,'direction', start_direction, 'waveIndex', 1, 'wave', lens.wave);
-%             lens.rtThroughLens(rays,1);
-
-            [point,direction] = trace_io(lens,origin,start_direction);
-
-            % Output variable
-            output(1,i,t,p)=point(1);
-            output(2,i,t,p)=point(2);
-            output(3,i,t,p)=direction(1); % theta
-            output(4,i,t,p)=direction(2);
-            output(5,i,t,p)=direction(3);
-        end
-    end
-end
-%}
 
 %% Specify the chosen Input output planes
 planes.input=entrance_z;
