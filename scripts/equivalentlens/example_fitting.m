@@ -62,7 +62,8 @@ save(savePath, 'input', 'output', 'planes');
 % Each fitted polynomial is a struct containing all information about the quality of the fit, powers and coefficients.
 %
 % An analytical expression can be generated using 'polyn2sym(poly{i})'
-% 
+
+
 % % Full sampling set
 % inputP = input(1:3,:,:,:);
 % I = inputP(:,:)';
@@ -107,17 +108,8 @@ for i=1:5
 end
 
 %% Plot relative error
+
 ind = find(~isnan(output));
 err = mean(abs(pred(ind) - output(ind)), 1);
-%{
-predneural=neural(I');
-for i=1:size(pred,2)
-   relerr(i)=norm([pred(:,i)-O(i,:)'])/norm(O(i,:)');
-   
-end
-figure;
-hist(relerr,100)
-%}
-% out_dir =
-% 
-%    -0.2783         0    0.9605
+
+
