@@ -1,4 +1,4 @@
-function [iRays, oRays, planes] = lensRayPairs(lensfile, varargin)
+function [iRays, oRays, planes, nanIdx] = lensRayPairs(lensfile, varargin)
 %% Input/output ray pairs
 % 
 % Synopsis:
@@ -79,9 +79,9 @@ end
         'max radius', maxradius, 'min radius', minradius);
     
 %% remove nan 
-idx = any(~isnan(oRays), 2);
+nanIdx = find(any(isnan(oRays), 2));
 
 % Get rid of w
-iRays = iRays(idx, 1:3);
-oRays = oRays(idx, 1:4);
+iRays = iRays(:, 1:3);
+oRays = oRays(:, 1:4);
 end
