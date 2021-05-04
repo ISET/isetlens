@@ -13,7 +13,7 @@
 
 %% Load lens file
 clear;
-lensFileName = fullfile('./lenses/dgauss.22deg.3.0mm-reverse.json');
+lensFileName = fullfile('dgauss.22deg.3.0mm.json');
 exist(lensFileName,'file');
 
 
@@ -56,7 +56,7 @@ for i=1:numel(entrance)
     radius(i)=entrance{i}.diam(1,1)
     position(i)=firstsurface_z+entrance{i}.z_pos(1)
     
-
+    
     
     line([1 1]*position(i),[radius(i) radius(i)*1.1],'linewidth',4)
     line([1 1]*position(i),[-radius(i) -radius(i)*1.1],'linewidth',4)
@@ -68,9 +68,89 @@ for i=1:numel(entrance)
     % belongs
     text(position(i),1.2*radius(i),num2str(i))
     
-   
+    
     
 end
 title('Entrance pupils ')
 legh=legend('');
 legh.Visible='off';
+
+
+
+
+%% Check if ray can pass
+clear p;
+
+
+
+
+
+
+thetas = linspace(-30,30,40);
+phis = linspace(0,359,80);
+positions=[0 0.5 0.8];
+
+pupilshape = nan(3,numel(position),numel(thetas),numel(phis));
+
+for p=1:numel(positions)
+    for ph=1:numel(phis)
+    for t=1:numel(thetas)
+        
+        % Origin of ray
+        origin = [0;positions(p);-2];
+        
+        
+        % Direction vector of ray
+        phi=phis(ph);
+        theta=thetas(t);
+        direction = [sind(theta).*cosd(phi);  sind(theta)*sind(phi) ; cosd(theta)];
+        
+        
+        
+        
+        % Check whether ray goes through all pupils
+        for i=1:numel(entrance)
+            alpha = (position(i) - origin(3))/(direction(3));
+            pointOnPupil(:,i) = origin+alpha*direction;
+            
+            passpupil(i)= norm(pointOnPupil(1:2,i))<radius(i);
+            
+            % Take pupil shape at position of entrance pupil for minimal
+            % translation
+            if(and(i==6,passpupil(i)))
+                 pupilshape(:,p,t,ph)= pointOnPupil(:,i);
+            end
+            
+        end
+        pass = prod(passpupil); % boolean AND operation, ray needs to pass through all
+        
+        
+        % Trace ray with isetlens
+        wave = lens.get('wave');
+        rays = rayC('origin',origin','direction', direction', 'waveIndex', 1, 'wave', wave);
+        [out_point,out_dir]=lens.rtThroughLens(rays,1,'visualize',false);
+        pass_trace = not(or(isempty(out_dir),isempty(out_dir))); % no clear condition about tracing
+        if(pass_trace)
+        %    pupilshape_trace(:,p,t,ph)= out_point;
+        end
+        
+        compare(:,p,t,ph) = [pass_trace pass];
+        
+    end
+    end
+end
+
+%% Plot pupil shapes
+figure;
+for p=1:numel(positions)
+    subplot(1,numel(positions),p); hold on;
+    P=pupilshape(1:2,p,:);
+    P=P(1:2,:);
+    
+    scatter(P(1,:),P(2,:),'.')
+    
+    axis equal
+    ylim([-1 1])
+    xlim(0.5*[-1 1])
+    title(['x = ' num2str(positions(p))])
+end
