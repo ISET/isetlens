@@ -4,16 +4,16 @@ ieInit;
 %%
 lensName = 'dgauss.22deg.3.0mm.json';
 %% Generate ray pairs
-maxRadius = 0.2;
+maxRadius = 0.6;
 minRadius = 0;
 
-[iRays, oRays, planes] = lensRayPairs(lensName, 'visualize', true,...
+[iRays, oRays, planes, nanIdx] = lensRayPairs(lensName, 'visualize', true,...
                                     'n radius samp', 10, 'elevation max', 40,...
                                     'reverse', true,...
                                     'max radius', maxRadius,...
                                     'min radius', minRadius);
 %% Poly fit       
-polyDeg = 4; 
+polyDeg = 6; 
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
 [polyModel, jsonPath] = lensPolyFit(iRays, oRays, 'planes', planes,...
                                     'visualize', true, 'fpath', fpath, 'maxdegree', polyDeg);
