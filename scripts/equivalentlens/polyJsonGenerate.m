@@ -27,11 +27,15 @@ p.addParameter('description', 'equivalent lens poly', @ischar);
 p.addParameter('name', 'polynomial', @ischar);
 p.addParameter('outpath', fullfile(ilensRootPath, 'local', 'polyjson.json'), ...
                             @ischar);
+p.addParameter('pupilpos', [],@isnumeric);
+p.addParameter('pupilradii', [], @isnumeric);                        
 p.parse(fPolyPath, varargin{:});
 description = p.Results.description;
 name = p.Results.name;
 jsonPath = p.Results.outpath;
 planes = p.Results.planes;
+pupilPos = p.Results.pupilpos;
+pupilRadii = p.Results.pupilradii;
 %% Load polynomial term file
 if ischar(fPolyPath)
     polyModel = cell(1, 5);
@@ -47,6 +51,10 @@ else
     warning('No plane info!')
     js.thickness = 0;
 end
+% 
+js.pupilpos = pupilPos;
+js.pupilradii = pupilRadii;
+
 %%
 % x, y, u, v, w
 outName = ['x', 'y', 'u', 'v'];
