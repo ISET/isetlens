@@ -141,7 +141,8 @@ for lensEl = 1:nSurfaces
         outsideAperture = (imag(intersectT) ~=0) | (endPoint(:, 1).^2 + endPoint(:, 2).^2 >= curApSemiDiam^2);
         endPoint(outsideAperture, :) = NaN;
         prevN(outsideAperture)       = NaN;
-        rays.removeDead(outsideAperture);
+        %rays.removeDead(outsideAperture); % TG: Don't remove rays  Instead
+        %just return untraced rays as having NaN positions.
 
         
         % Update the drawing before we replace the origin and endpoints
