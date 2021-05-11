@@ -15,11 +15,15 @@ p = inputParser;
 p.addParameter('maxradius', 0, @isnumeric);
 p.addParameter('minradius', 0, @isnumeric);
 p.addParameter('visualize', true, @islogical);
+p.addParameter('phimax', round(360 - 360/phi_nbSamples), @isnumeric);
+p.addParameter('phimin', 0, @isnumeric);
 
 p.parse(varargin{:});
 vis = p.Results.visualize;
 maxradius = p.Results.maxradius;
 minradius = p.Results.minradius;
+phimin= p.Results.phimin;
+phimax= p.Results.phimax;
 %% Lens add additional lens surface for final ray trace (HACK)
 % The script as I found only traces until the last lens surface. 
 % I added an additional flat surface behind the lens which acts as the "output plane".
@@ -58,7 +62,7 @@ end
 
 % Sampling Range unit directions vectors (parameterized using spherical coordinates)
 thetas=linspace(0,theta_max,theta_nbSamples); % polar angle
-phis = linspace(0,round(360 - 360/phi_nbSamples),phi_nbSamples); % Azimuth angle
+phis = linspace(phimin,phimax,phi_nbSamples); % Azimuth angle
 
 % Initialize input and output samples
 input = zeros(numel(y) * numel(thetas) * numel(phis), 4);

@@ -1,26 +1,15 @@
-% This example script uses existing code from Michael Pieroni to calculate
-% the entrance pupils for a given lens design.
-% It works projecting each lens element back to the object space (in
-% paraxial limit)
-% This means that there is an entrance pupil for each lens. 
-%
-% In practice it will usually be the projection of the diapgraphm that is
-% the most limiting.
-% However, at off-axis positions the other pupils also can start limiting
-% the rays. This effectively corresponds to mechanical/optical vignetting.
-%
-% Thomas Goossens
+% This script the steps involved to fit the circle circle intersection
+% model
 
 %% Load lens file
 clear;close all;
 
 lensFileName = fullfile('dgauss.22deg.3.0mm.json');
-%lensFileName = fullfile('tessar.22deg.3.0mm.json');
 exist(lensFileName,'file');
 
 
 lens = lensC('fileName', lensFileName)
-lens=lensReverse(lensFileName);
+
 
 
 %% Modifcation of lens parameters if desired
@@ -28,73 +17,17 @@ lens=lensReverse(lensFileName);
  lens.surfaceArray(6).apertureD=diaphragm_diameter
  lens.apertureMiddleD=diaphragm_diameter
 
-% Note there seems to be a redundancy in the lens which can get out of
-% sync: lens.apertureMiddleD en lens.surfaceArray{i}.apertureD (i= index of
-% middle aperture)
-% lens.surfaceArray(6).apertureD=0.4 seems to be only used for drawing
-%   lens.apertureMiddleD seems to be used for actual calculations in
-%   determining the exit and entrance pupil
 
- 
-%% Find Pupils
-% Optical system needs to be defined to be comptaible wich legacy code
-% 'paraxFindPupils'.
-opticalsystem = lens.get('optical system'); 
-exit = paraxFindPupils(opticalsystem,'exit'); % exit pupils
-entrance = paraxFindPupils(opticalsystem,'entrance'); % entrance pupils;
-
-
-% TG: To check: As far as I can see now the entrance (exit) pupil positions are defined
-% with respect to the first (last) surface.
-
-
-%% Draw diagram Entrance pupils
-
-lens.draw
-for i=1:numel(entrance)
-    
-    % entrance pupil (with respect to first surface)
-    firstEle=lens.surfaceArray(1); % First lens element
-    firstsurface_z = firstEle.sCenter(3)-firstEle.sRadius; % Seems working, but why
-    pupil_radius(i)=entrance{i}.diam(1,1)
-    pupil_position(i)=firstsurface_z+entrance{i}.z_pos(1)
-    
-    
-    
-    line([1 1]*pupil_position(i),[pupil_radius(i) pupil_radius(i)*1.1],'linewidth',4)
-    line([1 1]*pupil_position(i),[-pupil_radius(i) -pupil_radius(i)*1.1],'linewidth',4)
-    
-    line([1 1]*pupil_position(i),[pupil_radius(i) pupil_radius(i)*1.1],'linewidth',4)
-    line([1 1]*pupil_position(i),[-pupil_radius(i) -pupil_radius(i)*1.1],'linewidth',4)
-    
-    % Number each entrance pupil so it is easy to see to which surface it
-    % belongs
-    text(pupil_position(i),1.2*pupil_radius(i),num2str(i))
-    
-    
-    
-end
-title('Entrance pupils ')
-legh=legend('');
-legh.Visible='off';
-
-pupil_position(1)=pupil_position(1)+0.0767;
-
-
-
-%% Choose entrance pupil nr
-
-entrancepupil_nr=6;
 
 %% Check if ray can pass
 clear p;
 
 
-thetas = linspace(-40,40,50);
-phis = linspace(0,359,50);
+thetas = linspace(-40,40,100);
+phis = linspace(0,359,100);
 
 positions=[0 0.8 0.85 0.9]
-positions=[0 0.2 0.5 0.55 0.6 0.65 0.67 0.7 .75]
+positions=[0 0.2 0.5 0.8 0.85 0.88]
 
 
 % Initiate the arrays as NaNs, else the zeros will be interpreted at a
@@ -103,7 +36,6 @@ pupilshape = nan(3,numel(pupil_position),numel(thetas),numel(phis));
 pupilshape_trace = nan(3,numel(pupil_position),numel(thetas),numel(phis));
 
 for p=1:numel(positions)
-    p
     for ph=1:numel(phis)
     for t=1:numel(thetas)
         
@@ -268,46 +200,3 @@ return
     k=convhull(Pnan(1,:),Pnan(2,:))  
     [A , c] = MinVolEllipse(Pnan(:,k),0.01);
 
-
-
-return
-%%
-th=27;
-origin=[0 ;-0.2;-1];
-dir= [0; sind(th) ;cosd(th)];
-rays = rayC('origin',origin','direction',dir', 'waveIndex', 1, 'wave', wave);
-[~,~,out_point,out_dir]=lens.rtThroughLens(rays,1,'visualize',true);
-hold on;
-
-
-% Draw diagram Entrance pupils
-for i=1:numel(entrance)
-
-    
-    
-    line([1 1]*pupil_position(i),[pupil_radius(i) pupil_radius(i)*1.1],'linewidth',4)
-    line([1 1]*pupil_position(i),[-pupil_radius(i) -pupil_radius(i)*1.1],'linewidth',4)
-    
-    line([1 1]*pupil_position(i),[pupil_radius(i) pupil_radius(i)*1.1],'linewidth',4)
-    line([1 1]*pupil_position(i),[-pupil_radius(i) -pupil_radius(i)*1.1],'linewidth',4)
-    
-    % Number each entrance pupil so it is easy to see to which surface it
-    % belongs
-    text(pupil_position(i),1.2*pupil_radius(i),num2str(i))
-    
-    
-    
-    
-    
-    
-end
-
-% Draw condinued ray
-r = origin + alpha .* dir;
-alpha=linspace(0,10,100);
-plot(r(3,:),r(2,:),'r--')
-
-
-% Did they ray pass according to pupil intersections?
-
-pass=checkRayPassLens(origin,dir,pupil_position,pupil_radius)

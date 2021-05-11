@@ -14,26 +14,20 @@
 %% Load lens file
 clear;close all;
 
-lensFileName = fullfile('dgauss.22deg.3.0mm.json');
+lensFileName = fullfile('fisheye.87deg.3.0mm.json');
+
 %lensFileName = fullfile('tessar.22deg.3.0mm.json');
 exist(lensFileName,'file');
 
 
+lens = lensReverse(lensFileName);
 lens = lensC('fileName', lensFileName)
-lens=lensReverse(lensFileName);
 
 
 %% Modifcation of lens parameters if desired
- diaphragm_diameter=0.6;
- lens.surfaceArray(6).apertureD=diaphragm_diameter
+ diaphragm_diameter=1;
+ lens.surfaceArray(12).apertureD=diaphragm_diameter
  lens.apertureMiddleD=diaphragm_diameter
-
-% Note there seems to be a redundancy in the lens which can get out of
-% sync: lens.apertureMiddleD en lens.surfaceArray{i}.apertureD (i= index of
-% middle aperture)
-% lens.surfaceArray(6).apertureD=0.4 seems to be only used for drawing
-%   lens.apertureMiddleD seems to be used for actual calculations in
-%   determining the exit and entrance pupil
 
  
 %% Find Pupils
@@ -78,8 +72,8 @@ title('Entrance pupils ')
 legh=legend('');
 legh.Visible='off';
 
-pupil_position(1)=pupil_position(1)+0.0767;
 
+pupil_position(1)=pupil_position(1)+0.1697;
 
 
 %% Choose entrance pupil nr
@@ -94,7 +88,7 @@ thetas = linspace(-40,40,50);
 phis = linspace(0,359,50);
 
 positions=[0 0.8 0.85 0.9]
-positions=[0 0.2 0.5 0.55 0.6 0.65 0.67 0.7 .75]
+positions=[0 0.2 0.5 0.8 0.85 0.88]
 
 
 % Initiate the arrays as NaNs, else the zeros will be interpreted at a
