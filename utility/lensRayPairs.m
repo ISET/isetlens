@@ -1,4 +1,4 @@
-function [iRays, oRays, planes, nanIdx] = lensRayPairs(lensfile, varargin)
+function [iRays, oRays, planes, nanIdx, pupilPos, pupilRadii] = lensRayPairs(lensfile, varargin)
 %% Input/output ray pairs
 % 
 % Synopsis:
@@ -11,6 +11,9 @@ function [iRays, oRays, planes, nanIdx] = lensRayPairs(lensfile, varargin)
 %   iRays - input rays (radius, u, v)
 %   oRays - output rays (x, y, u, v)
 %   planes - coordinate of input and output planes on z axis
+%   nanIdx - failed rays index (useful for determining exit pupil)
+%   pupilPos - pupil positions
+%   pupilRadii     - pupil radii
 %
 % Optional key/val pairs:
 %   elevationMax - max elevation difference from normal in degrees
@@ -84,4 +87,8 @@ nanIdx = find(any(isnan(oRays), 2));
 % Get rid of w
 iRays = iRays(:, 1:3);
 oRays = oRays(:, 1:4);
+
+%% Generate entrance pupils
+[pupilPos, pupilRadii] = lensGetEntrancePupils(lensR);
+pupilPos = pupilPos - planeOffset;
 end
