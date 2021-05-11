@@ -37,7 +37,7 @@ lens.apertureMiddleD=diaphragm_diameter
 % Ideally this distance is chosen in the plane in which the entrance pupil
 % doesn't shift.  
 
-pupil_distance =  1.1439;
+entrancepupil_distance =  1.1439;
 
 %% Run ray trace, and log which rays can pass
 clear p;
@@ -82,7 +82,7 @@ else
                 [~,~,out_point,out_dir]=lens.rtThroughLens(rays,1,'visualize',false);
                 pass_trace = not(isnan(prod(out_point)));
                 if(pass_trace)
-                    alpha = pupil_distance/(direction(3));
+                    alpha = entrancepupil_distance/(direction(3));
                     pointOnPupil = origin+alpha*direction;
                     pupilshape_trace(:,p,t,ph)=  pointOnPupil;
                 end
@@ -114,112 +114,41 @@ viscircles(center0,radius0)
 scatter(Ptrace(1,:),Ptrace(2,:),'.')
 
 
-%% Step 2: Automatic estimation of the vignetting pupils
+%% Step 2: Automatic estimation of the vignetting circles
 % The automatic estimation algorithm tries to fit a circle that matches the
 % curvature and position on opposite (vertical) sides of the pupil.
 
-%% Estimation of the bottom circle
-% Positions at which the bottom circle is actually cutting of part of the
-% entrance pupil. 
-position_sel=2:8;
+% Bottom
+position_selection=2:8;
+offaxis_distances=positions(position_selection);
+offset=0.01;
+stepsize_radius=0.001;
+[radius_bottom,sensitivity_bottom]=findCuttingCircleEdge(pupilshape_trace(1:2,position_selection,:),offaxis_distances,"bottom",offset,stepsize_radius)
 
-% The algorithm will look for the radius 
-
-
-offset_lowestpos=-0.01;
-stopcondition=0;
-
-% The circles have to be at least larger than the entrance pupil radius,
-% else they would be the entrance pupil by definition.
-
-minradius=radius0; 
-Rest=minradius;
-while(not(prod(stopcondition)))
-    for i=1:numel(position_sel)
-        
-        p=position_sel(i);
-        Ptrace=pupilshape_trace(1:2,p,:);
-        Ptrace=Ptrace(1:2,:);
-        
-        NaNCols = any(isnan(Ptrace));
-        Pnan = Ptrace(:,~NaNCols);
-        ZeroCols = any(Pnan(:,:)==[0;0]);
-        Pnan = Pnan(:,~ZeroCols);
-        
-        % Step 1: choose lowest point
-        y_lowest = min(Pnan(2,:))+offset_lowestpos;
-        
-        
-        Rest = Rest+0.001
-       stopcondition(i)=sum((sum((Pnan-[0;(y_lowest+Rest)]).^2,1)<=Rest^2)==0)<1;
-    end
-end
-Rbottom = Rest;
-
-% Step 5: Estimate sensitivites
-ycenter_bottom=y_lowest+Rbottom;
-sensitivity_bottom=ycenter_bottom/positions(p)
-
-
-%% Rtop estimation for multiple circles at the same time
-% to enforce consistency (minimial redius that encloses all points for each
-% off axis distance
-stopcondition=0;
-position_sel=5:8;
-minradius=radius0;
-Rest=minradius;
-while(not(prod(stopcondition)))
-    for i=1:numel(position_sel)
-        
-        p=position_sel(i);
-        Ptrace=pupilshape_trace(1:2,p,:);
-        Ptrace=Ptrace(1:2,:);
-        
-        NaNCols = any(isnan(Ptrace));
-        Pnan = Ptrace(:,~NaNCols);
-        ZeroCols = any(Pnan(:,:)==[0;0]);
-        Pnan = Pnan(:,~ZeroCols);
-        
-        
-        % Step 1: choose lowest point
-        offset_highestpos=0.001;
-        y_highest = max(Pnan(2,:))+offset_highestpos;
-        
-     
-        
-        
-        Rest = Rest+0.01;
-       stopcondition(i)=sum((sum((Pnan-[0;(y_highest-Rest)]).^2,1)<=Rest^2)==0)<1;
-    end
-end
-
-%  Fitted radius for the top circle
-Rtop = Rest;
-
-% Step 5: Estimate sensitivites
-ycenter_top=y_highest-Rtop;
-sensitivity_top=ycenter_top/positions(p)
+% Top
+position_selection=5:8;
+offaxis_distances=positions(position_selection);
+offset=0.001;
+stepsize_radius=0.01;
+[radius_top,sensitivity_top]=findCuttingCircleEdge(pupilshape_trace(1:2,position_selection,:),offaxis_distances,"top",offset,stepsize_radius)
 
 %% Verify automatic fits:
 
+
 figure(1);clf; hold on;
 for p=1:numel(positions)
-    subplot(numel(positions)/2,numel(positions)/2,p); hold on;
+    subplot(2,numel(positions)/2,p); hold on;
     Ptrace=pupilshape_trace(1:2,p,:);
     Ptrace=Ptrace(1:2,:);
     
-    offset2=sensitivity2*positions(p);
-    offset1=sensitivity_bottom*positions(p);
-    radius1=Rbottom
-    radius2=Rtop
-    
-    center1=[0 offset1];
-    center2=[0 offset2];
-    
-    
+    % Calculate offset of each circle
+    offset_bottom=sensitivity_bottom*positions(p);
+    offset_top=sensitivity_top*positions(p);
+        
+    % Draw circles
     viscircles(center0,radius0,'color','k')
-    viscircles(center1,radius1,'color','r')
-    viscircles(center2,radius2,'color','b')
+    viscircles([0 offset_bottom],radius_bottom,'color','b')
+    viscircles([0 offset_top],radius_top,'color','r')
     
     scatter(Ptrace(1,:),Ptrace(2,:),'.')
     xlim(0.5*[-1 1])
@@ -232,43 +161,45 @@ end
 
 %% Calculate pupil positions and radii
 % To be used in 'checkRayPassLens'
+% All circle intersections where done in the entrance pupil plane.
+% Each circle is a projection of an actual pupil. Here I project the
+% corresponding circles back to their respective plane where they are
+% centered on the optical axis.
 
-hx= pupil_distance;
+% Distance to entrance pupil is already known by construction
+hx= entrancepupil_distance;
 
-Rpupil_bottom = Rbottom/(1-sensitivity_bottom)
-Rpupil_top = Rtop/(1-sensitivity_top)
+% Calculate radius of a pupil by projecting it back to its actual plane
+% (where it is cented on the optical axis)
+Rpupil_bottom = radius_bottom/(1-sensitivity_bottom)
+Rpupil_top = radius_top/(1-sensitivity_top)
 
 
+% Calculate positions of pupils relative to the input plane
 hp_bottom=hx/(1-sensitivity_bottom)
 hp_top=hx/(1-sensitivity_top)
 
 
+% Information to be used for PBRT domain evaluation
 radii = [radius0 Rpupil_bottom Rpupil_top]
 pupil_distances = [hx, hp_bottom hp_top]
 
 
-%% Verification
+%% Second Verification (to check the ebove equations)
 figure;
 
 for p=1:numel(positions)    
-    subplot(ceil(numel(positions)/2),ceil(numel(positions)/2),p); hold on;
-    
-    % Plot paraxial pupil shape
-    P=pupilshape(1:2,p,:);
-    P=P(1:2,:);
+    subplot(2,ceil(numel(positions)/2),p); hold on;
     
         
     % Plot traced pupil shape
     Ptrace=pupilshape_trace(1:2,p,:);
     Ptrace=Ptrace(1:2,:);
-                   
-
-    %area = convhull(Ptracenonan(1,:)',Ptracenonan(2,:)')
     scatter(Ptrace(1,:),Ptrace(2,:),'.')
     
     
     % Draw entrance pupil
-    viscircles([0 0],pupil_radius(entrancepupil_nr),'color','k')
+    viscircles([0 0],radius0,'color','k')
     
     % Draw Bottom circle
     sensitivity = (1-hx/hp_bottom);
