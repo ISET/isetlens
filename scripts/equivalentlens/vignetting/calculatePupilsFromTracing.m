@@ -180,7 +180,7 @@ hp_bottom=hx/(1-sensitivity_bottom)
 hp_top=hx/(1-sensitivity_top)
 
 
-% Information to be used for PBRT domain evaluation
+% Information to be used for PBRT domain evaluation (FOR ZHENG)
 radii = [radius0 Rpupil_bottom Rpupil_top]
 pupil_distances = [hx, hp_bottom hp_top]
 
