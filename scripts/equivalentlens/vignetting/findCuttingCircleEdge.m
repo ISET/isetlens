@@ -1,4 +1,4 @@
-function [radius,sensitivity] = findCuttingCircleEdge(points,offaxis_distances,side,offset_vertex,stepsize_radius)
+function [radius,sensitivity] = findCuttingCircleEdge(points,offaxis_distances,side, varargin)
 %findCuttingCircleEdge Estimate the circles that cut off the entrance pupil
 %
 %  Algorithm works by choosing either the furthest (top or bottom) vertex
@@ -13,11 +13,14 @@ function [radius,sensitivity] = findCuttingCircleEdge(points,offaxis_distances,s
 %  INPUTS
 %      points - 2xPxN  (X,Y) x  (pupil positions)  x points
 %      offaxis_distances - 1xP   radial off-axis distances
-%      offset_vertex - A small offset added to the furthest vertex distance
+%
+%      Varargin:
+%      "offset" - A small offset added to the furthest vertex distance
 %                      this helps with enclosing all points correctly when the pupil is not
 %                       perfectly circular.  It is therefore a tuning parameter.
-%      stepsize_radius - Determines the increments in radius to be tried.
-
+%      "stepsize radius" - Determines the increments in radius to be tried.
+%      "maxiterations"  - Maximal number of iterations to ensure the
+%                       algorithm ends
 %  OUTPUTS
 %     - radius - Radius of the circle
 %     - sensitivity - Defined as displacement_of_center =
@@ -25,24 +28,39 @@ function [radius,sensitivity] = findCuttingCircleEdge(points,offaxis_distances,s
 %
 % Thomas Goossens
 
+%}
+%% Parse inputs
+varargin = ieParamFormat(varargin);
+p = inputParser;
+p.addParameter('maxiterations', 1000, @isnumeric);
+p.addParameter('stepsizeradius', 0.001, @isnumeric);
+p.addParameter('offset',0.1,@isnumeric);
+p.parse(varargin{:});
+maxiterations = p.Results.maxiterations;
+stepsize_radius = p.Results.stepsizeradius;
+offset_vertex = p.Results.offset;
+%% Sign convention bottom or up
 
-
-
+% Depending on which side of the pupil we are fitting a circle
+% some alterations are needed in the equations. In this decision tree the
+% sign conventions are fixed so we need to check this only once.
 if(side=="bottom")
     sign=1;
-    extreme =  @(x) min(x);
+    extreme =  @(x) min(x); %"lowest" poin
 else %top
     sign=-1;
-    extreme =  @(x) max(x);
+    extreme =  @(x) max(x); %"highest" point
 end
 
 
+%% Initialization
 stopcondition=0;
-
-% The circles have to be at least larger than the entrance pupil radius,
-% else they would be the entrance pupil by definition.
 Rest=0;
-while(not(prod(stopcondition)))
+
+
+%% Find enclosing radius
+iterations=0;
+while(and(not(prod(stopcondition)),(iterations<maxiterations)))
     for p=1:numel(offaxis_distances)
         Ptrace=points(1:2,p,:);
         
@@ -58,7 +76,7 @@ while(not(prod(stopcondition)))
     end
     Rest = Rest+stepsize_radius;
 
-
+    iterations=iterations+1;
 end
 
 radius = Rest;

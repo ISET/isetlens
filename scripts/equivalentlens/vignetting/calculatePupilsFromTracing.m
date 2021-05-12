@@ -123,14 +123,14 @@ position_selection=2:8;
 offaxis_distances=positions(position_selection);
 offset=0.01;
 stepsize_radius=0.001;
-[radius_bottom,sensitivity_bottom]=findCuttingCircleEdge(pupilshape_trace(1:2,position_selection,:),offaxis_distances,"bottom",offset,stepsize_radius)
+[radius_bottom,sensitivity_bottom]=findCuttingCircleEdge(pupilshape_trace(1:2,position_selection,:),offaxis_distances,"bottom",'offset',offset,'stepsizeradius',stepsize_radius)
 
 % Top
 position_selection=5:8;
 offaxis_distances=positions(position_selection);
 offset=0.001;
 stepsize_radius=0.01;
-[radius_top,sensitivity_top]=findCuttingCircleEdge(pupilshape_trace(1:2,position_selection,:),offaxis_distances,"top",offset,stepsize_radius)
+[radius_top,sensitivity_top]=findCuttingCircleEdge(pupilshape_trace(1:2,position_selection,:),offaxis_distances,"top",'offset',offset,'stepsize radius',stepsize_radius)
 
 %% Verify automatic fits:
 
