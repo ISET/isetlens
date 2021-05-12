@@ -17,6 +17,7 @@ clear;close all;
 lensFileName = fullfile('dgauss.22deg.3.0mm.json');
 %lensFileName = fullfile('tessar.22deg.3.0mm.json');
 exist(lensFileName,'file');
+lensFileName = fullfile('wide.56deg.3.0mm.json')
 
 
 lens = lensC('fileName', lensFileName)
