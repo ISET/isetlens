@@ -3,20 +3,26 @@ function [radius,sensitivity] = findCuttingCircleEdge(points,offaxis_distances,s
 %
 %  Algorithm works by choosing either the furthest (top or bottom) vertex
 %  and finding the circle with minimal radius that encloses all points at
-%  all off-axis distances.
+%  all off-axis distances. 
 %  From this the radius and sensitivity (how much it moves with off axis
 %  distance) can be estimated. One has to play with tolerances here and
 %  there to get a satisfactory fit.
 %
 %
+%
 %  INPUTS
 %      points - 2xPxN  (X,Y) x  (pupil positions)  x points
-%    
+%      offaxis_distances - 1xP   radial off-axis distances
+%      offset_vertex - A small offset added to the furthest vertex distance
+%                      this helps with enclosing all points correctly when the pupil is not
+%                       perfectly circular.  It is therefore a tuning parameter.
+%      stepsize_radius - Determines the increments in radius to be tried.
+
 %  OUTPUTS
 %     - radius - Radius of the circle
 %     - sensitivity - Defined as displacement_of_center =
 %                      sensitivity*offaxis_distances
-
+%
 % Thomas Goossens
 
 
