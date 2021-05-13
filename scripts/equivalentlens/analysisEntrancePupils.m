@@ -273,8 +273,8 @@ return
 
 return
 %%
-th=27;
-origin=[0 ;-0.2;-1];
+th=-50;
+origin=[0 ;2.5;   -4.3759];
 dir= [0; sind(th) ;cosd(th)];
 rays = rayC('origin',origin','direction',dir', 'waveIndex', 1, 'wave', wave);
 [~,~,out_point,out_dir]=lens.rtThroughLens(rays,1,'visualize',true);
