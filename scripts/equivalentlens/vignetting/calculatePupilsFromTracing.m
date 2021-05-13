@@ -12,8 +12,7 @@
 clear;close all;
 
 lensFileName = fullfile('dgauss.22deg.3.0mm.json');
-lensFileName = fullfile('tessar.22deg.3.0mm.json');
-lensFileName = fullfile('wide.56deg.3.0mm.json')
+
 exist(lensFileName,'file');
 
 
@@ -22,12 +21,16 @@ lens=lensReverse(lensFileName);
 lens.draw
 
 %% INput plane
-inputplane_z=-3.5;
+
+firstEle=lens.surfaceArray(1); % First lens element
+firstsurface_z = firstEle.sCenter(3)-firstEle.sRadius; % Seems working, but why
+    
+inputplane_z= firstsurface_z-0.1
 
 %% Modifcation of lens parameters if desired
-%diaphragm_diameter=0.6;
-%lens.surfaceArray(6).apertureD=diaphragm_diameter
-%lens.apertureMiddleD=diaphragm_diameter
+diaphragm_diameter=0.6;
+lens.surfaceArray(6).apertureD=diaphragm_diameter;
+lens.apertureMiddleD=diaphragm_diameter;
 
 % Note there seems to be a redundancy in the lens which can get out of
 % sync: lens.apertureMiddleD en lens.surfaceArray{i}.apertureD (i= index of
@@ -46,7 +49,7 @@ entrancepupil_distance =  1.1439;
 %% Run ray trace, and log which rays can pass
 clear p;
 
-flag_runraytrace=true;
+flag_runraytrace=false;
 
 if(not(flag_runraytrace))
     % IF we don't want to redo all the ray trace, load a cached ray trace
@@ -55,7 +58,7 @@ if(not(flag_runraytrace))
 else
     
 
-    nbThetas=50;
+    nbThetas=250;
     nbPhis=nbThetas;
     thetas = linspace(-40,40,nbThetas);
     phis = linspace(0,359,nbPhis);
