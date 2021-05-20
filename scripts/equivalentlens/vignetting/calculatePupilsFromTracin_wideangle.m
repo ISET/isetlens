@@ -66,7 +66,7 @@ else
     phis = linspace(0,359,nbPhis);
     
     
-    positions =[0 0.2 0.4 0.5 0.6 0.7 0.8 1 1.2 1.3 1.4 1.5 1.6 1.7 1.8];
+    positions =0:0.1:2;
     %positions=0;
     
     % Initiate the arrays as NaNs, else the zeros will be interpreted at a
