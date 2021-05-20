@@ -25,7 +25,7 @@ lens.draw
 firstEle=lens.surfaceArray(1); % First lens element
 firstsurface_z = firstEle.sCenter(3)-firstEle.sRadius; % Seems working, but why
     
-offset_inputplane=0.1;
+offset_inputplane=0.01;
 inputplane_z= firstsurface_z-offset_inputplane
 
 %% Modifcation of lens parameters if desired
