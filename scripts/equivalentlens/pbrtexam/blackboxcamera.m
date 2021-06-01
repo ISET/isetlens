@@ -1,5 +1,5 @@
 %% PART1: Normal rendering from ISET3d 
-
+clear;
 ieInit;
 if ~piDockerExists, piDockerConfig; end
 
@@ -13,17 +13,54 @@ thisR.camera = piCameraCreate('omni','lensFile',lensfile);
 thisR.set('aperture diameter', 2.5318);
 thisR.set('film distance', 0.00216675);
 thisR.set('film diagonal', 5); % mm
-
+%%
 
 % OPTIONAL: Only useful for actual normal PBRTrendering
-piWrite(thisR);
-[oi, result] = piRender(thisR, 'render type', 'radiance');
-oiWindow(oi);
+% piWrite(thisR);
+% [oi, result] = piRender(thisR, 'render type', 'radiance');
+% oiWindow(oi);
 
 %% PART2: Compare results after running seperately from PBRT
 % This part needs to be run not within ISET3d but directly from PBRT. Later
 % on we would make blackbox as a docker container that can be also called
 % from ISET3d.
-fname = fullfile(piRootPath, 'local', 'Copy_of_simpleScene', 'renderings', 'test.dat');
-oiPoly = piDat2ISET(fname, 'wave', 400:10:700, 'recipe', thisR);
+% fname = fullfile(piRootPath, 'local', 'Copy_of_simpleScene', 'renderings', 'test.dat');
+% oiPoly = piDat2ISET(fname, 'wave', 400:10:700, 'recipe', thisR);
+% oiWindow(oiPoly);
+
+
+
+%% Lens example
+
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens.dat'
+oiPoly = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
+oiPoly.name ='lens'
 oiWindow(oiPoly);
+Dlens=oiPoly.data.photons;
+%% Blackbox example
+
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-4deg.dat'
+%path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-otherthickness-1024.dat'
+
+oiPoly = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
+oiPoly.name ='blackbox'
+oiWindow(oiPoly);
+Dblack=oiPoly.data.photons;
+%% Vignetting ratio map
+% Vignetting ratio
+figure(5);clf;
+subplot(131)
+ratio=(abs(Dlens(:,:,1)./Dblack(:,:,1)));
+
+imagesc(ratio,[0.5 2]); colormap hot
+subplot(132)
+ratio=(abs(Dlens(:,:,1)./Dblack(:,:,1)));
+ratiofilt = medfilt2(ratio,[10 10]);
+imagesc(ratiofilt,[0.5 2]); colormap hot
+
+title('Vignetting ratio')
+subplot(133)
+imagesc((abs(Dlens(:,:,1)-Dblack(:,:,1)))); colormap hot
+title('Vignetting difference')
+
