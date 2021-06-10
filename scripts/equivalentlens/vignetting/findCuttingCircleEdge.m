@@ -16,7 +16,11 @@ function [radius,sensitivity] = findCuttingCircleEdge(points,offaxis_distances,s
 %
 %      Varargin:
 %      "offset" - A small offset added to the furthest vertex distance
-%                      this helps with enclosing all points correctly when the pupil is not
+%                      this helps with enclosing all points correctly when
+%                      the pupil is not perfectly sampled.
+%                 Should not be used in combination with "extremepoints"
+%      "extremepoints" - 1xP list of furthest vertices obtained in
+%      preprocessing. This will override the "offset" setting.
 %                       perfectly circular.  It is therefore a tuning parameter.
 %      "stepsize radius" - Determines the increments in radius to be tried.
 %      "maxiterations"  - Maximal number of iterations to ensure the
@@ -35,10 +39,14 @@ p = inputParser;
 p.addParameter('maxiterations', 1000, @isnumeric);
 p.addParameter('stepsizeradius', 0.001, @isnumeric);
 p.addParameter('offset',0.1,@isnumeric);
+p.addParameter('extremepoints',NaN,@isnumeric);
 p.parse(varargin{:});
 maxiterations = p.Results.maxiterations;
 stepsize_radius = p.Results.stepsizeradius;
 offset_vertex = p.Results.offset;
+extremepoints = p.Results.extremepoints;
+
+
 %% Sign convention bottom or up
 
 % Depending on which side of the pupil we are fitting a circle
@@ -70,8 +78,11 @@ while(and(not(prod(stopcondition)),(iterations<maxiterations)))
         Pnan = Pnan(:,~ZeroCols);
         
         % Step 1: choose lowest point
-        y_extreme = extreme(Pnan(2,:))-sign*offset_vertex;
-        
+        if(not(isnan(extremepoints)))
+            y_extreme = extremepoints(p);
+        else
+            y_extreme = extreme(Pnan(2,:))-sign*offset_vertex;
+        end
         stopcondition(p)=sum((sum((Pnan-[0;(y_extreme+sign*Rest)]).^2,1)<=Rest^2)==0)<1;        
     end
     Rest = Rest+stepsize_radius;

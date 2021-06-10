@@ -1,4 +1,4 @@
-function [iRays, oRays, planes, nanIdx, pupilPos, pupilRadii] = lensRayPairs(lensfile, varargin)
+function [iRays, oRays, planes, nanIdx, pupilPos, pupilRadii,lensThickness] = lensRayPairs(lensfile, varargin)
 %% Input/output ray pairs
 % 
 % Synopsis:
@@ -76,6 +76,16 @@ else
     lensR = lensC('filename', which(lensfile));
 end
 
+
+%%
+
+%% Determine lens thickness
+firstEle = lensR.surfaceArray(1); % First lens element surface
+lastEle = lensR.surfaceArray(end); % First lens element surface
+firstVertex = firstEle.sCenter(3)-firstEle.sRadius;
+lastVertex = lastEle.sCenter(3)-lastEle.sRadius;
+
+lensThickness=abs(lastVertex-firstVertex);
 %%
 [iRays, oRays, planes] = raytraceLightField(lensR, nRadiusSamp,...
         elevationMax, nElSamp, nAzSamp, planeOffset, 'visualize', visualize,...

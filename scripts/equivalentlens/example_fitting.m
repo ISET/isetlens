@@ -28,13 +28,13 @@ theta_nbSamples = 50; %uniform sampling polar angle range
 %% Choose input output plane
 % Offset describes the distance in front of the first lens surface and the
 % distance behind the last lens surface
-offset=0.1; % mm
+offset=0.01; % mm
 
 %% Fitting options
 % A polynomial degree of 4 seems to be the minimum required to get a
 % reasonable
 % fit. TODO: find a physical reason for this.
-polynomial_degree=4;
+polynomial_degree=5;
 
 %% Generate lookup table
 % Bringing direction on z axis back just in case it will be used in the

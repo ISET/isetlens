@@ -15,6 +15,7 @@ varargin = ieParamFormat(varargin);
 p = inputParser;
 p.addRequired('iRays', @isnumeric);
 p.addRequired('oRays', @isnumeric);
+p.addParameter('lensthickness',NaN,@isnumeric);
 p.addParameter('maxdegree', 4, @isnumeric);
 p.addParameter('visualize', false, @islogical);
 p.addParameter('fpath', '', @ischar);
@@ -27,8 +28,9 @@ maxDegree = p.Results.maxdegree;
 visualize = p.Results.visualize;
 fPath = p.Results.fpath;
 planes = p.Results.planes;
-pupilPos = p.Results.pupilpos;
 pupilRadii = p.Results.pupilradii;
+pupilPos = p.Results.pupilpos;
+lensThickness = p.Results.lensthickness;
 %% Fit polynomial
 % Each output variable will be predicted
 % by a multivariate polynomial with three variables: x,u,v.
@@ -67,7 +69,7 @@ end
 
 %% 
 if ~isempty(fPath)
-    jsonPath = polyJsonGenerate(polyModel, 'planes', planes, 'outpath', fPath,...
+    jsonPath = polyJsonGenerate(polyModel, 'lensthickness', lensThickness, 'planes', planes, 'outpath', fPath,...
                                 'pupil pos', pupilPos,...
                                 'pupil radii', pupilRadii);
 end

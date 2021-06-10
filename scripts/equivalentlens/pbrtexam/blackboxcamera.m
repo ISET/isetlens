@@ -1,4 +1,4 @@
-%% PART1: Normal rendering from ISET3d 
+%% PART1: Normal rendering from ISET3d
 clear;
 ieInit;
 if ~piDockerExists, piDockerConfig; end
@@ -11,7 +11,7 @@ lensfile = 'lenses/dgauss.22deg.3.0mm.json';
 fprintf('Using lens: %s\n',lensfile);
 thisR.camera = piCameraCreate('omni','lensFile',lensfile);
 thisR.set('aperture diameter', 2.5318);
-thisR.set('film distance', 0.00216675);
+thisR.set('film distance', 0.002167);
 thisR.set('film diagonal', 5); % mm
 %%
 
@@ -32,21 +32,52 @@ thisR.set('film diagonal', 5); % mm
 
 %% Lens example
 
-path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens.dat'
+%path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens-512.dat'
+%path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/flatSurface/renderings/lens.dat'
+%path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens-512-diag2.dat'
 oiPoly = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
 oiPoly.name ='lens'
+
 oiWindow(oiPoly);
+oiSet(oiPoly,'gamma',0.5)
 Dlens=oiPoly.data.photons;
+pause(1);
+ax = gca;
+exportgraphics(ax,'lens.png')
+exportgraphics(ax,'lens.pdf')
 %% Blackbox example
 
-path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox.dat'
-path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-4deg.dat'
+
+%path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-512-diag2.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-256.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-64-0.5.dat'
+%path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-1024-0.1.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-512-0.1.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-512.dat'
+%path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/flatSurface/renderings/blackbox.dat'
+
+%path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-5deg.dat'
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-otherthickness-1024.dat'
 
 oiPoly = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
 oiPoly.name ='blackbox'
 oiWindow(oiPoly);
 Dblack=oiPoly.data.photons;
+pause(1);
+ax = gca;
+exportgraphics(ax,'fblackbox.png')
+exportgraphics(ax,'blackbox.pdf')
+return
+%% Blackbox without vignetting example
+
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-novignet-256.dat'
+
+oiPoly = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
+oiPoly.name ='blackbox-novignet'
+oiWindow(oiPoly);
+Dblacknovignet=oiPoly.data.photons;
+
 %% Vignetting ratio map
 % Vignetting ratio
 figure(5);clf;
@@ -57,7 +88,7 @@ imagesc(ratio,[0.5 2]); colormap hot
 subplot(132)
 ratio=(abs(Dlens(:,:,1)./Dblack(:,:,1)));
 ratiofilt = medfilt2(ratio,[10 10]);
-imagesc(ratiofilt,[0.5 2]); colormap hot
+imagesc(ratiofilt,[0 1.2]); colormap hot
 
 title('Vignetting ratio')
 subplot(133)
