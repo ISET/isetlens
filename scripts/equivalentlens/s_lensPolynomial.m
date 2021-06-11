@@ -19,6 +19,12 @@ offset=0.1;
 
 %% Poly fit
 polyDeg = 5
+
+% Pupils for Double gaussian only. (At this moment estimating this takes a long time get
+% high quality)
+pupilRadii =[   0.4769    7.9323    0.5994];
+pupilPos =[    1.1266   17.6273    0.1798];
+
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
 [polyModel, jsonPath] = lensPolyFit(iRays, oRays,'planes', planes,...
     'visualize', true, 'fpath', fpath,...
