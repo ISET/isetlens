@@ -84,8 +84,9 @@ dataMatrix(:,1) = -dataMatrix(:,1);
 % Shift relative distances
 dataMatrix(:,2)=circshift(dataMatrix(:,2),-1,1);
 % shift refractive index relative to paerture
-dataMatrix(1:apertureInd-1,3)  = circshift(dataMatrix(1:apertureInd-1,3),-1);
-dataMatrix(apertureInd + 1:end, 3) = circshift(dataMatrix(apertureInd + 1:end,3),-1);
+reverseApertureId=size(dataMatrix,1)-apertureInd+1; % needed for asymmetric lenses
+dataMatrix(1:reverseApertureId-1,3)  = circshift(dataMatrix(1:reverseApertureId-1,3),-1);
+dataMatrix(reverseApertureId + 1:end, 3) = circshift(dataMatrix(reverseApertureId + 1:end,3),-1);
 
 % Read in as structure
 J = jsonread(which(lensname));
@@ -95,7 +96,7 @@ for i = 1:size(dataMatrix,1)
     s.radius = dataMatrix(i,1);
     s.thickness = dataMatrix(i,2);
     s.ior = dataMatrix(i,3);
-    s.semi_aperture = 0.5 * dataMatrix(i,4);% anders worden de curven te lang getekend
+    s.semi_aperture = 0.5 * dataMatrix(i,4);% Diameter -> radius
     surfaces(i) = s;
 end
 

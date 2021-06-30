@@ -25,12 +25,20 @@ thisR.set('film diagonal', 5); % mm
 
 %% Get all OI's of interest
 paths={};
-names = {'lens','lens defocus','Ray Transfer Function','Ray Transfer Function defocus'}
-colors = {'r','r','k','k'};
-style = {'-','-.','-','-.'};
+names = {}
+colors = {'r','k','r','k'};
+style = {'-','-','-.','-.'};
+
+names{end+1} = 'lens';
 paths{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/slantedBar/renderings/lens.dat'
+
+names{end+1} = 'lens defocus';
 paths{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/slantedBar/renderings/lens-further.dat'
+
+names{end+1} = 'blackbox';
 paths{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/slantedBar/renderings/blackbox.dat'
+
+names{end+1} = 'blackbox defocus';
 paths{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/slantedBar/renderings/blackbox-further.dat'
 
 
@@ -55,7 +63,7 @@ sensor = sensorCreate;
 %sensor = sensorSet(sensor,'pixel size same fill factor',1.2e-6);
 % How to set correct pixel size given PBRT recipe?
 sensor = sensorSet(sensor,'size',[256 256]);
-%sensor = sensorSet(sensor,'fov',5,oi); % what FOV should I use?
+%sensor = sensorSet(sensor,'fov',20,oiList{1}); % what FOV should I use?
 
 
 % These positions give numerically stable results
@@ -73,7 +81,9 @@ for i=1:numel(oiList)
     MTF{i} = ieISO12233(ip,sensor,'all',positions);
     close(gcf)
 end
-figure; hold on;
+
+fig=figure; hold on;
+fig.Position=[691 440 560 220];
 clear h
 for i=1:numel(oiList)
     h(i)=plot(MTF{i}.freq,MTF{i}.mtf(:,1),'color',colors{i},'linestyle',style{i}); hold on;
@@ -83,8 +93,19 @@ ylim([0 1])
 xlim([0 100])
 title('MTF')
 xlabel('Spatial frequency on the sensor (cy/mm)')
-saveas(gcf,'./fig/mtf-slanted.pdf');
+saveas(gcf,'./fig/mtf-slanted-dgauss.png');
 
 
 %%
 
+%% Compare Falloff profiles
+photonsLens=oiList{1}.data.photons;
+photonsBlack=oiList{2}.data.photons;
+
+
+fig=figure(3);clf;hold on;
+fig.Position=[691 440 560 220];
+plot(photonsLens(end/2,:,1),'k')
+plot(photonsBlack(end/2,:,1),'r')
+xlabel('pixel')
+saveas(gcf,'./fig/falloff-dgauss.png');

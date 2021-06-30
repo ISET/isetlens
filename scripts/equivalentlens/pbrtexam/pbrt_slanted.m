@@ -35,7 +35,7 @@ thisR.set('film diagonal', 5); % mm
 
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/slantedBar/renderings/lens.dat'
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/slantedBar/renderings/lens-further.dat'
-
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/multipleSlantedBars/renderings/scene-lens.dat';
 oiLens = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
 oiLens.name ='lens'
 
@@ -51,7 +51,7 @@ exportgraphics(ax,'lens-slantedBar.pdf')
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/slantedBar/renderings/blackbox.dat'
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/slantedBar/renderings/blackbox-further.dat'
 
-
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/multipleSlantedBars/renderings/scene-black.dat';
 
 oiBlack = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
 oiBlack.name ='blackbox'
@@ -76,8 +76,8 @@ oi=oiBlack;
 sensor = sensorCreate;
 %sensor = sensorSet(sensor,'pixel size same fill factor',1.2e-6);
 % How to set correct pixel size given PBRT recipe?
-sensor = sensorSet(sensor,'size',[256 256]);
-%sensor = sensorSet(sensor,'fov',5,oi); % what FOV should I use?
+sensor = sensorSet(sensor,'size',[320 320]);
+sensor = sensorSet(sensor,'fov',50,oi); % what FOV should I use?
 
 
 % These positions give numerically stable results
@@ -98,6 +98,10 @@ title('MTF')
 xlabel('Spatial frequency on the sensor (cy/mm)')
 
 
+% 
+   positions(1,:)=[326   768    78   178];
+    positions(2,:)=[408   103    59   104];
+    positions(3,:)=[493   322    93   138];
 %%
 
 %  MTF
@@ -109,11 +113,13 @@ sensor = sensorCompute(sensor,oiBlack);
 ip = ipCompute(ip,sensor);
 ipWindow(ip);
 
-%[locs,rect] = ieROISelect(ip);
-%positions = round(rect.Position);
+[locs,rect] = ieROISelect(ip);
+positions = round(rect.Position);
 
 mtfBlack = ieISO12233(ip,sensor,'all',positions);
 
+
+%%
 %%%%%%%%%%%% MTF Lens
 
 sensor = sensorCompute(sensor,oiLens);

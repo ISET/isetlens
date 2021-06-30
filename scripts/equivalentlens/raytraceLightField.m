@@ -1,4 +1,4 @@
-function [input,output,planes] = raytraceLightField(lens,spatial_nbSamples,theta_max,theta_nbSamples,phi_nbSamples,offset, varargin)
+function [input,output,planes] = raytraceLightField(lens,spatial_nbSamples,theta_max,theta_nbSamples,phi_nbSamples,inputPlaneOffset,addFinalSurfaceFunction, varargin)
 % Coordinate defination
 %{
 ^ (y axis)
@@ -17,6 +17,7 @@ p.addParameter('minradius', 0, @isnumeric);
 p.addParameter('visualize', true, @islogical);
 p.addParameter('phimax', round(360 - 360/phi_nbSamples), @isnumeric);
 p.addParameter('phimin', 0, @isnumeric);
+p.addParameter('waveindex', 1, @isnumeric);
 
 p.parse(varargin{:});
 vis = p.Results.visualize;
@@ -24,12 +25,13 @@ maxradius = p.Results.maxradius;
 minradius = p.Results.minradius;
 phimin= p.Results.phimin;
 phimax= p.Results.phimax;
+waveindex= p.Results.waveindex;
 %% Lens add additional lens surface for final ray trace (HACK)
 % The script as I found only traces until the last lens surface. 
 % I added an additional flat surface behind the lens which acts as the "output plane".
 % This is a hack such  that the ray tracer continues until final surface.
 
-lens = lens_addfinalsurface(lens,offset); 
+lens = addFinalSurfaceFunction(lens);
 %{
 % Visualize the structure
 lens.draw 
@@ -52,7 +54,7 @@ end
 % ZLY: Is this in mm?
 %
 firstVertex = firstEle.sCenter(3)-firstEle.sRadius;
-entrance_z = firstVertex-offset; % Offset the distance by certain number in front of the surface
+entrance_z = firstVertex-inputPlaneOffset; % Offset the distance by certain number in front of the surface
 
 % Initialize input ray start position
 entrance = zeros(3, numel(y));
@@ -96,18 +98,21 @@ for i=1:numel(y)
         end
     end
 end
-
-rays = rayC('origin',origins,'direction', dirs, 'waveIndex', ones(1, size(origins, 1)), 'wave', lens.wave);
+% Currently all rays that are gegenerated are assumed to be at same
+% wavelength
+waveIndices=waveindex*ones(1, size(origins, 1));
+rays = rayC('origin',origins,'direction', dirs, 'waveIndex', waveIndices, 'wave', lens.wave);
 [~, ~, pOut, pOutDir] = lens.rtThroughLens(rays, rays.get('n rays'), 'visualize', vis);
 % Output variable
 output(:, 1)=pOut(:, 1);
 output(:, 2)=pOut(:, 2);
-output(:, 3) = pOutDir(:, 1); % theta
-output(:, 4) = pOutDir(:, 2);
-output(:, 5) = pOutDir(:, 3);
+output(:, 3)=pOut(:, 3);
+output(:, 4) = pOutDir(:, 1); % theta
+output(:, 5) = pOutDir(:, 2);
+output(:, 6) = pOutDir(:, 3);
 
 %% Specify the chosen Input output planes
 planes.input=entrance_z;
-planes.output=offset;
+planes.output=inputPlaneOffset;
 end
 

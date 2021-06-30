@@ -17,17 +17,96 @@ clear;close all;
 lensFileName = fullfile('dgauss.22deg.3.0mm.json');
 %lensFileName = fullfile('tessar.22deg.3.0mm.json');
 exist(lensFileName,'file');
-%lensFileName = fullfile('wide.56deg.3.0mm.json')
+lensFileName = fullfile('wide.56deg.3.0mm.json')
+%lensFileName= './lenses/wide.56deg.3.0mm_aperture0.6.json'
 
+lensNormal = lensC('fileName', lensFileName);
 
-lens = lensC('fileName', lensFileName)
 lens=lensReverse(lensFileName);
+lens=lens_addfinalsurface(lens,0.1);
+theta=-35 , y=1
+theta=-56.5, y=2.4
+%theta=-54, y=1.9
+
+lensthickness=4.2759;
+inputplane_z=-4.2759-0.1;
+
+
+filmplane_z=-4.2759-1.967
+
+y=5.5
+
+
+thetas = linspace(-70,-45,2000);
+%thetas = linspace(-59,-58.3,100);
+thetas = -58.3;
+for t=1:numel(thetas)
+    theta=thetas(t);
+    origins(t,:)=[0 y filmplane_z;];
+    directions(t,:)=[0 sind(theta) cosd(theta)];
+end
+
+[arrival_pos,arrival_dir]=rayTraceSingleRay(lens,origins,directions)
+
+
+
+
+nanrays=isnan(arrival_pos(:,1));
+% Plot extended rays
+alpha=linspace(0,20,2);
+for t=1:numel(thetas)
+    if(nanrays(t))
+        continue; % skip untracable rays
+    end        
+    theta=thetas(t)
+    points=origins(t,:)+alpha'.*directions(t,:);
+    line(points(:,3),points(:,2),'color','k','linestyle','-')
+  
+end
+
+filmheight=sqrt(18^2/2)/2;
+ylim([-inf filmheight])
+
+
+% Draw pupils
+pupildistance = [1.5411,  2.5697,  0.8978 0.1];
+pupilradii= [ 0.1719, 1.7298,  1.0439 2.52/2];
+colors = {'r','g','b','m'}
+for i=1:numel(pupildistance)
+
+pupilpos=(inputplane_z+pupildistance(i));
+
+line([1 1]*pupilpos,[pupilradii(i) 2],'color',colors{i},'linewidth',2)
+line([1 1]*pupilpos,-[pupilradii(i) 2],'color',colors{i},'linewidth',2)
+end
+
+
+
+%% Check reversability of the lens
+
+%lensNormal.draw
+lensR=lens;
+origin=[0 1 -5]
+theta=-28
+direction=[0 sind(theta) cosd(theta)]
+origin = [1.31456042 -4.57712356 filmplane_z]
+direction=[-0.000795460306 0.0027499334 0.00196700008]
+direction = direction/norm(direction)
+[arrival_pos,arrival_dir]=rayTraceSingleRay(lensR,origin,direction)
+
+arrival_dir_flip = arrival_dir;
+arrival_dir_flip(2) = -arrival_dir_flip(2)
+
+arrival_pos_flip=arrival_pos;
+arrival_pos_flip(3) = -arrival_pos_flip(3)
+[arrival_pos2,arrival_dir2]=rayTraceSingleRay(lensR,[0 0 -lensthickness]+(arrival_pos_flip),arrival_dir_flip)
+
 
 
 %% Modifcation of lens parameters if desired
- diaphragm_diameter=0.6;
- lens.surfaceArray(6).apertureD=diaphragm_diameter
- lens.apertureMiddleD=diaphragm_diameter
+%  diaphragm_diameter=0.4;
+%  lens.surfaceArray(6).apertureD=diaphragm_diameter
+%  lens.apertureMiddleD=diaphragm_diameter
 
 % Note there seems to be a redundancy in the lens which can get out of
 % sync: lens.apertureMiddleD en lens.surfaceArray{i}.apertureD (i= index of

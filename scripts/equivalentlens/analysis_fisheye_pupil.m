@@ -25,10 +25,10 @@ lens = lensC('fileName', lensFileName)
 
 
 %% Modifcation of lens parameters if desired
+
  diaphragm_diameter=1;
  lens.surfaceArray(12).apertureD=diaphragm_diameter
  lens.apertureMiddleD=diaphragm_diameter
-
  
 %% Find Pupils
 % Optical system needs to be defined to be comptaible wich legacy code

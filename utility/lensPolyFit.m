@@ -22,6 +22,7 @@ p.addParameter('fpath', '', @ischar);
 p.addParameter('planes', struct(), @isstruct);
 p.addParameter('pupilpos', [],@isnumeric);
 p.addParameter('pupilradii', [], @isnumeric);
+p.addParameter('planeoffset', [], @isnumeric);
 p.parse(iRays,oRays,varargin{:});
 
 maxDegree = p.Results.maxdegree;
@@ -31,6 +32,9 @@ planes = p.Results.planes;
 pupilRadii = p.Results.pupilradii;
 pupilPos = p.Results.pupilpos;
 lensThickness = p.Results.lensthickness;
+planeOffset= p.Results.planeoffset;
+
+outputSelection = [1 2 4 5 6];
 %% Fit polynomial
 % Each output variable will be predicted
 % by a multivariate polynomial with three variables: x,u,v.
@@ -38,8 +42,9 @@ lensThickness = p.Results.lensthickness;
 %
 % An analytical expression can be generated using 'polyn2sym(poly{i})'
 polyModel = cell(1, size(oRays, 2));
-for i=1:size(oRays,2)
-    polyModel{i} = polyfitn(iRays, oRays(:,i),maxDegree);
+for i=1:numel(outputSelection)
+    polyModel{i} = polyfitn(iRays, oRays(:,outputSelection(i)),maxDegree);
+    %polyModel{i}.VarNames={'x','u','v'};
     polyModel{i}.VarNames={'x','u','v'};
     
     %     % save information about position of input output planes
@@ -54,13 +59,14 @@ if visualize
 %     fig.Position=[231 386 1419 311];
     pred = zeros(size(iRays, 1), 5);
     ieNewGraphWin;
-    for i=1:size(oRays,2)
-        pred(:,i)= polyvaln(polyModel{i},iRays(:,1:3));
-        
-        subplot(1,size(oRays,2),i); hold on;
-        h = scatter(pred(:,i),oRays(:,i),'Marker','.','MarkerEdgeColor','r');
-        plot(max(abs(oRays(:,i)))*[-1 1],max(abs(oRays(:,i)))*[-1 1],'k','linewidth',1)
-        xlim([min(oRays(:,i)) max(oRays(:,i))])
+    
+    for i=1:numel(outputSelection)
+        pred(:,i)= polyvaln(polyModel{i},iRays(:,:));
+        out = oRays(:,outputSelection(i));
+        subplot(1,numel(outputSelection),i); hold on;
+        h = scatter(pred(:,i),out,'Marker','.','MarkerEdgeColor','r');
+        plot(max(abs(out))*[-1 1],max(abs(out))*[-1 1],'k','linewidth',1)
+        xlim([min(out) max(out)])
         title(labels{i})
         xlabel('Polynomial')
         ylabel('Ray trace')
@@ -71,6 +77,6 @@ end
 if ~isempty(fPath)
     jsonPath = polyJsonGenerate(polyModel, 'lensthickness', lensThickness, 'planes', planes, 'outpath', fPath,...
                                 'pupil pos', pupilPos,...
-                                'pupil radii', pupilRadii);
+                                'pupil radii', pupilRadii,'plane offset',planeOffset);
 end
 end

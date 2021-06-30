@@ -33,7 +33,9 @@ thisR.set('film diagonal', 5); % mm
 %% Lens example
 
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens.dat'
+
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens-512.dat'
+
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/flatSurface/renderings/lens.dat'
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens-512-diag2.dat'
 oiPoly = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
@@ -44,8 +46,8 @@ oiSet(oiPoly,'gamma',0.5)
 Dlens=oiPoly.data.photons;
 pause(1);
 ax = gca;
-exportgraphics(ax,'lens.png')
-exportgraphics(ax,'lens.pdf')
+exportgraphics(ax,'./fig/lens-dgauss.png')
+
 %% Blackbox example
 
 
@@ -66,8 +68,8 @@ oiWindow(oiPoly);
 Dblack=oiPoly.data.photons;
 pause(1);
 ax = gca;
-exportgraphics(ax,'fblackbox.png')
-exportgraphics(ax,'blackbox.pdf')
+exportgraphics(ax,'./fig/blackbox-dgauss.png')
+
 return
 %% Blackbox without vignetting example
 

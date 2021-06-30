@@ -22,7 +22,7 @@ function [iRays, oRays, planes, nanIdx, pupilPos, pupilRadii,lensThickness] = le
 %   nElSamp      - number of elevation samples
 %   planeOffset  - offset from the front and rear surface of the lens
 %   visualize    - whether visualize the ray tracing process
-
+%   waveIndex    - Index in the wavelength vector of the lens.wave
 % Examples:
 %{
 lensName = 'lenses/dgauss.22deg.3.0mm.json';
@@ -43,11 +43,15 @@ p.addParameter('elevationmax', 10, @isnumeric);
 p.addParameter('nradiussamp', 10, @isnumeric);
 p.addParameter('nazsamp', 10, @isnumeric);
 p.addParameter('nelsamp', 10, @isnumeric);
-p.addParameter('planeoffset', 0.01, @isnumeric); % mm
+p.addParameter('inputplaneoffset', 0.01, @isnumeric); % mm
 p.addParameter('visualize', false, @islogical);
 p.addParameter('reverse', true, @islogical);
 p.addParameter('maxradius', 0, @isnumeric);
 p.addParameter('minradius', 0, @isnumeric);
+p.addParameter('waveindex', 1, @isnumeric);
+p.addParameter('outputsurface',outputPlane(0.01)); % mm
+
+
 p.parse(lensfile, varargin{:});
 %{
 arguments
@@ -64,11 +68,14 @@ elevationMax = p.Results.elevationmax;
 nRadiusSamp = p.Results.nradiussamp;
 nAzSamp = p.Results.nazsamp;
 nElSamp = p.Results.nelsamp;
-planeOffset = p.Results.planeoffset;
+inputPlaneOffset = p.Results.inputplaneoffset;
 visualize = p.Results.visualize;
 reverse = p.Results.reverse;
 maxradius = p.Results.maxradius;
 minradius = p.Results.minradius;
+waveindex= p.Results.waveindex;
+outputSurface = p.Results.outputsurface;
+
 %% Reverse the lens
 if reverse
     lensR = lensReverse(lensfile);
@@ -88,17 +95,19 @@ lastVertex = lastEle.sCenter(3)-lastEle.sRadius;
 lensThickness=abs(lastVertex-firstVertex);
 %%
 [iRays, oRays, planes] = raytraceLightField(lensR, nRadiusSamp,...
-        elevationMax, nElSamp, nAzSamp, planeOffset, 'visualize', visualize,...
-        'max radius', maxradius, 'min radius', minradius);
+        elevationMax, nElSamp, nAzSamp, inputPlaneOffset, outputSurface, 'visualize', visualize,...
+        'max radius', maxradius, 'min radius', minradius,'waveindex',waveindex);
     
 %% remove nan 
 nanIdx = find(any(isnan(oRays), 2));
 
 % Get rid of w
 iRays = iRays(:, 1:3);
-oRays = oRays(:, 1:4);
+%iRays = iRays(:, 1:4);
+oRays = oRays(:, :); % ouput Z value can be negative for fisheye lenses so we need to keep this info
 
-%% Generate entrance pupils
-[pupilPos, pupilRadii] = lensGetEntrancePupils(lensR);
-pupilPos = pupilPos - planeOffset;
+
+% %% Generate entrance pupils
+ [pupilPos, pupilRadii] = lensGetEntrancePupils(lensR);
+ pupilPos = pupilPos - inputPlaneOffset;
 end

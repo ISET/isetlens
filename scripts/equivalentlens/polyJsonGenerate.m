@@ -30,6 +30,9 @@ p.addParameter('outpath', fullfile(ilensRootPath, 'local', 'polyjson.json'), ...
 p.addParameter('pupilpos', [],@isnumeric);
 p.addParameter('lensthickness',NaN,@isnumeric);
 p.addParameter('pupilradii', [], @isnumeric);                        
+p.addParameter('planeoffset', [], @isnumeric);                        
+
+
 p.parse(fPolyPath, varargin{:});
 description = p.Results.description;
 name = p.Results.name;
@@ -38,6 +41,8 @@ planes = p.Results.planes;
 pupilPos = p.Results.pupilpos;
 pupilRadii = p.Results.pupilradii;
 lensThickness = p.Results.lensthickness;
+planeOffset= p.Results.planeoffset;
+
 %% Load polynomial term file
 if ischar(fPolyPath)
     polyModel = cell(1, 5);
@@ -50,6 +55,7 @@ js.name = name;
 if ~isempty(planes)
     js.thicknesswithplanes = abs(planes.input - planes.output);
     js.thickness = lensThickness
+    js.planeoffset= planeOffset;
 else
     warning('No plane info!')
     js.thickness = 0;
