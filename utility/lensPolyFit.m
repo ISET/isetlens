@@ -1,4 +1,4 @@
-function [polyModel, jsonPath] = lensPolyFit(iRays, oRays,varargin)
+function [polyModel] = lensPolyFit(iRays, oRays,varargin)
 
 % Example:
 %{
@@ -23,6 +23,10 @@ p.addParameter('planes', struct(), @isstruct);
 p.addParameter('pupilpos', [],@isnumeric);
 p.addParameter('pupilradii', [], @isnumeric);
 p.addParameter('planeoffset', [], @isnumeric);
+p.addParameter('circleradii', [], @isnumeric);                        
+p.addParameter('circlesensitivities', [], @isnumeric);                        
+p.addParameter('circleplanez', [], @isnumeric);      
+p.addParameter('sparsitytolerance', 0, @isnumeric);      
 p.parse(iRays,oRays,varargin{:});
 
 maxDegree = p.Results.maxdegree;
@@ -33,6 +37,11 @@ pupilRadii = p.Results.pupilradii;
 pupilPos = p.Results.pupilpos;
 lensThickness = p.Results.lensthickness;
 planeOffset= p.Results.planeoffset;
+circlePlaneZ= p.Results.circleplanez;
+circleRadii= p.Results.circleradii;
+circleSensitivities= p.Results.circlesensitivities;
+sparsityTolerance= p.Results.sparsitytolerance;
+
 
 outputSelection = [1 2 4 5 6];
 %% Fit polynomial
@@ -50,6 +59,18 @@ for i=1:numel(outputSelection)
     %     % save information about position of input output planes
     %     polyModel{i}.planes =planes;
 end
+
+%% Make sparse
+for i=1:numel(outputSelection)
+    indexKeep = abs(polyModel{i}.Coefficients) > sparsityTolerance;
+    % Refit using pruned model terms
+    newModelTerms=polyModel{i}.ModelTerms(indexKeep,:);
+    polyModel{i} = polyfitn(iRays, oRays(:,outputSelection(i)),newModelTerms);
+end
+
+
+
+
 
 %%
 if visualize
@@ -73,10 +94,14 @@ if visualize
     end
 end
 
-%% 
-if ~isempty(fPath)
-    jsonPath = polyJsonGenerate(polyModel, 'lensthickness', lensThickness, 'planes', planes, 'outpath', fPath,...
-                                'pupil pos', pupilPos,...
-                                'pupil radii', pupilRadii,'plane offset',planeOffset);
-end
+% %%  SHoudl be decouploed from this function
+% if ~isempty(fPath)
+%     jsonPath = polyJsonGenerate(polyModel, 'lensthickness', lensThickness, 'planes', planes, 'outpath', fPath,...
+%         'pupil pos', pupilPos,...
+%         'pupil radii', pupilRadii,'plane offset',planeOffset,...
+%         'circle radii',circleRadii,...
+%         'circle sensitivities',circleSensitivities,...
+%         'circle plane z',circlePlaneZ);
+% 
+% end
 end

@@ -43,7 +43,7 @@ inputplane_z= firstsurface_z-offset_inputplane
 % entrancepupil distance
 
 % Good guess:
-entrancepupil_distance =  1.1439;
+entrancepupil_distance_guess =  1.1439;
 
 % Bad guess: , 
 %entrancepupil_distance =  3;
@@ -107,7 +107,7 @@ else
                 if(pass_trace)
                     % Linear extrapolation from origin to find intersection
                     % with entrance_pupil plane
-                    pointOnPupil = origin+(entrancepupil_distance/(direction(3)))*direction;
+                    pointOnPupil = origin+(entrancepupil_distance_guess/(direction(3)))*direction;
                     
                     pupilshape_trace(:,p,t,ph)=  pointOnPupil;
                 end
@@ -196,7 +196,7 @@ offaxis_distances=positions(position_selection);
 offset=0.1;
 stepsize_radius=0.01;
 [radius_bottom,sensitivity_bottom]=findCuttingCircleEdge(pupilshape_trace(1:2,position_selection,:),offaxis_distances,"bottom",'offset',offset,'stepsizeradius',stepsize_radius)
-sensitivity_bottom=1.05
+%sensitivity_bottom=1.05
 %% Top
 position_selection=10:15;
 offaxis_distances=positions(position_selection);
@@ -225,9 +225,9 @@ for p=1:numel(positions)
      
      % Draw circles
      %    viscircles(center0,radius0,'color','k')
-%      viscircles([0 offset_entrance],radius_entrance,'color','k','linewidth',1)
-%      viscircles([0 offset_bottom],radius_bottom,'color','b','linewidth',1);
-%      viscircles([0 offset_top],radius_top,'color','r','linewidth',1);
+     viscircles([0 offset_entrance],radius_entrance,'color','k','linewidth',1)
+      viscircles([0 offset_bottom],radius_bottom,'color','b','linewidth',1);
+      viscircles([0 offset_top],radius_top,'color','r','linewidth',1);
 %      
 
           
@@ -252,20 +252,22 @@ end
 % Distance to entrance pupil is already known by construction unless a
 % wrong guess was taken. When the guess was good sensitivity_entrance
 % should be basically zero.
-hx= entrancepupil_distance/(1-(sensitivity_entrance))
+hx= entrancepupil_distance_guess/(1-(sensitivity_entrance))
 
-Rpupil_entrance = radius_entrance/(1-sensitivity_entrance)
+Rpupil_entrance = abs(hx/entrancepupil_distance_guess)*radius_entrance;
 
 
 % Calculate positions of pupils relative to the input plane
-hp_bottom=entrancepupil_distance/(1-sensitivity_bottom)
-hp_top=entrancepupil_distance/(1-sensitivity_top)
+hp_bottom=entrancepupil_distance_guess/(1-sensitivity_bottom)
+hp_top=entrancepupil_distance_guess/(1-sensitivity_top)
 
 
 % Calculate radius of a pupil by projecting it back to its actual plane
 % (where it is cented on the optical axis)
-Rpupil_bottom = radius_bottom/(1-sensitivity_bottom)
-Rpupil_top = radius_top/(1-sensitivity_top)
+%Rpupil_bottom = radius_bottom/(1-sensitivity_bottom)
+Rpupil_bottom = abs(hp_bottom/entrancepupil_distance_guess)* radius_bottom
+Rpupil_top = abs(hp_top/entrancepupil_distance_guess)* radius_top;
+%Rpupil_top = radius_top/(1-sensitivity_top)
 
 
 
@@ -299,22 +301,22 @@ for p=1:numel(positions)
     
     
     % Draw entrance pupil
-    sensitivity = (1-entrancepupil_distance/hx);
+    sensitivity = (1-entrancepupil_distance_guess/hx);
     dentrance=sensitivity*positions(p);
-    projected_radius = (entrancepupil_distance/hx)*Rpupil_entrance;
+    projected_radius = (entrancepupil_distance_guess/hx)*Rpupil_entrance;
     viscircles([0 dentrance],projected_radius,'color','k','linewidth',1)
     
     % Draw Bottom circle
-    sensitivity = (1-entrancepupil_distance/hp_bottom);
+    sensitivity = (1-entrancepupil_distance_guess/hp_bottom);
     dvignet=sensitivity*positions(p);
-    projected_radius = (entrancepupil_distance/hp_bottom)*Rpupil_bottom;
+    projected_radius = (entrancepupil_distance_guess/hp_bottom)*Rpupil_bottom;
     viscircles([0 dvignet],projected_radius,'color','b','linewidth',1)
     
     
     % Draw Top circle
-    sensitivity = (1-entrancepupil_distance/hp_top);
+    sensitivity = (1-entrancepupil_distance_guess/hp_top);
     dvignet=sensitivity*positions(p);
-    projected_radius = abs(entrancepupil_distance/hp_top)*Rpupil_top;
+    projected_radius = abs(entrancepupil_distance_guess/hp_top)*Rpupil_top;
     viscircles([0 dvignet],projected_radius,'color','r','linewidth',1)
     
     %axis equal
