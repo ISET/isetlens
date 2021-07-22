@@ -2,6 +2,12 @@
 clear;
 ieInit;
 
+
+%% Fitting options
+
+polyDeg = 5;
+tolerance=1e-2; % for sparsity of polynomial
+
 %% Crown glass 
 
 n= @(l) sqrt(2.24187488 -0.00891932146*l.^2 +0.0126251741./l.^2 -0.000298598739./l.^4+5.95648836e-5*1./l.^6-2.58633231E-6*1./l.^8);
@@ -53,11 +59,12 @@ outputs = oRays;
 
 
 %% Polynomial fit
-polyDeg = 5
+
 
 % Pupils for Double gaussian only. (At this moment estimating this takes a long time get
 % high quality)
 
+diaphragmIndex= 0; % which of the circles belongs to the diaphragm; (for C++ starting at zero)
 circleRadii =[    1.2700    1.3500   10.0000]
 circleSensitivities =[   -1.6628    0.8298  -15.6821]
 circlePlaneZ = 3;
@@ -66,7 +73,6 @@ fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
 
 fpath = fullfile(['polyjson_test' num2str(wavelength) '.json']);
 
-tolerance=1e-2;
 [polyModel] = lensPolyFit(iRays, oRays,'planes', planes,...
     'visualize', true, 'fpath', fpath,...
     'maxdegree', polyDeg,...
@@ -80,16 +86,18 @@ tolerance=1e-2;
     'lensthickness',lensThickness);
 
 
-%close all;
+close all;
 
+
+% Create struct which will be passed to JSON file
 fit{w}=struct;
 fit{w}.wavelength_nm = wavelengths_micron(w)*1e3;
 fit{w}.polyModel = polyModel;
 fit{w}.circleRadii = circleRadii;
 fit{w}.circleSensitivities = circleSensitivities;
 fit{w}.circlePlaneZ = circlePlaneZ;
-
-
+fit{w}.diaphragmIndex=diaphragmIndex;
+fit{w}.diaphragmToCircleRadius=(2*circleRadii(diaphragmIndex+1))/0.6;
 
 end
 
