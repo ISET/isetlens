@@ -34,7 +34,7 @@ switch pName
     case {'nsurfaces','numels'}
         % Should be nsurfaces
         res = length(obj.surfaceArray);
-    case {'lensheight','lensdiameter','diameter'}
+    case {'lensdiameter','diameter','lensheight','lenswidth'}
         % obj.get('diameter',spatialUnit)
         % Total height (diameter) of the front surface element (mm)
         res = obj.surfaceArray(1).apertureD;
