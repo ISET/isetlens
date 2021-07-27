@@ -26,7 +26,7 @@ firstEle=lens.surfaceArray(1); % First lens element
 firstsurface_z = firstEle.sCenter(3)-firstEle.sRadius; % Seems working, but why
     
 offset_inputplane=0.01;%mm
-offset_inputplane=0.5;%mm
+%offset_inputplane=0.5;%mm
 inputplane_z= firstsurface_z-offset_inputplane
 
 %% Modifcation of lens parameters if desired
@@ -123,60 +123,6 @@ else
 end
 
 
-%% 2D Trace along line to accurately find borders of the pupils
-% In 3D you might easily undersample such that the most extreme points are
-% lost. We assume here that these extreme points must lie on the center,
-% and hence we can find them by sampling many more angles along one line.
-nbThetas=600;
-nbPhis=nbThetas;
-thetas = linspace(-40,40,nbThetas);
-
-
-
-
-for p=1:numel(positions)
-    p
-    
-    for t=1:numel(thetas)
-        
-        % Origin of ray
-        origin = [0;positions(p);inputplane_z];
-        
-        % Direction vector of ray
-        phi=90;
-        theta=thetas(t);
-        direction = [sind(theta).*cosd(phi);  sind(theta)*sind(phi) ; cosd(theta)];
-        
-        
-        % Trace ray with isetlens
-        wave = lens.get('wave');
-        rays = rayC('origin',origin','direction', direction', 'waveIndex', 1, 'wave', wave);
-        [~,~,out_point,out_dir]=lens.rtThroughLens(rays,1,'visualize',false);
-        pass_trace = not(isnan(prod(out_point)));
-        
-        % If the ray passes the lens, save at which coordinate it
-        % intersected with the chosen pupil plane.
-        if(pass_trace)
-            % Linear extrapolation from origin to find intersection
-            % with entrance_pupil plane
-            pointOnPupil = origin+(entrancepupil_distance/(direction(3)))*direction;
-            
-            pupilshape_trace2D(:,p,t)=  pointOnPupil;
-        end
-        
-    end
-end
-
-    
-
-%% Visualize 2D
-p=5
-Ptrace=pupilshape_trace2D(1:2,p,:);
-Ptrace=Ptrace(1:2,:);
-figure;scatter(Ptrace(1,:),Ptrace(2,:),'.')
-
-
-
 
 
 %% Step 1 : Fit exit pupil on-axis.   
@@ -258,7 +204,9 @@ for p=1:numel(positions)
      viscircles([0 offset_bottom],radius_bottom,'color','b','linewidth',1)
      viscircles([0 offset_top],radius_top,'color','r','linewidth',1)
      
-    
+     % Draw off axis position
+     scatter(0,positions(p))
+     
     xlim(2*radius_entrance*[-1 1])
     ylim(2*radius_entrance*[-1 1])
     title(positions(p))
@@ -269,6 +217,13 @@ for p=1:numel(positions)
 end
 
 
+%% Circle information for PBRT RTF
+
+circleRadii = [radius_entrance radius_bottom radius_top]
+circleSensitivities = [sensitivity_entrance sensitivity_bottom sensitivity_top]
+circlePlaneZ=entrancepupil_distance
+
+return
 %% Calculate pupil positions and radii
 % To be used in 'checkRayPassLens'
 % All circle intersections where done in the entrance pupil plane.
@@ -341,6 +296,7 @@ for p=1:numel(positions)
     projected_radius = abs(entrancepupil_distance/hp_top)*Rpupil_top;
     viscircles([0 dvignet],projected_radius,'color','r','linewidth',1)
     
+
     %axis equal
     ylim(2*[-1 1])
     xlim(2*[-1 1])
@@ -348,3 +304,38 @@ for p=1:numel(positions)
 end
 
 
+
+
+%% Convex hull for each position
+
+figure(1);clf;
+
+for p=1:numel(positions)
+    subplot(2,numel(positions)/2,p); hold on;
+    points=squeeze(pupilshape_trace(1:2,p,:));
+    points(:,isnan(points(1,:)))=[];
+    [k,av]=convhull(points')
+    hull{p}=points(:,k);
+    
+    
+    plot(points(1,k),points(2,k))
+
+    axis equal
+        
+    % random points check
+    X=randn(2,100); 
+    h1=hull{p};
+     in = inpolygon(X(1,:)',X(2,:)',h1(1,:)',h1(2,:)');
+    plot(X(1,in),X(2,in),'g+') % points inside
+    plot(X(1,~in),X(2,~in),'r+') % points outside
+    
+    ylim([-2 2])
+    xlim([-2 2])
+    
+end
+%%
+h1=hull{1}
+x_test=0;
+y_test=0;
+tic; in = inpolygon(X(1,:)',X(2,:)',h1(1,:)',h1(2,:)');toc
+tic; IN = inhull(X',h1');toc

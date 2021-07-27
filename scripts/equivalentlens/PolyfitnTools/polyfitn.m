@@ -217,7 +217,7 @@ end
 M = ones(n,nt);
 scalefact = ones(1,nt);
 for i = 1:nt
-  for j = 1:p
+    for j = 1:p
     M(:,i) = M(:,i).*indepvar_s(:,j).^modelterms(i,j);
     scalefact(i) = scalefact(i)/(stdind(j)^modelterms(i,j));
   end

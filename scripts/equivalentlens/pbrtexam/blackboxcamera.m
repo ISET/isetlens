@@ -35,6 +35,11 @@ thisR.set('film diagonal', 5); % mm
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens.dat'
 
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens-512.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/dgauss-black-circle.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/dgauss-black-pupil.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/dgauss-black-pupil.dat'
+
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/dgauss.dat'
 
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/flatSurface/renderings/lens.dat'
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-lens-512-diag2.dat'
@@ -50,7 +55,6 @@ exportgraphics(ax,'./fig/lens-dgauss.png')
 
 %% Blackbox example
 
-
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-512-diag2.dat'
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-256.dat'
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-64-0.5.dat'
@@ -58,7 +62,8 @@ path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleSc
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-512-0.1.dat'
 path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-512.dat'
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/flatSurface/renderings/blackbox.dat'
-
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/check.dat'
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/check_CA2.dat'
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-5deg.dat'
 %path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/renderings/scene-blackbox-otherthickness-1024.dat'
 

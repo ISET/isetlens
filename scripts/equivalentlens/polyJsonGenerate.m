@@ -31,6 +31,9 @@ p.addParameter('pupilpos', [],@isnumeric);
 p.addParameter('lensthickness',NaN,@isnumeric);
 p.addParameter('pupilradii', [], @isnumeric);                        
 p.addParameter('planeoffset', [], @isnumeric);                        
+p.addParameter('circleradii', [], @isnumeric);                        
+p.addParameter('circlesensitivities', [], @isnumeric);                        
+p.addParameter('circleplanez', [], @isnumeric);                        
 
 
 p.parse(fPolyPath, varargin{:});
@@ -42,6 +45,9 @@ pupilPos = p.Results.pupilpos;
 pupilRadii = p.Results.pupilradii;
 lensThickness = p.Results.lensthickness;
 planeOffset= p.Results.planeoffset;
+circlePlaneZ= p.Results.circleplanez;
+circleRadii= p.Results.circleradii;
+circleSensitivities= p.Results.circlesensitivities;
 
 %% Load polynomial term file
 if ischar(fPolyPath)
@@ -61,9 +67,13 @@ else
     js.thickness = 0;
 end
 % 
-js.pupilpos = pupilPos;
-js.pupilradii = pupilRadii;
 
+js.circleRadii = circleRadii;
+js.circleSensitivities = circleSensitivities;
+js.circlePlaneZ = circlePlaneZ;
+pupil_distances=circlePlaneZ./(1-circleSensitivities);
+js.pupilpos = pupil_distances;
+js.pupilradii = abs(pupil_distances./circlePlaneZ).*circleRadii;;
 %%
 % x, y, u, v, w
 outName = ['x', 'y', 'u', 'v'];
