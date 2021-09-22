@@ -223,6 +223,7 @@ circleRadii = [radius_entrance radius_bottom radius_top]
 circleSensitivities = [sensitivity_entrance sensitivity_bottom sensitivity_top]
 circlePlaneZ=entrancepupil_distance
 
+
 return
 %% Calculate pupil positions and radii
 % To be used in 'checkRayPassLens'
@@ -265,7 +266,9 @@ pupil_distances = [hx, hp_bottom hp_top]
 % 
 
 %% Second Verification (to check the ebove equations)
-figure;
+fig=figure(10);clf
+
+fig.Position(3:4)=[938 362]
 
 for p=1:numel(positions)    
     subplot(2,ceil(numel(positions)/2),p); hold on;
@@ -277,33 +280,91 @@ for p=1:numel(positions)
     scatter(Ptrace(1,:),Ptrace(2,:),'.')
     
     
+    lw=2; %Linewidth
+    
     % Draw entrance pupil
     sensitivity = (1-entrancepupil_distance/hx);
     dentrance=sensitivity*positions(p);
     projected_radius = abs(entrancepupil_distance/hx)*Rpupil_entrance;
-    viscircles([0 dentrance],projected_radius,'color','k','linewidth',1)
+    viscircles([0 dentrance],projected_radius,'color','k','linewidth',lw)
     
     % Draw Bottom circle
     sensitivity = (1-entrancepupil_distance/hp_bottom);
     dvignet=sensitivity*positions(p);
     projected_radius = abs(entrancepupil_distance/hp_bottom)*Rpupil_bottom;
-    viscircles([0 dvignet],projected_radius,'color','b','linewidth',1)
+    viscircles([0 dvignet],projected_radius,'color',[0 0 0.8],'linewidth',lw)
     
     
     % Draw Top circle
     sensitivity = (1-entrancepupil_distance/hp_top);
     dvignet=sensitivity*positions(p);
     projected_radius = abs(entrancepupil_distance/hp_top)*Rpupil_top;
-    viscircles([0 dvignet],projected_radius,'color','r','linewidth',1)
+    viscircles([0 dvignet],projected_radius,'color',[0.8 0 0 ],'linewidth',lw)
     
-
+    
     %axis equal
     ylim(2*[-1 1])
     xlim(2*[-1 1])
-    title(['x = ' num2str(positions(p))])
+    
+   
+    ax=gca;
+    ax.XAxis.Visible='off';
+    ax.YAxis.Visible='off'; 
+    
+    
+    title(['p = ' num2str(positions(p)) ' mm'])
+end
+
+saveas(gcf,'dgauss_threecircles.eps','epsc')
+
+
+
+%%%
+
+%% Check pass
+% Ray trace sampling parameters
+nbThetas=40;
+nbPhis=nbThetas;
+thetas = linspace(-40,40,nbThetas);
+phis = linspace(0,359,nbPhis);
+
+counter=1;
+for p=1:numel(positions)
+    p
+    for ph=1:numel(phis)
+        for t=1:numel(thetas)
+            
+            % Origin of ray
+            origin = [0;positions(p);inputplane_z];
+            
+            
+            % Direction vector of ray
+            phi=phis(ph);
+            theta=thetas(t);
+            direction = [sind(theta).*cosd(phi);  sind(theta)*sind(phi) ; cosd(theta)];
+            
+            % Trace ray with isetlens
+            wave = lens.get('wave');
+            rays = rayC('origin',origin','direction', direction', 'waveIndex', 1, 'wave', wave);
+            [~,~,out_point,out_dir]=lens.rtThroughLens(rays,1,'visualize',false);
+            pass_trace = not(isnan(prod(out_point)));
+            pass_circle =checkRayPassLens(origin,direction, pupil_distances,radii);
+            
+            comparison(counter,1:2) = [pass_trace pass_circle];
+            
+            counter=counter+1;
+        end
+    end
 end
 
 
+%% Calculate Pass/Fail accuracy
+% Depending on sampling it gets about 99 % correct  Realize this is heavily
+% skewed if you are sampling far from the edges of the aperture anyway. But
+% as long we consistently compare different passray functions we should be
+% fine.
+
+passratio=sum((comparison(:,1)==comparison(:,2)))/size(comparison,1)
 
 
 %% Convex hull for each position

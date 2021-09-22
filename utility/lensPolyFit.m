@@ -43,7 +43,7 @@ circleSensitivities= p.Results.circlesensitivities;
 sparsityTolerance= p.Results.sparsitytolerance;
 
 
-outputSelection = [1 2 4 5 6];
+outputSelection = [1 2 3 4 5 6];
 %% Fit polynomial
 % Each output variable will be predicted
 % by a multivariate polynomial with three variables: x,u,v.
@@ -75,10 +75,10 @@ end
 %%
 if visualize
     %%  Visualize polynomial fit
-    labels = {'x','y','u','v','w'};
+    labels = {'x','y','z','u','v','w'};
 %     fig=figure(6);clf;
 %     fig.Position=[231 386 1419 311];
-    pred = zeros(size(iRays, 1), 5);
+    pred = zeros(size(iRays, 1), 6);
     ieNewGraphWin;
     
     for i=1:numel(outputSelection)
@@ -92,6 +92,22 @@ if visualize
         xlabel('Polynomial')
         ylabel('Ray trace')
     end
+    
+    
+%     ieNewGraphWin;
+%     
+%     for i=1:numel(outputSelection)
+%         pred(:,i)= polyvaln(polyModel{i},iRays(:,:));
+%         out = oRays(:,outputSelection(i));
+%         subplot(1,numel(outputSelection),i); hold on;
+%         relerr = (out-pred)./abs(out);
+%         boxplot(relerr(:));
+%         ylim(1e-2*[-1 1])
+%         title(labels{i})
+%         xlabel('Relative error')
+%         
+%     end
+%     
 end
 
 % %%  SHoudl be decouploed from this function

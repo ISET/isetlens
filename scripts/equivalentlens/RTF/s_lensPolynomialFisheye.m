@@ -4,15 +4,18 @@ ieInit;
 
 %%
 close all
-%lensName = fullfile('../lenses/fisheye.87deg.3.0mm_semiaperture1.json');
-lensName = fullfile('../lenses/fisheye.87deg.3.0mm.json');
+lensName = fullfile('../lenses/fisheye.87deg.3.0mm_semiaperture1.json');
+%lensName = fullfile('../lenses/fisheye.87deg.3.0mm.json');
 
+i=1
 
 radii = 6
-i=1
+offset=radii(i)/2;
+centerZ = offset-radii;
+
     disp(['radius= ' num2str(radii(i))])
     %addSphere=outputSphere(radii(i),0.1*radii(i)/10);
-    addSphere=outputSphere(radii(i),radii(i)/2);
+    addSphere=outputSphere(radii(i),offset);
     
     newlens = addSphere(lensReverse(lensName));
     newlens.draw
@@ -107,39 +110,92 @@ end
     
 
 
-   %%
-   x =oRays(:,1);
-y =oRays(:,2);
-z =oRays(:,3);
+%%
+
+save('iotable-fisheye.87deg.3.0mm_semiaperture1.mat','iRays','oRays')
+
+
+%% Angular only, so position of output surfece is implied and known externally not part of the fit?'
+
+x=oRays(:,1);
+y=oRays(:,2);
+z=oRays(:,3)-centerZ;
+[TH,PHI,R] = cart2sph(x,y,z);
+dx =oRays(:,4);
 dy =oRays(:,5);
 dz =oRays(:,6);
+
+
     
-    %% Poly fit
-    polyDeg = 5
+%% Poly fit
+    polyDeg = 3
+    
+    % Make a copy that will possibly be modified
+    iRaysTemp=iRays;oRaysTemp=oRays;
+    
+    %iRaysTemp(:,end+1) = sqrt(1-iRays(:,2).^2-iRays(:,2).^2);
+    % Normalize the spatial coordinates 
+    %oRaysTemp(:,3)=oRaysTemp(:,3)-centerZ;
+    %oRaysTemp(:,1:3)=oRaysTemp(:,1:3)/radii;
     
     
-    
+    %iRaysTemp(:,end+1)=oRays(:,3); %Make z position on output surface part of the proble?
+
+    % Fit in spherical coordinates
+    %oRaysTemp=[TH PHI R oRays(:,4:6)];
     % Pupils for Double gaussian only. (At this moment estimating this takes a long time get
     % high quality)
     
     pupilPos=pupilPos - planes.input;
     
-    fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
-    [polyModel, jsonPath] = lensPolyFit(iRays, oRays,'planes', planes,...
-        'visualize', true, 'fpath', fpath,...
-        'maxdegree', polyDeg,...
-        'pupil pos', pupilPos,...
-        'pupil radii', pupilRadii,'lensthickness',lensThickness,'planeOffset',offset);
+    % Experiment: This works, the question is now why it gets into trouble
+    % for d_z
+    % Try to rays with d_z < 0  theory uis they are causing the problem
+    
+    deleteSelection=oRays(:,end) > 0.0;
+    iRaysTemp(deleteSelection,:)=[];oRaysTemp(deleteSelection,:)=[];  %Delete selection
+  
     
     
-    for j=1:(numel(polyModel)-1)
-        error(j,i) = polyModel{j}.RMSE;
+%% Segement radial distance  NOT WORKING
+
+iRaysTemp=iRays;oRaysTemp=oRays;
+deleteSelection=iRays(:,1) > 0.5;
+iRaysTemp(deleteSelection,:)=[];oRaysTemp(deleteSelection,:)=[];  %Delete selection
+
+%% Segement Angular
+
+iRaysTemp=iRays;oRaysTemp=oRays;
+deleteSelection=or(iRays(:,2)>0.5,iRays(:,3)>0.5)
+iRaysTemp(deleteSelection,:)=[];oRaysTemp(deleteSelection,:)=[];  %Delete selection
+
+
+%% Default no changes
+
+iRaysTemp=iRays;oRaysTemp=oRays;
+
+%%   FIt poly  
+
+polyDeg = 15
+
+fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
+[polyModel] = lensPolyFit(iRaysTemp, oRaysTemp,'planes', planes,...
+    'visualize', true, 'fpath', fpath,...
+    'maxdegree', polyDeg,...
+    'pupil pos', pupilPos,...
+    'pupil radii', pupilRadii,'lensthickness',lensThickness,'planeOffset',offset);
+
+   for j=1:(numel(polyModel))
+        error(j,i) = polyModel{j}.RMSE
     end
-    figure(5);clf;
-    plot(error);
-    title('Errors')
+    
     
 
+ %%
+ in=iRays;
+ out=oRays(:,3);
+ polyModel  = polyfitn(iRays, oRays(:,end),5)
+ 
 
     
 %%

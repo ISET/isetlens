@@ -13,6 +13,7 @@ tolerance=1e-2; % for sparsity of polynomial
 n= @(l) sqrt(2.24187488 -0.00891932146*l.^2 +0.0126251741./l.^2 -0.000298598739./l.^4+5.95648836e-5*1./l.^6-2.58633231E-6*1./l.^8);
 n = @(l) 1.67/1.5*n(l); % correctie
 wavelengths_micron=linspace(0.395,0.705,31);
+wavelengths_micron=linspace(0.395,0.705,1);
 
 lensName = 'dgauss.22deg.3.0mm.json'
 
@@ -84,7 +85,6 @@ fpath = fullfile(['polyjson_test' num2str(wavelength) '.json']);
     'circle plane z',circlePlaneZ,...
     'sparsity tolerance',tolerance,...
     'lensthickness',lensThickness);
-
 
 close all;
 

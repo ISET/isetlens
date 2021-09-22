@@ -1,6 +1,6 @@
 {
  "name": "dgauss.22deg.3.0mm",
- "description": " Description: multi element lens Focal length (mm) ",
+ "description": "multi element lens Focal length (mm) ",
  "type": "multi element lens",
  "surfaces": [
   {
