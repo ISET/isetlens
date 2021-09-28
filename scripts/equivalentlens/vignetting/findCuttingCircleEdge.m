@@ -36,7 +36,7 @@ function [radius,sensitivity] = findCuttingCircleEdge(points,offaxis_distances,s
 %% Parse inputs
 varargin = ieParamFormat(varargin);
 p = inputParser;
-p.addParameter('maxiterations', 1000, @isnumeric);
+p.addParameter('maxiterations', 5000, @isnumeric);
 p.addParameter('stepsizeradius', 0.001, @isnumeric);
 p.addParameter('offset',0.1,@isnumeric);
 p.addParameter('extremepoints',NaN,@isnumeric);
@@ -89,7 +89,9 @@ while(and(not(prod(stopcondition)),(iterations<maxiterations)))
 
     iterations=iterations+1;
 end
-
+if((iterations>=maxiterations))
+   error('Maximum number of iterations reached.');
+end
 radius = Rest;
 ycenter=y_extreme+sign*radius;
 sensitivity=ycenter/offaxis_distances(p);

@@ -8,10 +8,10 @@ addPlane=outputPlane(filmdistance_mm);
 newlens = addPlane(lens);
 
 
-objdistance=-11.0131-0.9094
+objdistance=-26.88-0.9094
 origin=[0 0.9689 objdistance];thetas=-5
 origin=[0 2.9674305456 objdistance];thetas=-15
-origin=[0 4.030825325 objdistance];thetas=-20
+origin=[0 10.158 objdistance];thetas=-20
 
 
 phi=0
