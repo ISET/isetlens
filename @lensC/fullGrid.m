@@ -1,6 +1,17 @@
 function aGrid = fullGrid(obj,randJitter, rtType)
-% Build the full sampling grid, possibly adding a little jitter
-% to avoid aliasing artifacts
+% Build a sampling grid, possibly adding a little jitter to avoid
+%    aliasing artifacts 
+%
+% Syntax
+%
+% Inputs
+%   obj:  A lens object
+%   randJitter:  Introduce some random jitter into the sample points
+%   rtType:  Lens type, either ideal or realistic
+%
+% See also
+%
+
 
 if (notDefined('randJitter')), randJitter = false; end
 if (notDefined('rtType')), rtType = 'realistic'; end
@@ -11,8 +22,9 @@ if (strcmp(rtType, 'ideal'))
     % middle one.
     frontApertureRadius = obj.apertureMiddleD/2;   % Middle aperture (diaphragm)
 else
-    % Realistic
-    % There is a real aperture in the front.
+    % Realistic - We choose a plane that is the size of the first
+    % lens' diameter.  It should be positioned at the front surface of
+    % the lens (but that does not happen here).
     frontApertureRadius = obj.surfaceArray(1).apertureD/2;
 end
 

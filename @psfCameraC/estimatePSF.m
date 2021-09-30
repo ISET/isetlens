@@ -29,19 +29,7 @@ function camera = estimatePSF(camera, varargin)
 % See also:
 %  s_isetauto.m
 
-
-%% Old fashioned parameter decoding
-%{
-if notDefined('jitterFlag'), jitterFlag = false; end
-if notDefined('subsection'), subsection = []; end
-if notDefined('diffractionMethod'), diffractionMethod = 'HURB'; end
-if notDefined('rtType'), rtType = 'realistic'; end
-
-% Use camera.draw, no lines in this case.
-nLines = 0;
-%}
-
-%% 
+%% Parse inputs
 p = inputParser;
 
 varargin = ieParamFormat(varargin);
@@ -49,6 +37,7 @@ varargin = ieParamFormat(varargin);
 p.addRequired('camera');
 p.addParameter('jitterflag', false, @islogical);
 p.addParameter('subsection', []);
+% Options are HURB or huygens
 p.addParameter('diffractionmethod', 'HURB', @ischar);
 p.addParameter('rttype', 'realistic', @ischar);
 p.addParameter('nlines', 0);
@@ -70,6 +59,7 @@ if isequal(diffractionMethod, 'HURB')
     for ii=1:length(camera.pointSource)
         
         % (pointSource, ppsfCFlag, jitterFlag, rtType, subSection, depthTriangles)
+        % subsection specifies a field eight.
         camera.rays = camera.lens.rtSourceToEntrance(camera.pointSource{ii}, jitterFlag, rtType, subsection);
         
         % Duplicate the existing rays for each wavelength
@@ -209,6 +199,7 @@ elseif isequal(diffractionMethod, 'huygens') && camera.lens.diffractionEnabled
     close(wbar);
     %End Huygens ray-trace
 end
+
 if isnumeric(nLines) && nLines || isstruct(nLines) && nLines.numLines
 %% Set Focal point, principle point and nodal point
 hold all

@@ -235,8 +235,9 @@ classdef lensC <  handle
         % this function.  Similarly for the others.
         
         function apertureMask = apertureMask(obj)
-            % Identify the grid points on the circular aperture.
-            %
+            % Identify the grid points that fall within the circular
+            % aperture. The initial grid is sampled on a rectangular
+            % plane.
             
             % Here is the full sampling grid for the resolution and
             % aperture radius
@@ -246,6 +247,7 @@ classdef lensC <  handle
             % points within a circle of the aperture radius
             firstApertureRadius = obj.surfaceArray(1).apertureD/2;
             apertureMask = (aGrid.X.^2 + aGrid.Y.^2) <= firstApertureRadius^2;
+            
             % vcNewGraphWin;  mesh(double(apertureMask))
             
         end        

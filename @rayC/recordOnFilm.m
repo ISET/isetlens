@@ -7,7 +7,7 @@ function obj = recordOnFilm(obj, film, varargin)
 % Brief description:
 %  The rays from the final lens element are transformed to the film
 %  surface.  They are binned into the pixels at the film resolution to
-%  create an image in the film.image slot. 
+%  create an image in the film.image slot.
 %
 % Inputs
 %   obj:    A rayC object
@@ -15,7 +15,7 @@ function obj = recordOnFilm(obj, film, varargin)
 %
 % Optional key/value pairs
 %   nLines: number of lines to draw for the illustration. If 0, then no
-%           lines are drawn 
+%           lines are drawn
 %   fig:    Matlab.ui.figure where the lines are drawn.  Default is gcf.
 %
 %
@@ -48,8 +48,8 @@ if isempty(liveRays), warning('No rays at exit aperture'); return; end
 
 %% Get existing samples
 if ~isempty(samps)
-samps = find(ismember(liveRays.origin, obj.origin(samps,:), 'rows') & ...
-             ismember(liveRays.direction, obj.direction(samps,:), 'rows'));
+    samps = find(ismember(liveRays.origin, obj.origin(samps,:), 'rows') & ...
+        ismember(liveRays.direction, obj.direction(samps,:), 'rows'));
 end
 %% Calculate intersection point of the rays at the sensor z-plane
 
@@ -63,7 +63,7 @@ liveRays.origin = rayIntersection(liveRays,film.position(3));
 %% Plot ray-trace
 if (isnumeric(nLines) && nLines > 0 || isstruct(nLines) && nLines.numLines > 0)
     raysVisualize(oldOrigin,liveRays.origin,'nLines',nLines,'fig',h,...
-                    'samps', samps);
+        'samps', samps);
     film.draw;
     xlabel('mm'); ylabel('mm');
 end
@@ -102,7 +102,7 @@ elseif(isa(film, 'filmC'))
     
     %imagePixel is the pixel that will gain a photon due to the traced ray
     imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
-    imagePixel.position = real(imagePixel.position); %add error handling for this
+    imagePixel.position = real(imagePixel.position); % Add error handling for this
 else
     error('Invalid film type detected.');
 end
@@ -147,78 +147,70 @@ imageMiddle   = -film.position(2:-1:1) / sampleSpacing(2) + (film.resolution(2:-
 imagePixel.position = ...
     round(imagePixel.position / sampleSpacing(2) + ...
     repmat(imageMiddle, [nPositions 1]));
-
-%{
-% Older code
-imagePixel.position = ...
-    round(imagePixel.position * film.resolution(2)/film.size(2) + ...
-    repmat(-film.position(2:-1:1)*film.resolution(2)/film.size(2)  + ...
-    (film.resolution(2:-1:1) + 1)./2, [size(imagePixel.position,1) 1]));
-% ieNewGraphWin; histogram(imagePixel.position(:,2),100);
-%}
-
-imagePixel.wavelength = liveRays.get('wavelength');
-
-convertChannel = liveRays.waveIndex;
-
-%wantedPixel is the pixel that we wish to add 1 photon to pixel to update
-wantedPixel = [imagePixel.position(:, 1) imagePixel.position(:,2) convertChannel];
-
-recordablePixels = ...
-    and(and(and(wantedPixel(:, 1) >= 1,  wantedPixel(:,1) <= film.resolution(1)), ...
-        (wantedPixel(:, 2) > 1)), ...
-        wantedPixel(:, 2) <= film.resolution(2));
-
-% Remove the nonrecordable pixels
-wantedPixel = wantedPixel(recordablePixels, :);
-% ieNewGraphWin; 
-% plot(wantedPixel(:,1,:),wantedPixel(:,2,:),'o');
-
-% Correct for y coordinates
-wantedPixel(:, 1) =  film.resolution(1) + 1 - wantedPixel( :, 1);
-
-%make a histogram of wantedPixel in anticipation of adding
-%to film
-%  [count bins] = hist(single(wantedPixel));
-%  [count bins] = hist(single(wantedPixel), unique(single(wantedPixel), 'rows'));
-uniqueEntries =  unique(single(wantedPixel), 'rows');
-
-% Serializes the unique entries.
-%
-% I had an error here once where the wavelength in the uniqueEntries
-% was 7 but there were only 4 wavelength dimensions in the film image.
-% (BW).
-serialUniqueIndex = sub2ind(size(film.image), uniqueEntries(:,1), uniqueEntries(:,2), uniqueEntries(:,3));
-serialUniqueIndex = sort(serialUniqueIndex);
-
-serialWantedPixel = sub2ind(size(film.image), single(wantedPixel(:,1)), single(wantedPixel(:,2)), single(wantedPixel(:,3)));
-
-if (length(serialUniqueIndex(:)) == 1)
-    % special case for length 1.  For some reason, hist has issues with
-    % length 1.
-    serializeFilm = film.image(:);
+   
+    imagePixel.wavelength = liveRays.get('wavelength');
+    
+    convertChannel = liveRays.waveIndex;
+    
+    %wantedPixel is the pixel that we wish to add 1 photon to pixel to update
+    wantedPixel = [imagePixel.position(:, 1) imagePixel.position(:,2) convertChannel];
+    
+    recordablePixels = ...
+        and(and(and ...
+        (wantedPixel(:, 1) >= 1,  (wantedPixel(:,1) <= film.resolution(1))), ...
+        (wantedPixel(:, 2) > 1)), (wantedPixel(:, 2) <= film.resolution(2)));
+    
+    % Remove the nonrecordable pixels
+    wantedPixel = wantedPixel(recordablePixels, :);
+    % ieNewGraphWin;
+    % plot(wantedPixel(:,1,:),wantedPixel(:,2,:),'o');
+    
+    % Correct for y coordinates
+    wantedPixel(:, 1) =  film.resolution(1) + 1 - wantedPixel( :, 1);
+    
+    %make a histogram of wantedPixel in anticipation of adding
+    %to film
+    %  [count bins] = hist(single(wantedPixel));
+    %  [count bins] = hist(single(wantedPixel), unique(single(wantedPixel), 'rows'));
+    uniqueEntries =  unique(single(wantedPixel), 'rows');
+    
+    % Serializes the unique entries.
     %
-    % When there is only 1 bin, it doesn't matter how many photons, so just add one
-    serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + 1;
-    film.image = reshape(serializeFilm, size(film.image));
+    % I had an error here once where the wavelength in the uniqueEntries
+    % was 7 but there were only 4 wavelength dimensions in the film image.
+    % (BW).
+    serialUniqueIndex = sub2ind(size(film.image), uniqueEntries(:,1), uniqueEntries(:,2), uniqueEntries(:,3));
+    serialUniqueIndex = sort(serialUniqueIndex);
     
-elseif(~isempty(serialUniqueIndex(:) > 0))
+    serialWantedPixel = sub2ind(size(film.image), single(wantedPixel(:,1)), single(wantedPixel(:,2)), single(wantedPixel(:,3)));
     
-    % Make a histogram count of something.  Looks like AL counts the
-    % number of rays using hist() and then adds that count to a
-    % location in the film image.
-    [countEntries] = hist(serialWantedPixel, serialUniqueIndex);
+    % Special cases for lots of photons, one photon, or no photons
+    if (length(serialUniqueIndex(:)) == 1)
+        % special case for length 1.  For some reason, hist has issues with
+        % length 1.
+        serializeFilm = film.image(:);
+        %
+        % When there is only 1 bin, it doesn't matter how many photons, so just add one
+        serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + 1;
+        film.image = reshape(serializeFilm, size(film.image));
+        
+    elseif(~isempty(serialUniqueIndex(:) > 0))
+        
+        % Make a histogram count of something.  Looks like AL counts the
+        % number of rays using hist() and then adds that count to a
+        % location in the film image.
+        [countEntries] = hist(serialWantedPixel, serialUniqueIndex);
+        
+        %serialize the film, then the indices, then add by countEntries
+        serializeFilm = film.image(:);
+        
+        % Add the count to the serialized film and then reshape and place
+        % in the film image.
+        serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries';
+        film.image = reshape(serializeFilm, size(film.image));
+    else
+        warning('No photons collected on film!');
+    end
     
-    %serialize the film, then the indices, then add by countEntries
-    serializeFilm = film.image(:);
     
-    % Add the count to the serialized film and then reshape and place
-    % in the film image.
-    serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries';
-    film.image = reshape(serializeFilm, size(film.image));
-else
-    warning('No photons collected on film!');
-end
-
-
 end
