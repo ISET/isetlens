@@ -1,5 +1,5 @@
 close all
-filmdistance_mm=2.167 % mm
+filmdistance_mm=38.6% mm
 lens=lensC('file','zemax_dgauss.22deg.3.0mm_aperture0.6.json')
 lens=lensC('file','dgauss.22deg.50.0mm_aperture6.0.json')
 
@@ -8,10 +8,12 @@ addPlane=outputPlane(filmdistance_mm);
 newlens = addPlane(lens);
 
 
-objdistance=-26.88-0.9094
+
+objdistance=-3032.04
 origin=[0 0.9689 objdistance];thetas=-5
-origin=[0 2.9674305456 objdistance];thetas=-15
-origin=[0 10.158 objdistance];thetas=-20
+origin=[0 809.19222 objdistance];thetas=-15
+%origin=[0 1099.171 objdistance];thetas=-20
+
 
 
 phi=0
