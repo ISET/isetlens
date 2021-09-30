@@ -12,7 +12,7 @@ offset=0.01;
 [iRays, oRays, planes, nanIdx, pupilPos, pupilRadii,lensThickness] = lensRayPairs(lensName, 'visualize', false,...
     'n radius samp', 50, 'elevation max', 40,...
     'nAzSamp',50,'nElSamp',50,...
-    'reverse', reverse,...
+    'reverse', reverse,... 
     'max radius', maxRadius,...
     'min radius', minRadius,...
     'inputPlaneOffset',offset,...
@@ -46,11 +46,22 @@ circleRadii =[    7.5  125.3000   9.5]
 circleSensitivities =[    0.9281 -11.5487   -0.0152]
 circlePlaneZ =   17
 
-% Four circles
 
+
+
+% Four circles REVERSE LENS
 circleRadii =[  7.2291  125.3000    9.5000    8.2000]
 circleSensitivities =[    0.7991  -11.5487   -0.0152    1.0060]
 circlePlaneZ =[    17]
+
+% Forward Lens
+circleRadii=[  5.4800   89.7000    7.8000    8.5000]
+circleSensitivities =[  0.6539   -6.0066    0.1072    0.9480]
+
+% Forward Lens
+circleRadii=[  5.4800   68.1    7.8000    8.5000]
+circleSensitivities =[  0.6539   -4.4431    0.1072    0.9298]
+
 
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
 [polyModel] = lensPolyFit(iRays, oRays,'planes', planes,...
