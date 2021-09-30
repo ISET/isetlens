@@ -33,7 +33,7 @@ for w = 1:numel(wavelengths_micron)
 %% Generate ray pairs
 maxRadius = 0.6;
 minRadius = 0;
-offset=0.1;
+offset=0.01;
 
 [iRays, oRays, planes, nanIdx, pupilPos, pupilRadii,lensThickness] = lensRayPairs('temporarylens.json', 'visualize', false,...
     'n radius samp', 50, 'elevation max', 40,...
@@ -69,6 +69,8 @@ diaphragmIndex= 0; % which of the circles belongs to the diaphragm; (for C++ sta
 circleRadii =[    1.2700    1.3500   10.0000]
 circleSensitivities =[   -1.6628    0.8298  -15.6821]
 circlePlaneZ = 3;
+
+
 
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
 

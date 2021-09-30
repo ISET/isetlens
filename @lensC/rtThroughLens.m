@@ -150,14 +150,16 @@ for lensEl = 1:nSurfaces
         if lensEl == 1 && ~isempty(samps)
             if vis
                 [samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
-            end
-            % Set the axis numerical limits to make the lens visible
-            thickness = obj.get('lens thickness');
-            height    = obj.get('lens height');
-            set(gca,'xlim',[-2*thickness 2]);
-            set(gca,'ylim',[-1*height,height])
-            grid on; hold on
             
+                % TG: Only set figures properties when visualisation is
+                % enabled. Else this creates a new figure window.
+                % Set the axis numerical limits to make the lens visible
+                thickness = obj.get('lens thickness');
+                height    = obj.get('lens height');
+                set(gca,'xlim',[-2*thickness 2]);
+                set(gca,'ylim',[-1*height,height])
+                grid on; hold on
+            end
         elseif ~isempty(samps) > 0
             if vis
                 raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
