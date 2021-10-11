@@ -67,6 +67,7 @@ classdef lensC <  handle
       thislens = lensC('filename','dgauss.22deg.3.0mm.dat');
       thislens.draw;
       thislens.plot('focal distance');
+      thislens.thickness
     %}
     %{
       % Read in under the assumption that the file contains meters 
@@ -130,7 +131,7 @@ classdef lensC <  handle
     
     methods (Access = public)
         
-        %Multiple element lens constructor
+        % Multiple element lens constructor
         function obj = lensC(varargin)
             % thisLens = lens(varargin)
             %   
@@ -225,6 +226,22 @@ classdef lensC <  handle
             end
             
         end
+        
+        function val = thickness(obj)
+            % This works when the first surface is a spherical lenses.
+            %
+            % The most rear position of the multielement lens array is
+            % at 0.  The front position, therefore, defines the lens thickness. 
+            %
+            % We find the front surface center position, which is
+            % always a negative number, and add the radius.
+            %
+            % Units are mm.  I considered, but did not, add
+            % ieUnitScaleFactor.
+            
+            val = obj.surfaceArray(1).sRadius + (-obj.surfaceArray(1).sCenter(3));
+        end
+        
     end
     
     %% Not sure why these are private. (BW).
