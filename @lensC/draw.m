@@ -38,10 +38,10 @@ if ~isempty(obj.microlens)
 end
 
 nSurfaces = obj.get('n surfaces');
-for lensEl = 1:nSurfaces    
+for lensEl = 1:nSurfaces
     % Get each surface element and draw it
     curEl = obj.surfaceArray(lensEl);
-    curEl.draw('fig',gcf);
+    curEl.draw('fig',gcf,'color',lColor);    
 end
 
 % Make sure the surfaces are all shown within the range
