@@ -87,7 +87,7 @@ if visualize
         subplot(1,numel(outputSelection),i); hold on;
         h = scatter(pred(:,i),out,'Marker','.','MarkerEdgeColor','r');
         plot(max(abs(out))*[-1 1],max(abs(out))*[-1 1],'k','linewidth',1)
-        xlim([min(out) max(out)])
+        xlim([min(out)*0.99 max(out)])
         title(labels{i})
         xlabel('Polynomial')
         ylabel('Ray trace')
