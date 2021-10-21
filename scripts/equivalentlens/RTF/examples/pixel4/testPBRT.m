@@ -47,7 +47,34 @@ thisR.integrator.numCABands.value =1
 thisR.set('camera',cameraRTF);
 piWrite(thisR);
 
+
+return
+%%
+
 [oi,result] = piRender(thisR,'render type','radiance','dockerimagename',thisDocker);
  
+ %%
+ oiWindow(oi)
  
+ 
+ 
+ %% openfile
+
+%% Lens example
+
+
+
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/pixelfront.dat'
+
+
+oiPoly = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
+oiPoly.name ='lens'
+
+oiWindow(oiPoly);
+oiSet(oiPoly,'gamma',0.5)
+Dlens=oiPoly.data.photons;
+pause(1);
+ax = gca;
+
+
  
