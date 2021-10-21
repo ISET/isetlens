@@ -57,7 +57,7 @@ positions=unique(iRays(:,1));
 
 pupilshape_trace = nan(3,numel(positions),1);
        
-for p=1:numel(positions) 
+for p=1:numel(positions)
         disp(['positions: ' num2str(p)])
         
         iRaysAtPos=iRays((iRays(:,1)==positions(p)),:);

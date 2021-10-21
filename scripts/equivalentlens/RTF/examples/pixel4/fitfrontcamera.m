@@ -85,7 +85,7 @@ fit{w}.planes = planes;
 
 
 %% Generate Spectral JSON file
-fpath = fullfile(ilensRootPath, 'local',[lensName '-filmtoscene-raytransfer.json']);
+fpath = fullfile(piRootPath, 'data/lens/',[lensName '-filmtoscene-raytransfer.json']);
 
 lensinfo.name=lensName;
 lensinfo.description='Pixel 4A front lens RTF'

@@ -60,7 +60,7 @@ circleRadii =[5.2300    8.1000  107.3000  ,  7.2291  125.3000    9.5000  ]
 circleSensitivities =[ 0.0652    1.0075   -9.8241,    0.7991  -11.5487   -0.0152 ]
 circlePlaneZ =[    17]
 
-sparsitytolerance = 1e-4;
+sparsitytolerance = 0;
 
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
 [polyModel] = lensPolyFit(iRays, oRays,'planes', planes,...
