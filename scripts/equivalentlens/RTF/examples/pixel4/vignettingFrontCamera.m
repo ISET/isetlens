@@ -17,24 +17,24 @@ lensFileName ='pixel4a-front';
 %% INput plane
 
 
-firstsurface_z = -40; % Seems working, but why
-    
-offset_inputplane=0.1;%mm
-inputplane_z= firstsurface_z-offset_inputplane
+
+thickness_bsc7=0.21
+thickness_blackboxlens=3.0333179923;
+
+lensThickness=thickness_bsc7+thickness_blackboxlens;
+
+firstsurface_z=-lensThickness;
+
+offset_output=1;%mm
+offset_input=0.3616965582;% mm
+inputplane_z= firstsurface_z-offset_input
 
 
 %% Choose entrance pupil position w.r.t. input plane
-% Ideally this distance is chosen in the plane in which the entrance pupil
-% doesn't shift.  
-% This is the best guess. In principle the algorithm can handle  an unknown
-% entrancepupil distance
 
-% Good guess:
-entrancepupil_distance =  2.3347;
+%% Best guess
+exitpupil_distance_guess =  2.2;
 
-% Bad guess: , 
-%entrancepupil_distance =  3;
-%entrancepupil_distance=  0.5;
 
 
 
@@ -67,7 +67,7 @@ for p=1:numel(positions)
         for i=1:size(iRaysAtPos,1)
             directions=iRaysAtPos(i,2:3);
             directions(3)=sqrt(1-sum(directions(1:2).^2));
-            pointOnPupil = origin+(entrancepupil_distance/(directions(3))).*directions;
+            pointOnPupil = origin+(exitpupil_distance_guess/(directions(3))).*directions;
                     
             pupilshape_trace(:,p,count)=  pointOnPupil;
             count=count+1;
@@ -91,7 +91,7 @@ end
 % surface to be cut off
 
 % Top
-position_selection=[3]; % Choose the positions for which the top circle is unaffected by vignetting.
+position_selection=[5]; % Choose the positions for which the top circle is unaffected by vignetting.
 offaxis_distances=positions(position_selection);
 
 
@@ -188,7 +188,7 @@ return
 % Distance to entrance pupil is already known by construction unless a
 % wrong guess was taken. When the guess was good sensitivity_entrance
 % should be basically zero.
-hx= entrancepupil_distance/(1-(sensitivity_entrance))
+hx= exitpupil_distance_guess/(1-(sensitivity_entrance))
 Rpupil_entrance = radius_entrance/(1-sensitivity_entrance)
 
 % Calculate radius of a pupil by projecting it back to its actual plane
@@ -198,8 +198,8 @@ Rpupil_top = radius_top/(1-sensitivity_top)
 
 
 % Calculate positions of pupils relative to the input plane
-hp_bottom=entrancepupil_distance/(1-sensitivity_bottom)
-hp_top=entrancepupil_distance/(1-sensitivity_top)
+hp_bottom=exitpupil_distance_guess/(1-sensitivity_bottom)
+hp_top=exitpupil_distance_guess/(1-sensitivity_top)
 
 
 % Information to be used for PBRT domain evaluation (FOR ZHENG)
@@ -236,22 +236,22 @@ for p=1:numel(positions)
     lw=2; %Linewidth
     
     % Draw entrance pupil
-    sensitivity = (1-entrancepupil_distance/hx);
+    sensitivity = (1-exitpupil_distance_guess/hx);
     dentrance=sensitivity*positions(p);
-    projected_radius = abs(entrancepupil_distance/hx)*Rpupil_entrance;
+    projected_radius = abs(exitpupil_distance_guess/hx)*Rpupil_entrance;
     viscircles([0 dentrance],projected_radius,'color','k','linewidth',lw)
     
     % Draw Bottom circle
-    sensitivity = (1-entrancepupil_distance/hp_bottom);
+    sensitivity = (1-exitpupil_distance_guess/hp_bottom);
     dvignet=sensitivity*positions(p);
-    projected_radius = abs(entrancepupil_distance/hp_bottom)*Rpupil_bottom;
+    projected_radius = abs(exitpupil_distance_guess/hp_bottom)*Rpupil_bottom;
     viscircles([0 dvignet],projected_radius,'color',[0 0 0.8],'linewidth',lw)
     
     
     % Draw Top circle
-    sensitivity = (1-entrancepupil_distance/hp_top);
+    sensitivity = (1-exitpupil_distance_guess/hp_top);
     dvignet=sensitivity*positions(p);
-    projected_radius = abs(entrancepupil_distance/hp_top)*Rpupil_top;
+    projected_radius = abs(exitpupil_distance_guess/hp_top)*Rpupil_top;
     viscircles([0 dvignet],projected_radius,'color',[0.8 0 0 ],'linewidth',lw)
     
     

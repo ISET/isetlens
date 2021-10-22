@@ -15,31 +15,14 @@ varargin = ieParamFormat(varargin);
 p = inputParser;
 p.addRequired('iRays', @isnumeric);
 p.addRequired('oRays', @isnumeric);
-p.addParameter('lensthickness',NaN,@isnumeric);
 p.addParameter('maxdegree', 4, @isnumeric);
 p.addParameter('visualize', false, @islogical);
 p.addParameter('fpath', '', @ischar);
-p.addParameter('planes', struct(), @isstruct);
-p.addParameter('pupilpos', [],@isnumeric);
-p.addParameter('pupilradii', [], @isnumeric);
-p.addParameter('planeoffset', [], @isnumeric);
-p.addParameter('circleradii', [], @isnumeric);                        
-p.addParameter('circlesensitivities', [], @isnumeric);                        
-p.addParameter('circleplanez', [], @isnumeric);      
 p.addParameter('sparsitytolerance', 0, @isnumeric);      
 p.parse(iRays,oRays,varargin{:});
 
 maxDegree = p.Results.maxdegree;
 visualize = p.Results.visualize;
-fPath = p.Results.fpath;
-planes = p.Results.planes;
-pupilRadii = p.Results.pupilradii;
-pupilPos = p.Results.pupilpos;
-lensThickness = p.Results.lensthickness;
-planeOffset= p.Results.planeoffset;
-circlePlaneZ= p.Results.circleplanez;
-circleRadii= p.Results.circleradii;
-circleSensitivities= p.Results.circlesensitivities;
 sparsityTolerance= p.Results.sparsitytolerance;
 
 

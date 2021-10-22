@@ -2,20 +2,22 @@ clear; close all;
 
 
 
-lensName='pxel4a-frontcamera'
+lensName='pixel4a-frontcamera'
 
-
-offset=0.1;% mm
+filmdistance_mm=0.3616965582;
+offset_sensorside=filmdistance_mm;
+offset_objectside=1; %%mm
 
 %Actual Z positions of the planes
 
-
-thickness_filter=0.2616965582;
+thickness_bsc7=0.21
 thickness_blackboxlens=3.0333179923;
-lensThickness=thickness_filter+thickness_blackboxlens;
-frontvertex_z=-(thickness_filter+thickness_blackboxlens)
-planes.input=frontvertex_z-offset;
-planes.output=offset;
+
+lensThickness=thickness_bsc7+thickness_blackboxlens;
+
+frontvertex_z=-lensThickness;
+planes.input=frontvertex_z-offset_sensorside;
+planes.output=offset_objectside;
 
 
 
@@ -46,28 +48,20 @@ polyDeg = 6
 % high quality)
 
 diaphragmIndex= 0; % which of the circles belongs to the diaphragm; (for C++ starting at zero)
-circleRadii =[    7.5  125.3000   9.5]
-circleSensitivities =[    0.9281 -11.5487   -0.0152]
-circlePlaneZ =   2.3
-pupilPos=[];
-pupilRadii=[];
+circleRadii =[0.5800 0.5800 ]
+circleSensitivities =[0.0440 0.0440]
+circlePlaneZ =   2.2
+pupilPos=[2.3 2.3];
+pupilRadii=[0.6067 0.6067];
 
 
-sparsitytolerance = 1e-4;
+sparsitytolerance = 0*1e-4;
 
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
-[polyModel] = lensPolyFit(iRays, oRays,'planes', planes,...
+[polyModel] = lensPolyFit(iRays, oRays,...
     'visualize', true, 'fpath', fpath,...
     'maxdegree', polyDeg,...
-    'pupil pos', pupilPos,...
-    'plane offset',offset,...
-    'pupil radii', pupilRadii,...
-    'circle radii',circleRadii,...
-    'circle sensitivities',circleSensitivities,...
-    'circle plane z',circlePlaneZ,...
-    'lensthickness',lensThickness,...
     'sparsitytolerance',sparsitytolerance);
-
 %% Add meta data to polymodel sepearte struct
 w=1 % only one wavelength
 
@@ -84,6 +78,7 @@ fit{w}.diaphragmToCircleRadius=1
 fit{w}.planes = planes;
 
 
+
 %% Generate Spectral JSON file
 fpath = fullfile(piRootPath, 'data/lens/',[lensName '-filmtoscene-raytransfer.json']);
 
@@ -93,7 +88,7 @@ lensinfo.apertureDiameter=2.8
 lensinfo.focallength=0;
 
 if ~isempty(fpath)
-    jsonPath = spectralJsonGenerate(polyModel, 'lensthickness', lensThickness, 'planes', planes,'planeOffset',offset, 'outpath', fpath,...
+    jsonPath = spectralJsonGenerate(polyModel, 'lensthickness', lensThickness, 'planes', planes,'planeOffset input',offset_sensorside, 'plane offset output',offset_objectside, 'outpath', fpath,...
         'polynomials',fit);
 
 end
