@@ -75,7 +75,8 @@ fit{w}.circleSensitivities = circleSensitivities;
 fit{w}.circlePlaneZ = circlePlaneZ;
 fit{w}.diaphragmIndex=1;
 fit{w}.diaphragmToCircleRadius=1
-fit{w}.planes = planes;
+
+%fit{w}.planes = planes; %% Not needed because it can b calculated
 
 
 

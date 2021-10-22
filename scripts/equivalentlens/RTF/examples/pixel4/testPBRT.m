@@ -7,7 +7,7 @@ if ~piDockerExists, piDockerConfig; end
 
 
 thisR=piRecipeDefault('scene','ChessSet')
-%thisR=piRecipeDefault('scene','flatSurface'); thisR.set('light','#1_Light_type:point','type','distant')
+thisR=piRecipeDefault('scene','flatSurface'); thisR.set('light','#1_Light_type:point','type','distant')
 thisDocker = 'vistalab/pbrt-v3-spectral:raytransfer-spectral';
 
 
@@ -19,7 +19,7 @@ thisDocker = 'vistalab/pbrt-v3-spectral:raytransfer-spectral';
 %distanceFromFilm_m=1.469+50/1000\
 
 % Set camera and camera position
-filmZPos_m           = -0.5;
+filmZPos_m           = -0.3;
 thisR.lookAt.from(3)= filmZPos_m;
 
 
@@ -36,7 +36,7 @@ cameraRTF = piCameraCreate('raytransfer','lensfile','pixel4a-frontcamera-filmtos
 cameraRTF.filmdistance.value=filmdistance_mm/1000;
 
 
-thisR.set('pixel samples',20)
+thisR.set('pixel samples',30)
 
 
 thisR.set('film diagonal',sqrt(2)*5,'mm');
@@ -56,7 +56,7 @@ thisR.integrator.numCABands.value =1
 % % RTF
 thisR.set('camera',cameraRTF);
 piWrite(thisR);
-
+return
 
 %%
 
@@ -85,5 +85,26 @@ plot(x,cosd(atand(x/exitpupil)).^4)
 xlabel('Off axis distance on sensor (mm)')
 legend('Simulated vignetting profile','Cosine fourth ')
 
+
+
+
+
+%% Manual loading of dat file
+
+
+
+
+path='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/pixelfront.dat'
+
+
+oi = piDat2ISET(path, 'wave', 400:10:700, 'recipe', thisR);
+oi.name ='lens'
+
+oiWindow(oi);
+oiSet(oi,'gamma',0.8)
+Dlens=oi.data.photons;
+pause(1);
+ax = gca;
+exportgraphics(gca,'pixel4a_front_relativeillumination.png')
 
  
