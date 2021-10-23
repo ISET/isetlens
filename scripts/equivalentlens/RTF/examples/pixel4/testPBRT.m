@@ -80,7 +80,7 @@ profile=profile/max(profile);
 x=linspace(-2.5,2.5,numel(profile)); 
 plot(x,profile); 
 
-exitpupil=2.4
+exitpupil=2.4planeOffsetOutput = (Float) j[""] * 0.001f; 
 plot(x,cosd(atand(x/exitpupil)).^4)
 xlabel('Off axis distance on sensor (mm)')
 legend('Simulated vignetting profile','Cosine fourth ')
