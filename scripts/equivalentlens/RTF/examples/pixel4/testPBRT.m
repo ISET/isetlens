@@ -106,5 +106,3 @@ Dlens=oi.data.photons;
 pause(1);
 ax = gca;
 exportgraphics(gca,'pixel4a_front_relativeillumination.png')
-
- 

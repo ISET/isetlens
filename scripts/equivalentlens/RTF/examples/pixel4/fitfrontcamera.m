@@ -76,6 +76,13 @@ fit{w}.circlePlaneZ = circlePlaneZ;
 fit{w}.diaphragmIndex=1;
 fit{w}.diaphragmToCircleRadius=1
 
+fit{w}.circleNonlinearRadius = [1 0 0 0 0 -6.3258e-4]
+fit{w}.circleNonlinearSensitivity= [0 0.0233 0 0 0  0.0035]
+
+%% Nonlinearity
+
+
+
 %fit{w}.planes = planes; %% Not needed because it can b calculated
 
 
