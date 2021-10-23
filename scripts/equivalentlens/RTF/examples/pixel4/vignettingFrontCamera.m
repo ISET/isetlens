@@ -124,14 +124,21 @@ centers(:,p)=center0;
 end
 
 figure(2);clf
-subplot(211)
+subplot(211); hold on;
 plot(positions,radii)
 
+polyradius=polyfitn(positions,radii/radii(1),'constant,x^6')
+plot(positions,radii(1)*polyvaln(polyradius,positions),'r--')
+legend('Simulated','Polynomial fit','location','best')
 title('Radius')
 subplot(212); hold on;
 plot(positions,centers(2,:))
 plot(positions,sensitivity_entrance*positions,'k--')
-legend('Center Y position','Linear approximation')
+
+polycenterY=polyfitn(positions,centers(2,:),'x,x^6')
+plot(positions,polyvaln(polycenterY,positions),'r--')
+legend('Center Y position','Linear approximation','Polynomial approx','location','best')
+
 title('Center')
 
 
@@ -157,8 +164,15 @@ for p=1:numel(positions)
      offset=sensitivity_entrance*positions(p);
           
      % Draw circles
+     
       viscircles([0 offset],radius_entrance,'color','r','linewidth',1)
      
+     % Nonlinear circle change
+     radius_nonlin=polyvaln(polyradius,positions(p)); 
+     offset_nonlin=polyvaln(polycenterY,positions(p)); 
+     viscircles([0 offset_nonlin],radius_nonlin*radii(1),'color','m','linewidth',1)
+     
+      
      % Draw off axis position
      scatter(0,positions(p))
      
