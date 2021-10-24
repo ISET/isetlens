@@ -143,6 +143,30 @@ title('Center')
 
 
 
+%% Calculate corresponding pupil walking
+
+dp=1e-10;
+for p=1:numel(positions)
+    
+    local_sensitivity(p)=diff(polyvaln(polycenterY,positions(p)+[0 dp]))/dp; %% local derivative
+    
+    h(p)= exitpupil_distance_guess/(1-(local_sensitivity(p)));
+    R(p)= radii(p)/(1-local_sensitivity(p));
+end
+
+figure(3);clf
+subplot(211); hold on;
+plot(positions,R);
+ylim([0 inf])
+legend('Simulated','Polynomial fit','location','best')
+title('Radius')
+yyaxis right
+plot(positions,h)
+ylim([0 inf])
+legend('Center Y position','Linear approximation','Polynomial approx','location','best')
+
+title('Center')
+
 %% Verify automatic fits:
 colors={'k' 'r' 'g' 'b' 'm' [0.9 0.5 0.9] };
 
@@ -154,6 +178,8 @@ for p=1:numel(positions)
     Ptrace=pupilshape_trace(1:2,p,:);
     Ptrace=Ptrace(1:2,:);
     scatter(Ptrace(1,:),Ptrace(2,:),'.')
+    
+    
     
     
     

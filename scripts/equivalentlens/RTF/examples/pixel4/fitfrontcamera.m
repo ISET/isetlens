@@ -73,11 +73,14 @@ fit{w}.polyModel = polyModel;
 fit{w}.circleRadii = circleRadii;
 fit{w}.circleSensitivities = circleSensitivities;
 fit{w}.circlePlaneZ = circlePlaneZ;
-fit{w}.diaphragmIndex=1;
+fit{w}.diaphragmIndex=0;
 fit{w}.diaphragmToCircleRadius=1
 
-fit{w}.circleNonlinearRadius = [1 0 0 0 0 -6.3258e-4]
-fit{w}.circleNonlinearSensitivity= [0 0.0233 0 0 0  0.0035]
+
+fit{w}.circleNonlinearRadius = [1 0 0 0 0 -6.3258e-4]  % newradius =radius*(1+a*x+b*x^2+....)
+fit{w}.circleNonlinearSensitivity= [0 0.0233 0 0 0  0.0035] % offset - position*(0+a*x+b*x^2+....) %%mm
+
+
 
 %% Nonlinearity
 
