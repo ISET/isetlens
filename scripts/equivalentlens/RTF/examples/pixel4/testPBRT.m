@@ -35,19 +35,22 @@ load('p4aLensVignetFrontCam_p0286s.mat')
 filmdistance_mm=0.3616965582;
 pixelpitch_mm=1.12e-3; 
 sensorwidth_mm=pixelpitch_mm*size(pixel4aLensVignetFrontCamp0286s,2)
+sensorheight_mm=pixelpitch_mm*size(pixel4aLensVignetFrontCamp0286s,1)
+sensordiagonal_mm=sqrt(sensorwidth_mm^2+sensorheight_mm^2)
+
 
 %% Add a lens and render.
 
 % Nonlinear
 label{1}='nonlinear'
 cameras{1} = piCameraCreate('raytransfer','lensfile','pixel4a-frontcamera-filmtoscene-raytransfer.json');
-thisR.set('pixel samples',30);
+
 
 
 % Linear
 label{2}='linear'
 cameras{2} = piCameraCreate('raytransfer','lensfile','pixel4a_linear-frontcamera-filmtoscene-raytransfer.json')
-%thisR.set('pixel samples',30)
+
 
 
 for c=1:numel(cameras)
@@ -55,8 +58,9 @@ for c=1:numel(cameras)
     cameraRTF = cameras{c};
     cameraRTF.filmdistance.value=filmdistance_mm/1000;
     
-    thisR.set('film diagonal',sensorwidth_mm*sqrt(2),'mm');
-    thisR.set('film resolution',[300 300])
+    thisR.set('pixel samples',1000);
+    thisR.set('film diagonal',sensordiagonal_mm,'mm');
+    thisR.set('film resolution',size(pixel4aLensVignetFrontCamp0286s))
     
     
     thisR.integrator.subtype='path'
@@ -81,6 +85,8 @@ for c=1:numel(cameras)
     
     
     oiWindow(oiTemp)
+    pause(2)
+    exportgraphics(gca,['./fig/chesset_pixel4a' label{c} '.png'])
 end
 %%
 
@@ -134,6 +140,7 @@ for p=1:numel(oi)
     data{p}=oi{p}.data.photons;
     
     ax = gca;
+    
 end
 
 

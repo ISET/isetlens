@@ -28,7 +28,7 @@ lens.draw
     
 %Set diaphraghm diameter. Should be smaller than 9  to find the exit pupil
 %in this case
-diaphragm_diameter= 7;
+diaphragm_diameter= 3;
 lens.surfaceArray(6).apertureD=diaphragm_diameter;
 lens.apertureMiddleD=diaphragm_diameter;
 
@@ -46,21 +46,8 @@ inputplane_z= firstsurface_z-offset_inputplane
 % This is the best guess. In principle the algorithm can handle  an unknown
 % entrancepupil distance
 
-% Good guess:
-entrancepupil_distance =  17;
 
-% Bad guess: , 
-%entrancepupil_distance =  3;
-%entrancepupil_distance=  0.5;
-
-
-%% Define Bounding box
-boundingBoxZ = firstsurface_z;
-boundingBoxWidth = 30
-
-
-
-
+exitpupil_distance_guess =  17;
 
 %% Run ray trace, and log which rays can pass
 clear p;
@@ -78,14 +65,15 @@ else
  
  % Lens reverse
 positions =[0    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000];
+
  
  
 
     
     % Initiate the arrays as NaNs, else the zeros will be interpreted at a
     % position for which a ray passed
-    nbThetas=300;
-    nbPhis=300;
+    nbThetas=400;
+    nbPhis=400;
     pupilshape_trace = nan(3,numel(positions),nbThetas,nbPhis);
     pupilshape_vignetted= nan(3,numel(positions),nbThetas,nbPhis);
     
@@ -93,7 +81,7 @@ positions =[0    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0
     
     for p=1:numel(positions)
         disp(['positions: ' num2str(p)])
-        maxTheta=60;
+        maxTheta=40;
         nbPhis=nbThetas;
         thetas = linspace(-maxTheta,maxTheta,nbThetas);
         phis = linspace(0,359,nbPhis);
@@ -137,12 +125,12 @@ positions =[0    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0
                     if(pass_trace(i))
                     % Linear extrapolation from origin to find intersection
                     % with entrance_pupil plane
-                    pointOnPupil = origins(i,:)+(entrancepupil_distance/(directions(i,3)))*directions(i,:);
+                    pointOnPupil = origins(i,:)+(exitpupil_distance_guess/(directions(i,3)))*directions(i,:);
                     
                     pupilshape_trace(:,p,count)=  pointOnPupil;
                     count=count+1;
                     else
-                      pointOnPupil = origins(i,:)+(entrancepupil_distance/(directions(i,3)))*directions(i,:);
+                      pointOnPupil = origins(i,:)+(exitpupil_distance_guess/(directions(i,3)))*directions(i,:);
                       pupilshape_vignetted(:,p,countVignetted)=  pointOnPupil;
                       countVignetted=countVignetted+1;
                     end
@@ -159,23 +147,7 @@ positions =[0    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0
 
 
     
-    
- %% Visualisze traces
 
- p=10
- Ptrace=pupilshape_trace(1:3,p,:);
- Pvignet=pupilshape_vignetted(1:3,p,:);
- 
- figure(1);clf
- hold on;
- htrace=scatter3(Ptrace(1,:),Ptrace(2,:),Ptrace(3,:),'.')
- hvignet=scatter3(Pvignet(1,:),Pvignet(2,:),Pvignet(3,:),'.')
- 
-  origin=[0;positions(p);inputplane_z];
- 
- line([origin(1) Pvignet(1,1)],[origin(2) Pvignet(2,1)],[origin(3) Pvignet(3,1)],'color',hvignet.CData)
- 
- 
 
  
  
@@ -184,7 +156,7 @@ positions =[0    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0
 % the pupil you see is the entrance pupil. The radius is estimated by
 % finding the minimally bounding circle (using the toolbox)
 
-p=1
+p=5
 Ptrace=pupilshape_trace(1:2,p,:);
 Ptrace=Ptrace(1:2,:);
 
@@ -254,12 +226,84 @@ stepsize_radius=0.1;
 
 circleRadii = [radius_entrance radius_bottom radius_top ]
 circleSensitivities = [sensitivity_entrance sensitivity_bottom sensitivity_top ]
-circlePlaneZ=entrancepupil_distance
+circlePlaneZ=exitpupil_distance_guess
 
-circleRadii =[5.2300    8.1000  107.3000  ,  7.2291  125.3000    9.5000  ]
+circleRadii =[5.2300/7*3    8.1000  107.3000  ,  7.2291  125.3000    9.5000  ]
 circleSensitivities =[ 0.0652    1.0075   -9.8241,    0.7991  -11.5487   -0.0152 ]
 
 
+
+
+%%  Show nonlinearity
+clear centers radii
+for p=1:(numel(positions))
+Ptrace=pupilshape_trace(1:2,p,:);
+Ptrace=Ptrace(1:2,:);
+
+NaNCols = any(isnan(Ptrace));
+Pnan = Ptrace(:,~NaNCols);
+ZeroCols = any(Pnan(:,:)==[0;0]);
+Pnan = Pnan(:,~ZeroCols);
+
+[center0,radius0] = minboundcircle(Pnan(1,:)',Pnan(2,:)')
+
+offaxis_distances=positions(p);
+ytop(p)=max(pupilshape_trace(2,p,:));
+
+offset=0.01;
+stepsize_radius=0.1;
+%[radius0,~]=findCuttingCircleEdge(pupilshape_trace(1:2,p,:),offaxis_distances,"top",'offset',offset,'stepsizeradius',stepsize_radius)
+
+
+radii(p)=radius0;
+centers(:,p)=center0;
+
+end
+
+figure(2);clf
+subplot(211); hold on;
+plot(positions,radii)
+
+polyradius=polyfitn(positions,radii/radii(1)-1,'x^2,x^6')
+plot(positions,radii(1)*(1+polyvaln(polyradius,positions)),'r--')
+legend('Simulated','Polynomial fit','location','best')
+title('Radius')
+subplot(212); hold on;
+plot(positions,centers(2,:))
+plot(positions,sensitivity_entrance*positions,'k--')
+
+polycenterY=polyfitn(positions,centers(2,:),'x^2,x^3')
+
+plot(positions,polyvaln(polycenterY,positions),'r--')
+legend('Center Y position','Linear approximation','Polynomial approx','location','best')
+
+title('Center')
+
+
+
+%% Calculate corresponding pupil walking
+
+dp=1e-10;
+for p=1:numel(positions)
+    
+    local_sensitivity(p)=diff(polyvaln(polycenterY,positions(p)+[0 dp]))/dp; %% local derivative
+    
+    h(p)= exitpupil_distance_guess/(1-(local_sensitivity(p)));
+    R(p)= radii(p)/(1-local_sensitivity(p));
+end
+
+figure(3);clf
+subplot(211); hold on;
+plot(positions,R);
+ylim([0 inf])
+legend('Simulated','Polynomial fit','location','best')
+title('Radius')
+yyaxis right
+plot(positions,h)
+ylim([0 inf])
+legend('Center Y position','Linear approximation','Polynomial approx','location','best')
+
+title('Center')
 
 %% Verify automatic fits:
 colors={'k' 'r' 'g' 'b' 'm' [0.9 0.5 0.9] };
@@ -280,6 +324,13 @@ for p=1:numel(positions)
          % Draw circles
          viscircles([0 offset],circleRadii(c),'color',colors{c},'linewidth',1)
     end
+    
+      
+     % Nonlinear circle change
+     radius_nonlin=1+polyvaln(polyradius,positions(p)); 
+     offset_nonlin=polyvaln(polycenterY,positions(p)); 
+     viscircles([0 offset_nonlin],radius_nonlin*radii(1),'color','m','linewidth',1)
+     
     
      % Draw off axis position
      scatter(0,positions(p))
@@ -306,7 +357,7 @@ return
 % Distance to entrance pupil is already known by construction unless a
 % wrong guess was taken. When the guess was good sensitivity_entrance
 % should be basically zero.
-hx= entrancepupil_distance/(1-(sensitivity_entrance))
+hx= exitpupil_distance_guess/(1-(sensitivity_entrance))
 Rpupil_entrance = radius_entrance/(1-sensitivity_entrance)
 
 % Calculate radius of a pupil by projecting it back to its actual plane
@@ -316,8 +367,8 @@ Rpupil_top = radius_top/(1-sensitivity_top)
 
 
 % Calculate positions of pupils relative to the input plane
-hp_bottom=entrancepupil_distance/(1-sensitivity_bottom)
-hp_top=entrancepupil_distance/(1-sensitivity_top)
+hp_bottom=exitpupil_distance_guess/(1-sensitivity_bottom)
+hp_top=exitpupil_distance_guess/(1-sensitivity_top)
 
 
 % Information to be used for PBRT domain evaluation (FOR ZHENG)
@@ -354,22 +405,22 @@ for p=1:numel(positions)
     lw=2; %Linewidth
     
     % Draw entrance pupil
-    sensitivity = (1-entrancepupil_distance/hx);
+    sensitivity = (1-exitpupil_distance_guess/hx);
     dentrance=sensitivity*positions(p);
-    projected_radius = abs(entrancepupil_distance/hx)*Rpupil_entrance;
+    projected_radius = abs(exitpupil_distance_guess/hx)*Rpupil_entrance;
     viscircles([0 dentrance],projected_radius,'color','k','linewidth',lw)
     
     % Draw Bottom circle
-    sensitivity = (1-entrancepupil_distance/hp_bottom);
+    sensitivity = (1-exitpupil_distance_guess/hp_bottom);
     dvignet=sensitivity*positions(p);
-    projected_radius = abs(entrancepupil_distance/hp_bottom)*Rpupil_bottom;
+    projected_radius = abs(exitpupil_distance_guess/hp_bottom)*Rpupil_bottom;
     viscircles([0 dvignet],projected_radius,'color',[0 0 0.8],'linewidth',lw)
     
     
     % Draw Top circle
-    sensitivity = (1-entrancepupil_distance/hp_top);
+    sensitivity = (1-exitpupil_distance_guess/hp_top);
     dvignet=sensitivity*positions(p);
-    projected_radius = abs(entrancepupil_distance/hp_top)*Rpupil_top;
+    projected_radius = abs(exitpupil_distance_guess/hp_top)*Rpupil_top;
     viscircles([0 dvignet],projected_radius,'color',[0.8 0 0 ],'linewidth',lw)
     
     
