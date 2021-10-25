@@ -28,69 +28,91 @@ thisR.lookAt.from(3)= filmZPos_m;
 
 %% FIlm distance as provided by Google
 
+
+load('p4aLensVignetFrontCam_p0286s.mat')
+
+
 filmdistance_mm=0.3616965582;
+pixelpitch_mm=1.12e-3; 
+sensorwidth_mm=pixelpitch_mm*size(pixel4aLensVignetFrontCamp0286s,2)
 
 %% Add a lens and render.
 
-cameraRTF = piCameraCreate('raytransfer','lensfile','pixel4a-frontcamera-filmtoscene-raytransfer.json');
-thisR.set('pixel samples',500); 
+% Nonlinear
+label{1}='nonlinear'
+cameras{1} = piCameraCreate('raytransfer','lensfile','pixel4a-frontcamera-filmtoscene-raytransfer.json');
+thisR.set('pixel samples',30);
 
 
-cameraRTF = piCameraCreate('raytransfer','lensfile','pixel4a_linear-frontcamera-filmtoscene-raytransfer.json')
-thisR.set('pixel samples',100)
-cameraRTF.filmdistance.value=filmdistance_mm/1000;
+% Linear
+label{2}='linear'
+cameras{2} = piCameraCreate('raytransfer','lensfile','pixel4a_linear-frontcamera-filmtoscene-raytransfer.json')
+%thisR.set('pixel samples',30)
 
 
-
-
-
-thisR.set('film diagonal',sqrt(2)*5,'mm');
-thisR.set('film resolution',[300 300])
+for c=1:numel(cameras)
     
-
-thisR.integrator.subtype='path'
-
-thisR.integrator.numCABands.type = 'integer';
-thisR.integrator.numCABands.value =1
-
-
-
-
-%% Render
-
-% % RTF
-thisR.set('camera',cameraRTF);
-piWrite(thisR);
-return
-
+    cameraRTF = cameras{c};
+    cameraRTF.filmdistance.value=filmdistance_mm/1000;
+    
+    thisR.set('film diagonal',sensorwidth_mm*sqrt(2),'mm');
+    thisR.set('film resolution',[300 300])
+    
+    
+    thisR.integrator.subtype='path'
+    
+    thisR.integrator.numCABands.type = 'integer';
+    thisR.integrator.numCABands.value =1
+    
+    
+    
+    % Render
+    
+    % % RTF
+    thisR.set('camera',cameraRTF);
+    piWrite(thisR);
+    
+    
+    %
+    
+    [oiTemp,result] = piRender(thisR,'render type','radiance','dockerimagename',thisDocker);
+    oiTemp.name=label{c};
+    oi{c} =oiTemp;
+    
+    
+    oiWindow(oiTemp)
+end
 %%
 
-[oi,result] = piRender(thisR,'render type','radiance','dockerimagename',thisDocker);
- 
- %%
-oiWindow(oi)
- 
- 
+%% Vignetting plot
+
+fig=figure(10);clf;hold on
+fig.Position=[475 270 978 396];
+for p=1:numel(oi)
+    profile=medfilt1(oi{p}.data.photons(end/2,:,1),5);
+    profile=profile/max(profile);
+    x=linspace(-sensorwidth_mm/2,sensorwidth_mm/2,numel(profile));
+    plot(x,profile,'-','linewidth',2);
+end
+
+pixels=linspace(-sensorwidth_mm/2,sensorwidth_mm/2,size(pixel4aLensVignetFrontCamp0286s,2));
+
+% Plot pixels
+plot(pixels,pixel4aLensVignetFrontCamp0286s(end/2,:),'k--','linewidth',2);
 
 
-%%
-exportgraphics(gca,'chesset_pixel4a_front.png')
+exitpupil=2.2
+plot(x,cosd(atand(x/exitpupil)).^4,'linewidth',2);
+
+
+legend('PBRT linear','PBRT with pupilwalking','Measurement','Expected cosine fourth','location','best')
+
+set(gca,'Fontsize',12)
+xlabel('Offcenter (mm)')
+xlim([-1 1]*sensorwidth_mm/2)
+
 
 return
-%% Vigne
-
-figure(10);clf;hold on
-profile=oi.data.photons(end/2,:,1);
-profile=profile/max(profile);
-x=linspace(-2.5,2.5,numel(profile)); 
-plot(x,profile); 
-
-exitpupil=2.4
-plot(x,cosd(atand(x/exitpupil)).^4)
-xlabel('Off axis distance on sensor (mm)')
-legend('Simulated vignetting profile','Cosine fourth ')
-
-
 
 
 
@@ -100,17 +122,18 @@ legend('Simulated vignetting profile','Cosine fourth ')
 label={};path={};
 
 label{end+1}='linear';path{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/pixelfront_linear.dat';
-label{end+1}='nonlinearlargerpupil';path{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/pixelfront_nonlinearlarge.dat';
+label{end+1}='nonlinear';path{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/pixelfront_nonlinear.dat';
 
-for p=1:numel(path)
-oi{p} = piDat2ISET(path{p}, 'wave', 400:10:700, 'recipe', thisR);
-oi{p}.name =label{p}
 
-oiWindow(oi{p});
-oiSet(oi{p},'gamma',0.8)
-data{p}=oi{p}.data.photons;
-
-ax = gca;
+for p=1:numel(oi)
+    oi{p} = piDat2ISET(path{p}, 'wave', 400:10:700, 'recipe', thisR);
+    oi{p}.name =label{p}
+    
+    oiWindow(oi{p});
+    oiSet(oi{p},'gamma',0.8)
+    data{p}=oi{p}.data.photons;
+    
+    ax = gca;
 end
 
 
@@ -118,15 +141,27 @@ end
 return
 %% Vignetting plot
 
-figure(10);clf;hold on
+fig=figure(10);clf;hold on
+fig.Position=[475 270 978 396];
 for p=1:numel(path)
-profile=oi{p}.data.photons(end/2,:,1);
-profile=profile/max(profile);
-x=linspace(-2.5,2.5,numel(profile)); 
-plot(x,profile); 
+    profile=medfilt1(oi{p}.data.photons(end/2,:,1),5);
+    profile=profile/max(profile);
+    x=linspace(-sensorwidth_mm/2,sensorwidth_mm/2,numel(profile));
+    plot(x,profile,'-','linewidth',2);
 end
 
-exitpupil=2.2
-plot(x,cosd(atand(x/exitpupil)).^4)
-legend('linear','with pupilwalking','cosine fourth')
+pixels=linspace(-sensorwidth_mm/2,sensorwidth_mm/2,size(pixel4aLensVignetFrontCamp0286s,2));
 
+% Plot pixels
+plot(pixels,pixel4aLensVignetFrontCamp0286s(end/2,:),'k--','linewidth',2);
+
+
+exitpupil=2.2
+plot(x,cosd(atand(x/exitpupil)).^4,'linewidth',2);
+
+
+legend('PBRT linear','PBRT with pupilwalking','Measurement','Expected cosine fourth','location','best')
+
+set(gca,'Fontsize',12)
+xlabel('Offcenter (mm)')
+xlim([-1 1]*sensorwidth_mm/2)

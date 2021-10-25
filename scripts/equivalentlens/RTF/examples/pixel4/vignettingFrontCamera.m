@@ -136,7 +136,8 @@ plot(positions,centers(2,:))
 plot(positions,sensitivity_entrance*positions,'k--')
 
 polycenterY=polyfitn(positions,centers(2,:),'x,x^6')
-plot(positions,polyvaln(polycenterY,positions),'r--')
+
+plot(positions,polyvaln(polycenterY,positions).*positions,'r--')
 legend('Center Y position','Linear approximation','Polynomial approx','location','best')
 
 title('Center')
@@ -205,8 +206,8 @@ for p=1:numel(positions)
  
      
      
-    xlim(3*radius0*[-1 1])
-    ylim(3*radius0*[-2 1])
+    xlim([-1 1])
+    ylim([-1.5 1.5])
     title(positions(p))
     axis equal
     %pause(0.5);
