@@ -1,4 +1,4 @@
-function obj =  draw(obj, fHdl)
+function obj =  draw(obj, fHdl, lColor)
 % Draw the the multi-element lens surfaces and microlens in a graph window
 %
 % Syntax
@@ -13,9 +13,11 @@ function obj =  draw(obj, fHdl)
 %       zero.
 %
 % Parameters
-%  obj:  A lens object
-% fHdl:  A figure handle.  If not passed, then ieNewGraphWin is
-%        called and that figure handle is set in the lens object field fHdl
+%  obj  -   A lens object
+%  fHdl -   A figure handle.  If not passed, then ieNewGraphWin is
+%           called and that figure handle is set in the lens object
+%           field fHdl 
+%  lColor - RGB value of lens lines (lens color).  Default is black [0 0 0]
 %
 % AL/BW Vistasoft Team, Copyright 2014
 %
@@ -30,6 +32,7 @@ elseif isempty(fHdl)     % Do nothing
 else,                    figure(fHdl); % Raise the figure
 end
 obj.fHdl = fHdl;
+if ~exist('lColor','var'), lColor = [0 0 0]; end
 
 %% Draw one surface/aperture at a time
 
