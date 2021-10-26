@@ -8,6 +8,9 @@ reverse = true;
 maxRadius = 15;
 minRadius = 0;
 offset=0.01;
+offset_sensorside=offset;
+offset_objectside=offset; %%mm
+
 
 [iRays, oRays, planes, nanIdx, pupilPos, pupilRadii,lensThickness] = lensRayPairs(lensName, 'visualize', false,...
     'n radius samp', 50, 'elevation max', 40,...
@@ -60,19 +63,12 @@ circleRadii =[5.2300    8.1000  107.3000  ,  7.2291  125.3000    9.5000  ]
 circleSensitivities =[ 0.0652    1.0075   -9.8241,    0.7991  -11.5487   -0.0152 ]
 circlePlaneZ =[    17]
 
-sparsitytolerance = 1e-4;
+sparsitytolerance = 0;
 
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
-[polyModel] = lensPolyFit(iRays, oRays,'planes', planes,...
+[polyModel] = lensPolyFit(iRays, oRays,...
     'visualize', true, 'fpath', fpath,...
     'maxdegree', polyDeg,...
-    'pupil pos', pupilPos,...
-    'plane offset',offset,...
-    'pupil radii', pupilRadii,...
-    'circle radii',circleRadii,...
-    'circle sensitivities',circleSensitivities,...
-    'circle plane z',circlePlaneZ,...
-    'lensthickness',lensThickness,...
     'sparsitytolerance',sparsitytolerance);
 
 %% Add meta data to polymodel sepearte struct
@@ -86,9 +82,15 @@ fit{w}.circlePlaneZ = circlePlaneZ;
 fit{w}.diaphragmIndex=diaphragmIndex;
 fit{w}.diaphragmToCircleRadius=(2*circleRadii(diaphragmIndex+1))/(2*apertureRadius_mm);
 fit{w}.planes = planes;
+0208
+
+fit{w}.circleNonlinearRadius = [1 0 -0.0016 ]  % newradius =radius*(1+a*x+b*x^2+....)
+fit{w}.circleNonlinearSensitivity= [0 -0.0351 0.0280] % offset - position*(0+a*x+b*x^2+....) %%mm
+
+
 
 %% Generate Spectral JSON file
-fpath = fullfile(ilensRootPath, 'local',[lensName '-filmtoscene-raytransfer.json']);
+fpath = fullfile(piRootPath, 'data/lens/',[lensName '-filmtoscene-raytransfer.json']);
 lens  = lensC('file',lensName);
 lensinfo.name=lensName;
 lensinfo.description=lens.description;
@@ -96,8 +98,12 @@ lensinfo.apertureDiameter=lens.apertureMiddleD;
 lensinfo.focallength=lens.focalLength;
 
 if ~isempty(fpath)
-    jsonPath = spectralJsonGenerate(polyModel, 'lensthickness', lensThickness, 'planes', planes,'planeOffset',offset, 'outpath', fpath,...
-        'polynomials',fit);
+    jsonPath = spectralJsonGenerate(polyModel, 'lensthickness',...
+    lensThickness, 'planes', planes,...
+    'plane offset input',offset_sensorside,...
+    'plane offset output',offset_objectside,...
+    'outpath', fpath,...
+    'polynomials',fit);
 
 end
 

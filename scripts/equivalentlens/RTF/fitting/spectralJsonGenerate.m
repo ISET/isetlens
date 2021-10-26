@@ -24,7 +24,8 @@ varargin = ieParamFormat(varargin);
 p = inputParser;
 p.addRequired('fPolyPath', @(x)(iscell(x)) || exist(x, 'file'));
 p.addParameter('planes', struct(), @isstruct);
-p.addParameter('planeoffset', [], @isnumeric);       
+p.addParameter('planeoffsetinput', [], @isnumeric);       
+p.addParameter('planeoffsetoutput', [], @isnumeric);       
 p.addParameter('lensthickness',[], @isnumeric);
 
 p.addParameter('description', 'equivalent lens poly', @ischar);
@@ -40,7 +41,8 @@ description = p.Results.description;
 name = p.Results.name;
 jsonPath = p.Results.outpath;
 planes = p.Results.planes;
-planeOffset= p.Results.planeoffset;
+planeOffsetIn= p.Results.planeoffsetinput;
+planeOffsetOut= p.Results.planeoffsetoutput;
 polynomials = p.Results.polynomials;
 lensThickness= p.Results.lensthickness;
 
@@ -56,7 +58,8 @@ js.description = description;
 js.name = name;
 if ~isempty(planes)
     js.thickness = lensThickness
-    js.planeoffset= planeOffset;
+    js.planeoffsetoutput= planeOffsetOut;
+    js.planeoffsetinput= planeOffsetIn;
 else
     warning('No plane info!')
     js.thickness = 0;

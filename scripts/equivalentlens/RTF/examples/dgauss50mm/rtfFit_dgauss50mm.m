@@ -28,11 +28,7 @@ inputs(:,4) = iRays(:,2); % dx
 inputs(:,5) = iRays(:,3); % dy
 inputs(:,6) = sqrt(1-iRays(:,2).^2-iRays(:,3).^2);
 
- csvwrite('inputrays-dgauss50mm.csv',inputs)
-% 
- outputs = oRays;
- csvwrite('outputrays-dgauss50mm.csv',outputs)
-% 
+
 
 
 %% Polynomial fit
@@ -63,6 +59,11 @@ circleRadii=[  5.4800   68.1    7.8000    8.5000]
 circleSensitivities =[  0.6539   -4.4431    0.1072    0.9298]
 
 
+% Forward lens correct circle linked to diaphragm
+circleRadii =[   4.4000    9.0000   63.9000      5.6000]
+circleSensitivities =[   0.1505    0.9757   -4.1628     0.6056]
+
+
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
 [polyModel] = lensPolyFit(iRays, oRays,'planes', planes,...
     'visualize', true, 'fpath', fpath,...
@@ -78,7 +79,7 @@ fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
 %% Add meta data to polymodel sepearte struct
 w=1 % only one wavelength
 
-apertureRadius_mm=6;
+apertureRadius_mm=7/2;
 
 fit{w}.wavelength_nm = 550;
 fit{w}.polyModel = polyModel;

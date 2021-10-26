@@ -53,11 +53,21 @@ extremepoints = p.Results.extremepoints;
 % some alterations are needed in the equations. In this decision tree the
 % sign conventions are fixed so we need to check this only once.
 if(side=="bottom")
+    flipXY = @(x)x; % no flipping
     sign=1;
-    extreme =  @(x) min(x); %"lowest" poin
-else %top
+    extreme =  @(x) min(x(2,:)); %"lowest" poin
+elseif(side=="top")
+    flipXY = @(x)x; % no flipping
     sign=-1;
-    extreme =  @(x) max(x); %"highest" point
+    extreme =  @(x) max(x(2,:)); %"highest" point
+elseif(side=="left")
+    flipXY = @flip;
+    sign=1;
+    extreme =  @(x) min(x(1,:)); %"highest" point
+elseif(side=="right")    
+    flipXY = @flip;
+    sign=-1;
+    extreme =  @(x) max(x(1,:)); %"highest" point
 end
 
 
@@ -81,9 +91,9 @@ while(and(not(prod(stopcondition)),(iterations<maxiterations)))
         if(not(isnan(extremepoints)))
             y_extreme = extremepoints(p);
         else
-            y_extreme = extreme(Pnan(2,:))-sign*offset_vertex;
+            y_extreme = extreme(Pnan)-sign*offset_vertex;
         end
-        stopcondition(p)=sum((sum((Pnan-[0;(y_extreme+sign*Rest)]).^2,1)<=Rest^2)==0)<1;        
+        stopcondition(p)=sum((sum((Pnan-flipXY([0;(y_extreme+sign*Rest)])).^2,1)<=Rest^2)==0)<1;        
     end
     Rest = Rest+stepsize_radius;
 
