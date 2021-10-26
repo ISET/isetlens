@@ -82,10 +82,10 @@ fit{w}.circlePlaneZ = circlePlaneZ;
 fit{w}.diaphragmIndex=diaphragmIndex;
 fit{w}.diaphragmToCircleRadius=(2*circleRadii(diaphragmIndex+1))/(2*apertureRadius_mm);
 fit{w}.planes = planes;
+0208
 
-
-fit{w}.circleNonlinearRadius = [1 0 -0.0012 0 0 0 -2.3211e-8]  % newradius =radius*(1+a*x+b*x^2+....)
-fit{w}.circleNonlinearSensitivity= [0 0.0208 4.1824e-4] % offset - position*(0+a*x+b*x^2+....) %%mm
+fit{w}.circleNonlinearRadius = [1 0 -0.0016 ]  % newradius =radius*(1+a*x+b*x^2+....)
+fit{w}.circleNonlinearSensitivity= [0 -0.0351 0.0280] % offset - position*(0+a*x+b*x^2+....) %%mm
 
 
 

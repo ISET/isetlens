@@ -48,8 +48,8 @@ cameras{1} = piCameraCreate('raytransfer','lensfile','pixel4a-frontcamera-filmto
 
 
 % Linear
-label{2}='linear'
-cameras{2} = piCameraCreate('raytransfer','lensfile','pixel4a_linear-frontcamera-filmtoscene-raytransfer.json')
+%label{2}='linear'
+%cameras{2} = piCameraCreate('raytransfer','lensfile','pixel4a_linear-frontcamera-filmtoscene-raytransfer.json')
 
 
 
@@ -58,9 +58,9 @@ for c=1:numel(cameras)
     cameraRTF = cameras{c};
     cameraRTF.filmdistance.value=filmdistance_mm/1000;
     
-    thisR.set('pixel samples',1000);
+    thisR.set('pixel samples',100);
     thisR.set('film diagonal',sensordiagonal_mm,'mm');
-    thisR.set('film resolution',size(pixel4aLensVignetFrontCamp0286s))
+    thisR.set('film resolution',round(0.2*flip(size(pixel4aLensVignetFrontCamp0286s))))
     
     
     thisR.integrator.subtype='path'
@@ -86,7 +86,8 @@ for c=1:numel(cameras)
     
     oiWindow(oiTemp)
     pause(2)
-    exportgraphics(gca,['./fig/chesset_pixel4a' label{c} '.png'])
+    %exportgraphics(gca,['./fig/chesset_pixel4a' label{c} '.png'])
+    exportgraphics(gca,['./fig/chesset_pixel4a_quick' label{c} '.png'])
 end
 %%
 

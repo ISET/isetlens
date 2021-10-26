@@ -28,7 +28,7 @@ lens.draw
     
 %Set diaphraghm diameter. Should be smaller than 9  to find the exit pupil
 %in this case
-diaphragm_diameter= 3;
+diaphragm_diameter= 2;
 lens.surfaceArray(6).apertureD=diaphragm_diameter;
 lens.apertureMiddleD=diaphragm_diameter;
 
@@ -66,14 +66,17 @@ else
  % Lens reverse
 positions =[0    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000];
 
+
+positions =[0.1    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000 11 12 13 14 15 16];
+
  
  
 
     
     % Initiate the arrays as NaNs, else the zeros will be interpreted at a
     % position for which a ray passed
-    nbThetas=400;
-    nbPhis=400;
+    nbThetas=600;
+    nbPhis=600;
     pupilshape_trace = nan(3,numel(positions),nbThetas,nbPhis);
     pupilshape_vignetted= nan(3,numel(positions),nbThetas,nbPhis);
     
@@ -204,7 +207,7 @@ stepsize_radius=0.1;
 [radius_bottom,sensitivity_bottom]=findCuttingCircleEdge(pupilshape_trace(1:2,position_selection,:),offaxis_distances,"bottom",'offset',offset,'stepsizeradius',stepsize_radius)
 
 % Circle 1
-position_selection=[15];
+position_selection=[14];
 offaxis_distances=positions(position_selection);
 offset=0.01;
 stepsize_radius=0.1;
@@ -228,7 +231,7 @@ circleRadii = [radius_entrance radius_bottom radius_top ]
 circleSensitivities = [sensitivity_entrance sensitivity_bottom sensitivity_top ]
 circlePlaneZ=exitpupil_distance_guess
 
-circleRadii =[5.2300/7*3    8.1000  107.3000  ,  7.2291  125.3000    9.5000  ]
+circleRadii =[5.2300/7*2    8.1000  107.3000  ,  7.2291  125.3000    9.5000  ]
 circleSensitivities =[ 0.0652    1.0075   -9.8241,    0.7991  -11.5487   -0.0152 ]
 
 
@@ -237,6 +240,7 @@ circleSensitivities =[ 0.0652    1.0075   -9.8241,    0.7991  -11.5487   -0.0152
 %%  Show nonlinearity
 clear centers radii
 for p=1:(numel(positions))
+    p
 Ptrace=pupilshape_trace(1:2,p,:);
 Ptrace=Ptrace(1:2,:);
 
@@ -250,29 +254,41 @@ Pnan = Pnan(:,~ZeroCols);
 offaxis_distances=positions(p);
 ytop(p)=max(pupilshape_trace(2,p,:));
 
-offset=0.01;
+offset=0.1;
 stepsize_radius=0.1;
-%[radius0,~]=findCuttingCircleEdge(pupilshape_trace(1:2,p,:),offaxis_distances,"top",'offset',offset,'stepsizeradius',stepsize_radius)
+%[radius0,~]=findCuttingCircleEdge(pupilshape_trace(1:2,p,:),offaxis_distances,"left",'offset',offset,'stepsizeradius',stepsize_radius)
+radius0 = abs(min(pupilshape_trace(1,p,:)))
+i=find(pupilshape_trace(1,p,:)==(min(pupilshape_trace(1,p,:))))
+center0=[0 pupilshape_trace(2,p,i)]
 
 
+if(isempty(radius0) || isempty(center0))
+    p=p-1;
+    break;
+end
 radii(p)=radius0;
 centers(:,p)=center0;
 
 end
+maxindex= p;
+subsel=1:maxindex;
+
+%% Fit polynomials
+subsel=1:10;
 
 figure(2);clf
 subplot(211); hold on;
-plot(positions,radii)
-
-polyradius=polyfitn(positions,radii/radii(1)-1,'x^2,x^6')
+plot(positions(subsel),radii(subsel))
+normalized_radii=radii(subsel)/radii(1)-1;
+polyradius=polyfitn(positions(subsel),normalized_radii,'x^2')
 plot(positions,radii(1)*(1+polyvaln(polyradius,positions)),'r--')
 legend('Simulated','Polynomial fit','location','best')
 title('Radius')
 subplot(212); hold on;
-plot(positions,centers(2,:))
-plot(positions,sensitivity_entrance*positions,'k--')
+plot(positions(subsel),centers(2,subsel))
+plot(positions(subsel),sensitivity_entrance*positions(subsel),'k--')
 
-polycenterY=polyfitn(positions,centers(2,:),'x^2,x^3')
+polycenterY=polyfitn(positions(subsel),centers(2,subsel),'x,x^2')
 
 plot(positions,polyvaln(polycenterY,positions),'r--')
 legend('Center Y position','Linear approximation','Polynomial approx','location','best')
@@ -280,33 +296,8 @@ legend('Center Y position','Linear approximation','Polynomial approx','location'
 title('Center')
 
 
-
-%% Calculate corresponding pupil walking
-
-dp=1e-10;
-for p=1:numel(positions)
-    
-    local_sensitivity(p)=diff(polyvaln(polycenterY,positions(p)+[0 dp]))/dp; %% local derivative
-    
-    h(p)= exitpupil_distance_guess/(1-(local_sensitivity(p)));
-    R(p)= radii(p)/(1-local_sensitivity(p));
-end
-
-figure(3);clf
-subplot(211); hold on;
-plot(positions,R);
-ylim([0 inf])
-legend('Simulated','Polynomial fit','location','best')
-title('Radius')
-yyaxis right
-plot(positions,h)
-ylim([0 inf])
-legend('Center Y position','Linear approximation','Polynomial approx','location','best')
-
-title('Center')
-
 %% Verify automatic fits:
-colors={'k' 'r' 'g' 'b' 'm' [0.9 0.5 0.9] };
+colors={'k' 'r' 'g' 'b' 'm' [0.9 0.5 0.9] [1 0 1] };
 
 figure(1);clf; hold on;
 for p=1:numel(positions)
@@ -336,7 +327,7 @@ for p=1:numel(positions)
      scatter(0,positions(p))
      
     xlim(2*radius_entrance*[-1 1])
-    ylim(2*radius_entrance*[-1 1])
+    ylim(3*radius_entrance*[-1 1])
     title(positions(p))
     %axis equal
     %pause(0.5);
