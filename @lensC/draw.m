@@ -1,4 +1,4 @@
-function obj =  draw(obj, fHdl, thisAxis)
+function obj =  draw(obj, fHdl)
 % Draw the the multi-element lens surfaces and microlens in a graph window
 %
 % Syntax
