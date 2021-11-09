@@ -11,16 +11,22 @@ function h = draw(obj,varargin)
 p = inputParser;
 p.addRequired('obj',@(x)(isa(x,'surfaceC')));
 p.addParameter('fig',[],@(x)(isa(x,'matlab.ui.Figure')));
+p.addParameter('color',[0 0 0],@isvector);
+p.addParameter('width',2,@isscalar);
 
 p.parse(obj,varargin{:});
+
 h = p.Results.fig;
-if isempty(h), h = vcNewGraphWin; end
+if isempty(h), h = ieNewGraphWin; end
+
+lColor = p.Results.color;
+lWidth = p.Results.width;
 
 %% Initialize
 c = obj.sCenter(3);
 r = obj.sRadius;
 
-lWidth = 2; lColor = 'k';  % Drawing parameters
+% lWidth = 2; lColor = 'k';  % Drawing parameters
 
 %% Draw
 if (r ~= 0)
