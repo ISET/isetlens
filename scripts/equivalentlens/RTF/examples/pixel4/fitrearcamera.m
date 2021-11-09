@@ -44,7 +44,7 @@ polyDeg = 4
 
 diaphragmIndex= 0; % which of the circles belongs to the diaphragm; (for C++ starting at zero)
 circleRadii =[0.3802 0.3802 ]
-circleSensitivities =[0.0522 0.0522]
+circleSensitivities =[0.0522 0.0522] % Bug: Duplicate to keep it an array when generating json
 circlePlaneZ =   2.5893
 
 
@@ -71,7 +71,7 @@ polynomials{w}.diaphragmToCircleRadius=1
 
 
 polynomials{w}.circleNonlinearRadius = [1 0 0.0741 0.05 -0.0360 0 0.0012]  % newradius =radius*(1+a*x+b*x^2+....)
-polynomials{w}.circleNonlinearSensitivity= [0 0.0522 -0.0237 0.0456 ] % offset - position*(0+a*x+b*x^2+....) %%mm
+polynomials{w}.circleNonlinearSensitivity= [0.0522 -0.0237 0.0456 ] % offset - position*(0+a*x+b*x^2+....) %%mm
 
 
 

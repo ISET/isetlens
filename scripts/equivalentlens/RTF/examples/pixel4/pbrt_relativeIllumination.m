@@ -7,6 +7,7 @@ if ~piDockerExists, piDockerConfig; end
 %% The chess set with pieces
 
 thisR=piRecipeDefault('scenename','flatsurface')
+thisR=piRecipeDefault('scenename','chess set')
 
 
 %% Set camera position
@@ -36,7 +37,7 @@ load p4aRearLensVignet.mat
 %% Loop ver Different aperture sizes
 
 
-filmdistance_mm=0.464135918+1;
+filmdistance_mm=0.464135918+0.001;
 pixelpitch_mm=1.4e-3; 
 sensordiagonal_mm=2*3.5;
 lensThickness=4.827;
@@ -47,10 +48,10 @@ cameraRTF = piCameraCreate('raytransfer','lensfile','pixel4a-rearcamera-filmtosc
 cameraRTF.filmdistance.value=filmdistance_mm/1000;
     
 
-thisR.set('pixel samples',00);
+thisR.set('pixel samples',100);
 thisR.set('film diagonal',sensordiagonal_mm,'mm');
  aspectratio = size(pixel4aLensVignetSlope,2)/size(pixel4aLensVignetSlope,1);
- filmresolution_vertical=100;
+ filmresolution_vertical=400;
  filmresolution_horizontal=round(filmresolution_vertical*aspectratio);
 thisR.set('film resolution',[filmresolution_horizontal filmresolution_vertical]);
 
