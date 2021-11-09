@@ -67,7 +67,7 @@ else
 positions =[0    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000];
 
 
-positions =[0.1    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000 11 12 13 14 15 16];
+positions =[0.1:0.2:5  6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000  10.6 10.7 10.8];
 
  
  
@@ -159,7 +159,7 @@ positions =[0.1    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7
 % the pupil you see is the entrance pupil. The radius is estimated by
 % finding the minimally bounding circle (using the toolbox)
 
-p=5
+p=4
 Ptrace=pupilshape_trace(1:2,p,:);
 Ptrace=Ptrace(1:2,:);
 
@@ -184,7 +184,7 @@ scatter(Ptrace(1,:),Ptrace(2,:),'.')
 % surface to be cut off
 
 % Top
-position_selection=[3]; % Choose the positions for which the top circle is unaffected by vignetting.
+position_selection=[5]; % Choose the positions for which the top circle is unaffected by vignetting.
 offaxis_distances=positions(position_selection);
 
 
@@ -234,6 +234,8 @@ circlePlaneZ=exitpupil_distance_guess
 circleRadii =[5.2300/7*2    8.1000  107.3000  ,  7.2291  125.3000    9.5000  ]
 circleSensitivities =[ 0.0652    1.0075   -9.8241,    0.7991  -11.5487   -0.0152 ]
 
+circleSensitivities =[ 0.02    1.0075   -9.8241,    0.7991  -11.5487   -0.0152 ]
+
 
 
 
@@ -257,9 +259,9 @@ ytop(p)=max(pupilshape_trace(2,p,:));
 offset=0.1;
 stepsize_radius=0.1;
 %[radius0,~]=findCuttingCircleEdge(pupilshape_trace(1:2,p,:),offaxis_distances,"left",'offset',offset,'stepsizeradius',stepsize_radius)
-radius0 = abs(min(pupilshape_trace(1,p,:)))
-i=find(pupilshape_trace(1,p,:)==(min(pupilshape_trace(1,p,:))))
-center0=[0 pupilshape_trace(2,p,i)]
+radius0 = abs(max(pupilshape_trace(1,p,:)))
+i=find(pupilshape_trace(1,p,:)==(max(pupilshape_trace(1,p,:))))
+%center0=[0 pupilshape_trace(2,p,i)]
 
 
 if(isempty(radius0) || isempty(center0))
@@ -274,7 +276,7 @@ maxindex= p;
 subsel=1:maxindex;
 
 %% Fit polynomials
-subsel=1:10;
+%subsel = positions<10
 
 figure(2);clf
 subplot(211); hold on;
@@ -288,8 +290,8 @@ subplot(212); hold on;
 plot(positions(subsel),centers(2,subsel))
 plot(positions(subsel),sensitivity_entrance*positions(subsel),'k--')
 
-polycenterY=polyfitn(positions(subsel),centers(2,subsel),'x,x^2')
-
+polycenterY=polyfitn(positions(subsel),centers(2,subsel),'x,x^3')
+polycenterY.Coefficients=[0.04554 0.002456]
 plot(positions,polyvaln(polycenterY,positions),'r--')
 legend('Center Y position','Linear approximation','Polynomial approx','location','best')
 

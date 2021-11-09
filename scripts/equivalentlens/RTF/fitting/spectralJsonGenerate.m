@@ -70,12 +70,7 @@ end
 for p =1:numel(polynomials)
     % x, y, u, v, w
     outName = ['x', 'y','z', 'u', 'v','w'];
-    termName = ['r', 'u', 'v'];
-    
-    % Calculated and add pupil information
-    polynomials{p}.pupil_distances=polynomials{p}.circlePlaneZ./(1-polynomials{p}.circleSensitivities);
-    polynomials{p}.pupilpos = polynomials{p}.pupil_distances;
-    polynomials{p}.pupilradii = abs(polynomials{p}.pupil_distances./polynomials{p}.circlePlaneZ).*polynomials{p}.circleRadii;
+    termName = ['r', 'dx', 'dy'];
     
     
     for ii=1:numel(outName)
