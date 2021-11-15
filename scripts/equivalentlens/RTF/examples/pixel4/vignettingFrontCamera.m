@@ -361,36 +361,62 @@ end
 passratio=sum((comparison(:,1)==comparison(:,2)))/size(comparison,1)
 
 
-%% Convex hull for each position
 
-figure(1);clf;
+%% Plot evolution of convex hull points
+figure; hold on
+clear points
+    for a=1:numberPointsOnHull
+    for p=1:numel(positions)
+    temp=hull{p};
+        points(p,:,a)=temp(:,a);
+    end
+    plot(points(:,:,a))
+    end
 
+    
+    
+  %% Minbound ellipse
+figure(10);clf  
+numberPointsOnHull=100;
+% compare with hull for comparison
 for p=1:numel(positions)
-    subplot(2,numel(positions)/2,p); hold on;
-    points=squeeze(pupilshape_trace(1:2,p,:));
-    points(:,isnan(points(1,:)))=[];
-    [k,av]=convhull(points')
-    hull{p}=points(:,k);
-    
-    
-    plot(points(1,k),points(2,k))
+p
 
-    axis equal
+    subplot(5,ceil(numel(positions)/5),p); hold on;
+    points=squeeze(pupilshape_trace(1:2,p,:));
+    points(:,isnan(points(1,:)))=[]; % Remove nans
+    [k,av]=convhull(points');
+    
+     % Prune
+    k=k(round(linspace(1,numel(k),numberPointsOnHull)));
+    
+    hull{p}=points(1:2,k);
+   
+   axis equal
         
-    % random points check
-    X=randn(2,100); 
+    % random points check using convex heull
+    X=0.5*randn(2,1000); 
     h1=hull{p};
      in = inpolygon(X(1,:)',X(2,:)',h1(1,:)',h1(2,:)');
-    plot(X(1,in),X(2,in),'g+') % points inside
-    plot(X(1,~in),X(2,~in),'r+') % points outside
+    plot(X(1,in),X(2,in),'g.') % points inside
+    plot(X(1,~in),X(2,~in),'r.') % points outside
+     
     
-    ylim([-2 2])
-    xlim([-2 2])
+    % Plot fitted Ellipse
+    [A , c] =MinVolEllipse(hull{p}, 0.01);
+    Ellipse_plot(A,c);
     
+    [U D V] = svd(A);
+    radius_major(p) = 1/sqrt(D(1,1));
+    radius_minor(p) = 1/sqrt(D(2,2));
+    centers(:,p)=c;
+    ylim([-1 1.5])
 end
-%%
-h1=hull{1}
-x_test=0;
-y_test=0;
-tic; in = inpolygon(X(1,:)',X(2,:)',h1(1,:)',h1(2,:)');toc
-tic; IN = inhull(X',h1');toc
+
+    figure;
+    subplot(211)
+    plot(positions,radius_major,positions,radius_minor)
+    title('Ellipse Radii')
+    subplot(212)
+    plot(positions,centers)
+    title('Ellipse centers')
