@@ -1,7 +1,7 @@
 clear; close all;
 
 
-%% Lens name and properties
+%% Lens name and propertiesq
 lensName='pixel4a-rearcamera-ellipse'
 filmdistance_mm=0.464135918
 offset_sensorside=filmdistance_mm;
