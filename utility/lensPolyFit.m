@@ -17,7 +17,6 @@ p.addRequired('iRays', @isnumeric);
 p.addRequired('oRays', @isnumeric);
 p.addParameter('maxdegree', 4, @isnumeric);
 p.addParameter('visualize', false, @islogical);
-p.addParameter('fpath', '', @ischar);
 p.addParameter('sparsitytolerance', 0, @isnumeric);      
 p.parse(iRays,oRays,varargin{:});
 

@@ -105,7 +105,7 @@ for p=1:numel(positions)
     axis equal
         
     % random points check
-    X=0.2*randn(2,100); 
+    X=0.5*randn(2,1000); 
     h1=hull{p};
      in = inpolygon(X(1,:)',X(2,:)',h1(1,:)',h1(2,:)');
     plot(X(1,in),X(2,in),'g.') % points inside
@@ -116,18 +116,8 @@ for p=1:numel(positions)
     
 end
 
-%% Plot evolution of convex hull points
-figure; hold on
-clear points
-    for a=1:numberPointsOnHull
-    for p=1:numel(positions)
-    temp=hull{p};
-        points(p,:,a)=temp(:,a);
-    end
-    plot(points(:,:,a))
-end
 
-return
+
 %% Whcih method of evaluation of hull is faster?
 h1=hull{1}
 for t=1:1000
@@ -139,47 +129,59 @@ figure
 boxplot([time_inpolygon; time_inhull]')
 
 
+  %% Minbound ellipse
+  
+  % Prepare positions in struct to interface to vignettingFitEllipses
+  for p=1:numel(positions)
+      pointsPerPosition{p}=squeeze(pupilshape_trace(:,p,:));
+  end
+  
+  [radii,centers,rotations]=vignettingFitEllipses(pointsPerPosition);
+  
+  figure(11);clf
+  subplot(311)
+  plot(positions,radii(1,:),positions,radii(2,:))
+  title('Ellipse Radii')
+  subplot(312)
+  plot(positions,centers')
+  title('Ellipse centers')
+  
+  subplot(313)
+  plot(positions,rotations')
+  title('Rotations')
+
+
 
   %% Minbound ellipse
 figure;  
-
+numberPointsOnHull=100
 % compare with hull for comparison
 for p=1:numel(positions)
-p
-
-    subplot(5,ceil(numel(positions)/5),p); hold on;
-
-   
-   axis equal
-        
+     subplot(5,ceil(numel(positions)/5),p); hold on;
+     points=squeeze(pupilshape_trace(1:2,p,:));
+     points(:,isnan(points(1,:)))=[];
+     [k,av]=convhull(points')
+     
+     % Prune
+     k=k(round(linspace(1,numel(k),numberPointsOnHull)));
+     
+     hull{p}=points(1:2,k);
+  
     % random points check using convex heull
-    X=1.2*randn(2,1000); 
-    h1=hull{p};
-     in = inpolygon(X(1,:)',X(2,:)',h1(1,:)',h1(2,:)');
+    X=randn(2,1000); 
+
+    % Check if points are within ellipse
+    in = ((X(1,:)-centers(1,p))./radii(1,p)).^2  + ((X(2,:)-centers(2,p))./radii(2,p)).^2 <= 1;
+     
+     
     plot(X(1,in),X(2,in),'g.') % points inside
     plot(X(1,~in),X(2,~in),'r.') % points outside
      
-    
-    % Plot fitted Ellipse
-    [A , c] =MinVolEllipse(hull{p}, 0.01);
-    Ellipse_plot(A,c)
-    
-    [U D V] = svd(A);
-    radius_major(p) = 1/sqrt(D(1,1));
-    radius_minor(p) = 1/sqrt(D(2,2));
-    centers(:,p)=c;
-    
+    points=hull{p};
+    plot(points(1,:),points(2,:),'k-')
         
     ylim([-2 2.5])
     xlim([-2 2])
     
 end
 
-%%
-    figure;
-    subplot(211)
-    plot(positions,radius_major,positions,radius_minor)
-    title('Ellipse Radii')
-    subplot(212)
-    plot(positions,centers)
-    title('Ellipse centers')

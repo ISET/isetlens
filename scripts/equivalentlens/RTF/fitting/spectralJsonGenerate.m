@@ -28,7 +28,7 @@ p.addParameter('planeoffsetinput', [], @isnumeric);
 p.addParameter('planeoffsetoutput', [], @isnumeric);       
 p.addParameter('lensthickness',[], @isnumeric);
 
-p.addParameter('description', 'equivalent lens poly', @ischar);
+p.addParameter('description', 'Ray Transfer Function', @ischar);
 p.addParameter('name', 'polynomial', @ischar);
 p.addParameter('outpath', fullfile(ilensRootPath, 'local', 'polyjson.json'), ...
                             @ischar);
@@ -57,7 +57,7 @@ end
 js.description = description;
 js.name = name;
 if ~isempty(planes)
-    js.thickness = lensThickness
+    js.thickness = lensThickness;
     js.planeoffsetoutput= planeOffsetOut;
     js.planeoffsetinput= planeOffsetIn;
 else
@@ -69,18 +69,14 @@ end
 %%
 for p =1:numel(polynomials)
     % x, y, u, v, w
-    outName = ['x', 'y','z', 'u', 'v','w'];
-    termName = ['r', 'dx', 'dy'];
+    outName = {'x', 'y','z', 'dx', 'dy','dz'};
+    termName = {'r', 'dx', 'dy'};
     
     
     for ii=1:numel(outName)
         
         
-        thisOut.outputname = strcat('out', outName(ii));
-        
-        
-        
-
+        thisOut.outputname = strcat('out', outName{ii});
         
         % coefficients
         thisOut.coeff = polynomials{p}.polyModel{ii}.Coefficients;
@@ -88,7 +84,7 @@ for p =1:numel(polynomials)
   
         % Loop over input variables
         for jj=1:3
-            thisTermName = strcat('term', termName(jj));
+            thisTermName = strcat('term', termName{jj});
             thisOut.(thisTermName) = polynomials{p}.polyModel{ii}.ModelTerms(:, jj)';
         end
    

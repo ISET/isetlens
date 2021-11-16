@@ -56,6 +56,21 @@ fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
     'visualize', true, 'fpath', fpath,...
     'maxdegree', polyDeg,...
     'sparsitytolerance',sparsitytolerance);
+
+
+%% Fit Pass/NoPass function
+
+%% Generate vignetting functions
+% Prepare positions in struct to interface to vignettingFitEllipses
+
+for p=1:numel(positions)
+     pointsPerPosition{p}=squeeze(pupilshape_trace([1 2],p,:));
+end
+  
+[radii,centers,rotations]=vignettingFitEllipses(pointsPerPosition);
+  
+
+
 %% Add meta data to polymodel sepearte struct
 w=1 % only one wavelength
 

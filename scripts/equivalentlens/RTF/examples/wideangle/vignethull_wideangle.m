@@ -12,7 +12,7 @@
 %% Load lens file
 clear;close all;
 
-lensFileName = fullfile('dgauss.22deg.50.0mm_aperture6.0.json');
+lensFileName = fullfile('wide.56deg.3.0mm.json');
 
 exist(lensFileName,'file');
 
@@ -28,9 +28,9 @@ lens.draw
     
 %Set diaphraghm diameter. Should be smaller than 9  to find the exit pupil
 %in this case
-diaphragm_diameter= 20;
-lens.surfaceArray(6).apertureD=diaphragm_diameter;
-lens.apertureMiddleD=diaphragm_diameter;
+% diaphragm_diameter= 20;
+% lens.surfaceArray(6).apertureD=diaphragm_diameter;
+% lens.apertureMiddleD=diaphragm_diameter;
 
 %% INput plane
 
@@ -47,12 +47,12 @@ inputplane_z= firstsurface_z-offset_inputplane
 % entrancepupil distance
 
 
-exitpupil_distance_guess =  17;
+exitpupil_distance_guess =  2;
 
 %% Run ray trace, and log which rays can pass
 clear p;
 
-flag_runraytrace=false;
+flag_runraytrace=true;
 
 if(not(flag_runraytrace))
     % IF we don't want to redo all the ray trace, load a cached ray trace
@@ -63,12 +63,12 @@ if(not(flag_runraytrace))
 else
      
  
- % Lens reverse
-positions =[0    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000];
+    % Lens reverse
+    positions =[0    1.0000    2.0000    3.0000    4.0000    5.0000    6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000];
 
 
-positions =[0.1:0.2:5  6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000  10.6 10.7 10.8];
-
+    %positions =[0.1:0.2:5  6.0000    7.0000    8.0000    9.0000   10.0000   10.1000   10.2000 10.3000   10.4000   10.5000  10.6 10.7 10.8];
+    positions=linspace(0,1.5,50);
  
  
 
@@ -220,7 +220,7 @@ for p=1:numel(positions)
 
   
     % random points check using convex heull
-    X=2*3*randn(2,4000); 
+    X=randn(2,4000); 
 
 
     % Determine whether points are inside our outside ellipse
@@ -244,9 +244,10 @@ for p=1:numel(positions)
     hull{p}=points(1:2,k);
     points=hull{p};
     plot(points(1,:),points(2,:),'k-')
-    ylim([-10 10])
-    xlim([-10 10])
+    ylim(0.5*[-1 1])
+    xlim(0.5*[-1 1])
     axis equal
+    title(positions(p))
     
 end
 

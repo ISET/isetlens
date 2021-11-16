@@ -125,19 +125,23 @@ figure(2);clf
 subplot(211); hold on;
 plot(positions,radii)
 
-polyradius=polyfitn(positions,radii/radii(1)-1,'x^2,x^3,x^4,x^6')
-plot(positions,radii(1)*(1+polyvaln(polyradius,positions)),'r--')
+[radiusPolynomial,varNames] =fitRadiusPolynomial(positions,radii,'a*x^6+b*x^4+c*x^3+d*x^2+1');
+radiusPolynomial = [radiusPolynomial 1]
+%plot(positions,radii(1)*(1+polyvaln(polyradius,positions)),'r--')
+plot(positions,radii(1)*polyval(radiusPolynomial,positions),'r--')
 legend('Simulated','Polynomial fit','location','best')
 title('Radius')
 subplot(212); hold on;
 plot(positions,centers(2,:))
 plot(positions,sensitivity_entrance*positions,'k--')
 
-polycenterY=polyfitn(positions,centers(2,:),'x,x^2,x^3')
-polycenterY.Coefficients(1)=0.0522
-polycenterY.Coefficients(2)=-0.02368
-polycenterY.Coefficients(3)=0.04563
-plot(positions,polyvaln(polycenterY,positions),'r--')
+% Force this linear coefficient, this seens to be crucial to be
+% investigated
+[coefficientValues] = fitSensitivityPolynomial(positions,centers(2,:),'a*x^3+b*x^2+0.0522*x')
+sensitivityPolynomial= [coefficientValues 0.0522 ];
+
+
+plot(positions,positions.*polyval(sensitivityPolynomial,positions),'r--')
 legend('Center Y position','Linear approximation','Polynomial approx','location','best')
 
 title('Center')
