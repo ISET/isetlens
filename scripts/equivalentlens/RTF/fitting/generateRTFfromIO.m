@@ -44,7 +44,7 @@ outputrays=outputrays(passedRays,:);
 
 %% Estimate Pass No Pass Function using the ellipse method
 % Collect all rays per off-axis position
-[pupilShapes,positions] = vignettingIntersectionsWithPlanePerPosition(inputrays,planes.input);
+[pupilShapes,positions,intersectionplane] = vignettingIntersectionsWithPlanePerPosition(inputrays,planes.input);
 [radii,centers] = vignettingFitEllipses(pupilShapes);
   
 if(visualize)
@@ -77,6 +77,7 @@ rtf{w}.passnopass.radiiX=radii(1,:);
 rtf{w}.passnopass.radiiY=radii(2,:);
 rtf{w}.passnopass.centersX=centers(1,:);
 rtf{w}.passnopass.centersY=centers(2,:);
+rtf{w}.passnopass.intersectPlaneDistance=intersectionplane;
 
 %% Generate Spectral JSON file
 

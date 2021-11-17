@@ -1,4 +1,4 @@
-function [pupilPointClouds,positions] = vignettingIntersectionsWithPlanePerPosition(iRays,inputplaneZ,varargin)
+function [pupilPointClouds,positions,circleplanedistance] = vignettingIntersectionsWithPlanePerPosition(iRays,inputplaneZ,varargin)
 %vignettingIntersectionsWithPlanePerPosition Determine for each off-axis
 %position the intersections of the rays at with a specific circle plane
 %(optional argument)
