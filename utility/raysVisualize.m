@@ -35,7 +35,7 @@ p = inputParser;
 p.addRequired('origin',@ismatrix);
 p.addRequired('endPoint',@ismatrix);
 p.addParameter('nLines','random');
-p.addParameter('samps',[],@isvector);
+p.addParameter('samps',[],@(x)(isvector(x) || isempty(x)));
 p.addParameter('surface',[],@(x)(isa(x,'surfaceC')));
 p.addParameter('fig',[],@(x)(isa(x,'matlab.ui.Figure')));
 p.addParameter('threeD',true,@islogical);
