@@ -1,7 +1,5 @@
 %% Optics diffraction tutorial
 %
-% *** This script requires isetlens on the path ****
-%
 % This script uses the point test file, blurs it in 3 different ways.  
 %
 % The first way is to use the new ray tracing method which uses Heisenburg
@@ -16,6 +14,8 @@
 % context.  Note that this context does not use PBRT HURB.  It's been a
 % long time since we checked this code, and we should do it soon.
 % (BW, 2021).
+%
+%  Compare this with s_psfDiffractionHURB in ISET3d
 %
 % AL, Vistasoft Team, Copyright 2014
 
