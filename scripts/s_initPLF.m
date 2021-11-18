@@ -14,6 +14,8 @@
 % BW SCIEN STANFORD, 2018
 %
 % See also
+%   ilInitPLF (a function that does the same thing as this).
+%
 
 %% pts
 

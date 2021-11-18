@@ -62,7 +62,7 @@ if strcmp(e,'.json'), fileFormat = 'json';
 elseif strcmp(e,'.txt'), fileFormat = 'txt';
 elseif strcmp(e,'.dat')
     fileFormat = 'txt';   % This will be changed after more debugging
-    warning(' .dat files may not be read correctly.');
+    warning('lensC.fileread: .dat files may not be read correctly.');
 end
 
 switch fileFormat

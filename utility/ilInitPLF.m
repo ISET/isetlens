@@ -1,9 +1,13 @@
 function [pts, lens, film] = ilInitPLF
 % Create a default point, lens and film
 %
+% Synopsis
+%
+%   [pts, lens, film] = ilInitPLF
+%
 % Description:
 %   While developing, we often need a default point, lens, and film. This
-%   script creates three simple variables.
+%   function creates three simple examples.
 %
 % Inputs:
 %  N/A
@@ -12,13 +16,14 @@ function [pts, lens, film] = ilInitPLF
 %  N/A
 %
 % Outputs:
-%   pts    a point 
-%   lens   a lens object
-%   film   a film object
+%   pts    - a point 
+%   lens   - a lens object
+%   film   - a film object
 %
 % BW SCIEN STANFORD, 2018
 %
 % See also
+%   s_initPLF
 
 %% pts
 
