@@ -144,7 +144,7 @@ classdef lensC <  handle
             %   'surface array'
             %   'aperture sample'
             %   'figure handle'
-            %   'diffraction enabled'  (Run HURB)
+            %   'diffraction enabled'  (Run HURB or huygens)
             %   'blackbox model'
             %
             
@@ -161,7 +161,7 @@ classdef lensC <  handle
             p.addParameter('aperturesample',[],@isvector);
             p.addParameter('aperturemiddled',[],@isscalar);
             p.addParameter('focallength',[],@isnumeric);
-            p.addParameter('diffractionenabled',[],@islogical);
+            p.addParameter('diffractionenabled',false,@islogical);
             p.addParameter('wave',[],@isvector)
             p.addParameter('figurehandle',[],@isgraphics);
             p.addParameter('blackboxmodel',[])
@@ -177,9 +177,10 @@ classdef lensC <  handle
             obj.fullFileName = which(p.Results.filename);
             
             % Basics
-            if ~isempty(p.Results.name), obj.name = p.Results.name; end
-            if ~isempty(p.Results.type), obj.name = p.Results.type; end
+            if ~isempty(p.Results.name), obj.name  = p.Results.name; end
+            if ~isempty(p.Results.type), obj.name  = p.Results.type; end
             if ~isempty(p.Results.units),obj.units = p.Results.units; end
+            obj.diffractionEnabled = p.Results.diffractionenabled;
 
             % Parameters
             if ~isempty(p.Results.aperturesample)

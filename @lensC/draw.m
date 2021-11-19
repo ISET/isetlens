@@ -39,12 +39,17 @@ if ~exist('lColor','var'), lColor = [0 0 0]; end
 if ~isempty(obj.microlens)
     subplot(1,2,1);
 end
+idx = obj.get('aperture index');
 
 nSurfaces = obj.get('n surfaces');
 for lensEl = 1:nSurfaces
     % Get each surface element and draw it
     curEl = obj.surfaceArray(lensEl);
-    curEl.draw('fig',gcf,'color',lColor);    
+    if lensEl == idx
+        curEl.draw('fig',gcf,'color',[1 0.2 0]);
+    else
+        curEl.draw('fig',gcf,'color',lColor);
+    end
 end
 
 % Make sure the surfaces are all shown within the range
@@ -69,6 +74,7 @@ end
 
 axis image
 xlabel('mm'); ylabel('mm');
+title(sprintf('Lens:  %s\n',obj.get('name')));
 
 %% Set Focal point, principle point and nodal point
 hold all

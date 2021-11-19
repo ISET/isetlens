@@ -13,6 +13,7 @@ p.addRequired('obj',@(x)(isa(x,'surfaceC')));
 p.addParameter('fig',[],@(x)(isa(x,'matlab.ui.Figure')));
 p.addParameter('color',[0 0 0],@isvector);
 p.addParameter('width',2,@isscalar);
+p.addParameter('linestyle','-',@isscalar);
 
 p.parse(obj,varargin{:});
 
@@ -21,6 +22,7 @@ if isempty(h), h = ieNewGraphWin; end
 
 lColor = p.Results.color;
 lWidth = p.Results.width;
+lStyle = p.Results.linestyle;
 
 %% Initialize
 c = obj.sCenter(3);
@@ -105,7 +107,7 @@ if (r ~= 0)
     
     % The negative solutions
     line('xData',zPlotShift, 'yData',yPlotN,...
-        'color',lColor,'linewidth',lWidth);
+        'color',lColor,'linewidth',lWidth,'linestyle',lStyle);
     
 else
     %Draw the aperture
@@ -113,11 +115,11 @@ else
     
     line(zIntercept * ones(2,1), ...
         -1*[obj.apertureD/2 obj.apertureD], ...
-        'linewidth',lWidth,'color',lColor);
+        'linewidth',lWidth,'color',[1 0.2 0]);
     
     line(zIntercept * ones(2,1), ...
         [obj.apertureD obj.apertureD/2], ...
-        'linewidth',lWidth,'color',lColor);
+        'linewidth',lWidth,'color',[1 0.2 0]);
     
 end
 

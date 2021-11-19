@@ -37,10 +37,10 @@ varargin = ieParamFormat(varargin);
 p.addRequired('camera');
 p.addParameter('jitterflag', false, @islogical);
 p.addParameter('subsection', []);
-% Options are HURB or huygens
-p.addParameter('diffractionmethod', 'HURB', @ischar);
 p.addParameter('rttype', 'realistic', @ischar);
 p.addParameter('nlines', 0);
+validOpt = {'HURB','huygens'};
+p.addParameter('diffractionmethod', 'HURB', @(x)(ismember(x,validOpt)));
 
 p.parse(camera, varargin{:});
 
@@ -201,15 +201,22 @@ elseif isequal(diffractionMethod, 'huygens') && camera.lens.diffractionEnabled
 end
 
 if isnumeric(nLines) && nLines || isstruct(nLines) && nLines.numLines
-%% Set Focal point, principle point and nodal point
-hold all
-% Image focal point
-p1 = pointVisualize(camera.lens, 'image focal point', 'p size', 10, 'color', 'b');
-% Image principle point
-p2 = pointVisualize(camera.lens, 'image principal point', 'p size', 10, 'color', 'g');
-% Image nodal point
-p3 = pointVisualize(camera.lens, 'image nodal point', 'p size', 5, 'color', 'r');
-legend([p1 p2 p3],...
-    {'Image focal point', 'Image principal point', 'Image nodal point'});
+    
+    %% Set Focal point, principle point and nodal point
+    hold all
+    
+    % Image focal point
+    p1 = pointVisualize(camera.lens, 'image focal point', 'p size', 10, 'color', 'b');
+    % Image principle point
+    p2 = pointVisualize(camera.lens, 'image principal point', 'p size', 10, 'color', 'g');
+    % Image nodal point
+    p3 = pointVisualize(camera.lens, 'image nodal point', 'p size', 5, 'color', 'r');
+    legend([p1 p2 p3],...
+        {'Image focal point', 'Image principal point', 'Image nodal point'});
+    
+    title(sprintf('Lens: %s %.1f',camera.lens.get('name')));
 end
+
+
+
 end

@@ -1,6 +1,6 @@
 %% Optics diffraction tutorial
 %
-% This script uses the point test file, blurs it in 3 different ways.  
+% This script uses the point test file, blurs it in 3 different ways.
 %
 % The first way is to use the new ray tracing method which uses Heisenburg
 % Uncertainty Ray Bending (HURB).
@@ -29,79 +29,103 @@ end
 
 %% Set up a point and a lens file
 
-% Make a point source (approximately infinity)
-% Negative numbers are in front of the lens.
+% Make a point source (approximately infinity).
+%
+% Negative numbers are on the object side, and positive numbers on the
+% image side.
 point = psCreate(0,0,-1e+15);
 
+%% Change the aperture to see when diffraction becomes significant
+
 % Read a lens file and create a lens. The "diffraction" lens consists of a
-% spehrical plane, an aperture, and a flat plane behind it. 
+% spehrical plane, an aperture, and a flat plane behind it.
 lensFileName = fullfile(ilensRootPath,'data', 'lens', 'diffraction.dat');
 
-nSamples = 401; 
-
-% Set the aperture size (this lens seems to be diffraction-limited for
-% aperture sizes of less than 2 mm)
-apertureMiddleD = 0.5;   % mm   
+% How many ray samples
+nSamples = [401, 401, 601, 801]*2;
 
 % Lens comes back with 400:50:700
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
-    'apertureMiddleD', apertureMiddleD, ...
+    'apertureMiddleD', 2, ...
     'diffractionEnabled', true);
-% lens.set('wave', (400:10:700));
+wave = lens.get('wave');
 lens.draw;
-
-%% Create the film
+% lens.set('wave', (400:10:700));
 
 % The film position will later be overwritten by the autofocus calculation.
 % However, the other values will remain the same for the rest of this
 % script. We set the size of the sensor to be 100 um x 100 um.
-wave = lens.get('wave');
 film = filmC('position', [0 0 5], ...
     'resolution', [400 400], ...
     'size', [0.1 0.1], ...
     'wave', wave);
-
-%% Create a camera out of lens, film ,and point source
-
-camera = psfCameraC('lens',lens,'film',film,'point source',point);
-
-% Automatically place the film at a distance where 550 nm will be in focus. 
-camera.autofocus(550,'nm'); 
-
-% Estimate the PSF
-nLines = 50;     % Show lines
-jitter = true;  % Randomize position of lines
-
-% Limits the entrance aperture so this can run faster
-% But this is not reasonable for the diffraction calculation
-subsection = [];
-
-% Choose among the diffraction producing methods
-% This code in ISETLENS does not seem to be numerically accurate.  The PBRT
-% code should be, however.  Let's see what is going on here (BW, 2021).
-method = 'HURB';   % Randomized the direction of rays near the edges
-
-% TL: I believe an "ideal" rtType aims rays toward the aperture instead of
-% shooting them randomly over the lens. I'm not 100% positive though.
-rtType = 'ideal';
-
-% Produced the data for the PSF.
-camera.estimatePSF('n lines', nLines, 'jitter flag', jitter,...
-                   'subsection', subsection,...
-                   'diffraction method', method,...
-                   'rt type', rtType);
-
-% Scale the axes so we can see the film plane. 
-set(gca,'xlim',[-5 20]); grid on
-
-oiHURB = camera.oiCreate();
-oiHURB = oiAdjustIlluminance(oiHURB,0.1);  %Makes the middle bright
-oiWindow(oiHURB);
     
+%% Loop over the apertures
+apertures = [2, 1, 0.5, 0.25];
 
-%% Produce Huygens-Fresnel results 
-% This does not work at the moment. 
+for ii=1:numel(apertures)
+    
+    % Adjust the lens aperture and name
+    lens.set('middle aperture diameter',apertures(ii));
+    lens.set('name',sprintf('Diffraction %.1f',apertures(ii)));
+    lens.set('aperture sample',[nSamples(ii), nSamples(ii)]);
+    lens.get('aperture diameter')
+
+    %% Create a camera out of lens, film ,and point source    
+    camera = psfCameraC('lens',lens,'film',film,'point source',point);
+    
+    % Automatically place the film at a distance where 550 nm will be in focus.
+    camera.autofocus(550,'nm');
+    
+    % Estimate the PSF
+    nLines = 0;      % Show lines
+    jitter = true;   % Randomize position of lines
+    
+    % Limits the entrance aperture so this can run faster
+    % But this is not reasonable for the diffraction calculation
+    subsection = [];
+    
+    % Choose among the diffraction producing methods
+    % This code in ISETLENS does not seem to be numerically accurate.  The PBRT
+    % code should be, however.  Let's see what is going on here (BW, 2021).
+    method = 'HURB';   % Randomized the direction of rays near the edges
+    
+    % TL: I believe an "ideal" rtType aims rays toward the aperture instead of
+    % shooting them randomly over the lens. I'm not 100% positive though.
+    rtType = 'ideal';
+    
+    % Produced the data for the PSF.
+    camera.estimatePSF('n lines', nLines, 'jitter flag', jitter,...
+        'subsection', subsection,...
+        'diffraction method', method,...
+        'rt type', rtType);
+    
+    % Scale the axes so we can see the film plane.
+    set(gca,'xlim',[-5 20]); grid on
+    
+    oiHURB = camera.oiCreate();
+    oiHURB = oiAdjustIlluminance(oiHURB,0.1);  % Makes the middle bright
+    % oiWindow(oiHURB);
+    
+    sz = oiGet(oiHURB,'size');
+    udata(ii) = oiPlot(oiHURB,'illuminance hline',round([1, sz(2)/2]),'no figure');
+end
+
+%% Plot the overlaid curves.
+
+ieNewGraphWin;
+for ii=1:numel(apertures)
+    y = udata(ii).data/max(udata(ii).data);
+    plot(udata(ii).pos,y);
+    hold on; grid on;
+    xlabel('Position (um)'); ylabel('Relative intensity');
+end
+
+return;
+
+%% Produce Huygens-Fresnel results
+% This does not work at the moment.
 %{
 % This section takes a long time to run - and you should only do it on
 % after parallelization!
@@ -123,7 +147,7 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'apertureMiddleD', apertureMiddleD, ...
     'diffractionEnabled', true);
 
-% Create a film (sensor) 
+% Create a film (sensor)
 % position - relative to center of final lens surface
 % size - 'mm'
 % wavelength samples
@@ -142,7 +166,7 @@ camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
 camera.autofocus(550,'nm');
 %}
 
-% Sequence of events for estimating the PSF, 
+% Sequence of events for estimating the PSF,
 nLines = 100;
 jitter = false;
 %camera.estimatePSF(nLines,jitter);
@@ -158,15 +182,16 @@ camera.estimatePSF('n lines', nLines, 'jitter flag', jitter,...
                    'diffraction method', method,...
                    'rt type',rtType);
 
-oiHuygens = camera.oiCreate(); 
+oiHuygens = camera.oiCreate();
 oiHuygens = oiSet(oiHuygens,'name','Huygens');
 ieAddObject(oiHuygens); oiWindow;
- %} 
+%}
 
 %% Theoretical results based on ISET formula
+
 % Compare the PSF from HURB with ISET implementation
 
-% Match the camera parameters with the ones we used above. 
+% Match the camera parameters with the ones we used above.
 sensorWidth = camera.film.size(1)*1e-3;
 focalLength = camera.film.position(3)*1e-3;
 filmDistance = camera.film.position(3)*1e-3;
@@ -186,21 +211,21 @@ onesPhotons = ones(size(wave)) * 1e+15;
 equalPhotonsEnergy = Quanta2Energy(wave, onesPhotons);
 scene = sceneAdjustIlluminant(scene, equalPhotonsEnergy);
 
-horFieldofView = 2 * atand(sensorWidth/(2 * filmDistance))*0.8; 
+horFieldofView = 2 * atand(sensorWidth/(2 * filmDistance))*0.8;
 scene = sceneSet(scene,'fov',horFieldofView);
-scene = sceneSet(scene, 'distance', 100000001);   
+scene = sceneSet(scene, 'distance', 100000001);
 ieAddObject(scene); sceneWindow;
 
 %create optical image
 oiT = oiCreate;
-optics = oiGet(oiT,'optics'); 
+optics = oiGet(oiT,'optics');
 fNumber = focalLength/apertureDiameter;
 optics = opticsSet(optics,'fnumber',fNumber);
 
 % In this example we set the properties of the optics to include cos4th
 % falloff for the off axis vignetting of the imaging lens
 optics = opticsSet(optics,'offaxis method','cos4th');
-optics = opticsSet(optics,'focallength',focalLength);   % Meters 
+optics = opticsSet(optics,'focallength',focalLength);   % Meters
 oiT = oiSet(oiT,'optics',optics);
 oiT = oiCompute(scene,oiT);
 oiWindow(oiT);
@@ -235,7 +260,7 @@ zlabel('Intensity (rel.)');
 title('HURB Linespread');
 
 %% Huygens
-% Not working at the moment. 
+% Not working at the moment.
 %{
 oiPhotons = oiGet(oiHuygens, 'photons');
 PSFLineSpectral = sum(oiPhotons, 1);
@@ -246,7 +271,7 @@ plotBound = sensorWidth/2 * 10^3;
 ieNewGraphWin; mesh(X, Y, PSFLineSpectral./max(PSFLineSpectral(:)));
 xlabel('Wavelength (nm)')
 ylabel('Position (um)')
-zlabel('Intensity (rel.)');  
+zlabel('Intensity (rel.)');
 title('Huygens-Fresnel Linespread');
 %}
 

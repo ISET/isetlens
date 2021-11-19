@@ -120,8 +120,8 @@ switch pName
         else, this = varargin{1};
         end
         res = obj.surfaceArray(this).apertureD;
-    case {'diaphragm','aperture'}
-        % lens.get('aperture')  mm, I think
+    case {'diaphragm','diaphragmindex','apertureindex'}
+        % lens.get('aperture index')  mm, I think
         % Returns the surface number corresponding to the limiting aperture
         % (diaphragm)
         s = obj.surfaceArray;
@@ -134,12 +134,12 @@ switch pName
     case 'aperturesample'
         % Number of samples of the aperture?   Not sure.
         res =  obj.apertureSample ;
-    case {'middleapertured','aperturemiddled','diaphragmdiameter'}
+    case {'middleaperturediameter','aperturediameter','middleapertured','aperturemiddled','diaphragmdiameter'}
         % There is normally a middle aperture, called a diaphragm. This is
         % the diameter of the diaphragm.
         %
         % units are mm
-        idx = obj.get('aperture');
+        idx = obj.get('aperture index');
         res = obj.surfaceArray(idx).apertureD;
         
         % System properties
