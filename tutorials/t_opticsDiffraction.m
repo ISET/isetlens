@@ -42,7 +42,7 @@ point = psCreate(0,0,-1e+15);
 lensFileName = fullfile(ilensRootPath,'data', 'lens', 'diffraction.dat');
 
 % How many ray samples
-nSamples = [401, 401, 601, 801]*2;
+nSamples = [401, 401, 601, 801, 3*801]*15;
 
 % Lens comes back with 400:50:700
 lens = lensC('apertureSample', [nSamples nSamples], ...
@@ -62,7 +62,7 @@ film = filmC('position', [0 0 5], ...
     'wave', wave);
     
 %% Loop over the apertures
-apertures = [2, 1, 0.5, 0.25];
+apertures = [2, 1, 0.5, 0.25 0.1];
 
 for ii=1:numel(apertures)
     
@@ -113,13 +113,19 @@ for ii=1:numel(apertures)
 end
 
 %% Plot the overlaid curves.
-
+maxnorm= @(x)x/max(x);
 ieNewGraphWin;
 for ii=1:numel(apertures)
-    y = udata(ii).data/max(udata(ii).data);
+    y = maxnorm(udata(ii).data);
     plot(udata(ii).pos,y);
     hold on; grid on;
     xlabel('Position (um)'); ylabel('Relative intensity');
+    
+    lambda_micron=0.55; 
+    radius_micron = 0.5*apertures(ii)*1e3;
+    distancetoaperture_micron=camera.film.position(3)*1e3;
+    x= 2*pi/lambda_micron *(radius_micron) * udata(ii).pos/distancetoaperture_micron;
+    plot(udata(ii).pos,maxnorm((2*besselj(1,x)./(x+eps)).^2),'k-')
 end
 
 return;
