@@ -33,6 +33,18 @@ for p=1:nbPositions
     points=points(1:2,:); % Only use XY
     points(:,isnan(points(1,:)))=[]; % Remove nans
     
+
+%         figure;
+%     
+%     for p=1:nbPositions
+%         subplot(ceil(sqrt(nbPositions)),ceil(sqrt(nbPositions)),p)
+%         hold on
+%         
+%         scatter(points(1,:),points(2,:))
+%         
+%         axis equal
+%     end
+    
     % Estimate convex hull, this makes ellipse fitting much faster
     [k,av]=convhull(points');
     

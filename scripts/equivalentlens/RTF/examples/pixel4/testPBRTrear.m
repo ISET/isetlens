@@ -129,11 +129,11 @@ return
 
 label={};path={};
 
-label{end+1}='linear';path{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/pixelfront_linear.dat';
-label{end+1}='nonlinear';path{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/pixelfront_nonlinear.dat';
+%label{end+1}='linear';path{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/pixelfront_linear.dat';
+%label{end+1}='nonlinear';path{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/simpleScene/pixelfront_nonlinear.dat';
+label{end+1}='ellipse'; path{end+1}='/home/thomas/Documents/stanford/libraries/pbrt-v3-spectral/scenes/cornellbox/rtf.dat'
 
-
-for p=1:numel(oi)
+for p=1:numel(path)
     oi{p} = piDat2ISET(path{p}, 'wave', 400:10:700, 'recipe', thisR);
     oi{p}.name =label{p}
     

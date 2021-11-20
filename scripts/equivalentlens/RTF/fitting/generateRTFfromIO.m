@@ -44,7 +44,7 @@ outputrays=outputrays(passedRays,:);
 
 %% Estimate Pass No Pass Function using the ellipse method
 % Collect all rays per off-axis position
-[pupilShapes,positions,intersectionplane] = vignettingIntersectionsWithPlanePerPosition(inputrays,planes.input);
+[pupilShapes,positions,intersectionplane] = vignettingIntersectionsWithPlanePerPosition(inputrays,planes.input,'circleplanedistance',2.5893);
 [radii,centers] = vignettingFitEllipses(pupilShapes);
   
 if(visualize)
@@ -57,6 +57,29 @@ if(visualize)
     plot(positions,centers','.-','markersize',10,'linewidth',2)
     title('Ellipse Centers')
     legend('X','Y')
+
+
+
+% Show pupil sampling    
+figure;
+nbPos = numel(positions)
+for p=1:numel(positions)
+    subplot(ceil(sqrt(nbPos)),ceil(sqrt(nbPos)),p)
+    hold on
+    pupil=pupilShapes{p};
+    scatter(pupil(1,:),pupil(2,:),'.')
+    
+    drawellipse('center',[centers(1,p) centers(2,p)],'semiaxes',[radii(1,p) radii(2,p)],'color','r');
+%   pupil=pupilShapes{1};
+%      pupil(isnan(pupil(1,:)))=[]; % Remove nans
+    %scatter(pupil(1,:),pupil(2,:),'r+')
+    title(positions(p))
+    
+    axis equal
+    
+end
+
+
 end
 
 

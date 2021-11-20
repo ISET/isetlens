@@ -41,7 +41,7 @@ for p=1:numel(positions)
         iRaysAtPos=iRays((iRays(:,1)==positions(p)),:);
         % By constructin all rays originate at
         origin=[0 iRaysAtPos(1,1) inputplaneZ];
-
+        clear temp;
         for i=1:size(iRaysAtPos,1)
             directions=iRaysAtPos(i,2:3);
             directions(3)=sqrt(1-sum(directions(1:2).^2));
@@ -51,6 +51,7 @@ for p=1:numel(positions)
             temp(:,i)=  pointOnPupil;
         end
         pupilPointClouds{p}=temp;
+
 end
 
 end
