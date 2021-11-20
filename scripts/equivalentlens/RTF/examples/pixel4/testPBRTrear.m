@@ -9,6 +9,7 @@ if ~piDockerExists, piDockerConfig; end
 thisR=piRecipeDefault('scene','ChessSet')
 %thisR=piRecipeDefault('scene','flatSurface'); thisR.set('light','#1_Light_type:point','type','distant')
 thisDocker = 'vistalab/pbrt-v3-spectral:raytransfer-spectral';
+thisDocker = 'vistalab/pbrt-v3-spectral:raytransfer-ellipse';
 
 
 %% Set camera position
@@ -43,8 +44,10 @@ sensordiagonal_mm=3.5;
 %% Add a lens and render.
 
 % Nonlinear
-label{1}='nonlinear'
-cameras{1} = piCameraCreate('raytransfer','lensfile','pixel4a-rearcamera-filmtoscene-raytransfer.json');
+label{1}='ellipse'
+%cameras{1} = piCameraCreate('raytransfer','lensfile','pixel4a-rearcamera-filmtoscene-raytransfer.json');
+cameras{1} = piCameraCreate('raytransfer','lensfile','pixel4a-rearcamera-ellipse-raytransfer.json');
+
 
 
 
@@ -59,9 +62,9 @@ for c=1:numel(cameras)
     cameraRTF = cameras{c};
     cameraRTF.filmdistance.value=filmdistance_mm/1000;
     
-    thisR.set('pixel samples',800);
+    thisR.set('pixel samples',32);
     thisR.set('film diagonal',sensordiagonal_mm/2,'mm');
-    thisR.set('film resolution',[600 600])
+    thisR.set('film resolution',[300 300])
     
     
     thisR.integrator.subtype='path'
@@ -88,7 +91,7 @@ for c=1:numel(cameras)
     oiWindow(oiTemp)
     pause(2)
     %exportgraphics(gca,['./fig/chesset_pixel4a' label{c} '.png'])
-    exportgraphics(gca,['./fig/chesset_pixel4arear_quick' label{c} '.png'])
+  %  exportgraphics(gca,['./fig/chesset_pixel4arear_quick' label{c} '.png'])
 end
 %%
 return

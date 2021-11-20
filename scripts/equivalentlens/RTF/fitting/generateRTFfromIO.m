@@ -17,7 +17,7 @@ p.addParameter('fpath', '', @ischar);
 p.addParameter('sparsitytolerance', 0, @ischar);      
 p.addParameter('outputdir',  './',@ischar);      
 p.addParameter('lensdescription',  '',@ischar);      
-    
+p.addParameter('intersectionplanedistance',2.5893,@isnumeric);
 p.parse(lensName,inputrays,outputrays,offsetinput,offsetoutput,lensThickness_mm,varargin{:});
 
 
@@ -27,6 +27,7 @@ sparsitytolerance= p.Results.sparsitytolerance;
 fpath= p.Results.fpath;
 outputdir= p.Results.outputdir;
 lensdescription= p.Results.lensdescription;
+intersectionPlaneDistance = p.Results.intersectionplanedistance;
 
 %% Prepare distances for inputoutputplane Z position calculation
 % By convention z=0 at the output side vertex of the lens
@@ -44,7 +45,7 @@ outputrays=outputrays(passedRays,:);
 
 %% Estimate Pass No Pass Function using the ellipse method
 % Collect all rays per off-axis position
-[pupilShapes,positions,intersectionplane] = vignettingIntersectionsWithPlanePerPosition(inputrays,planes.input,'circleplanedistance',2.5893);
+[pupilShapes,positions,intersectionplane] = vignettingIntersectionsWithPlanePerPosition(inputrays,planes.input,'circleplanedistance',intersectionPlaneDistance);
 [radii,centers] = vignettingFitEllipses(pupilShapes);
   
 if(visualize)

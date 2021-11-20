@@ -7,7 +7,7 @@ if ~piDockerExists, piDockerConfig; end
 %% The chess set with pieces
 
 thisR=piRecipeDefault('scenename','flatsurface')
-thisR=piRecipeDefault('scenename','chess set')
+%thisR=piRecipeDefault('scenename','chess set')
 
 
 %% Set camera position
@@ -20,6 +20,7 @@ distanceFromFilm_m=1.469+50/1000
 
 % Render the scene
 thisDocker = 'vistalab/pbrt-v3-spectral:raytransfer-spectral';
+thisDocker = 'vistalab/pbrt-v3-spectral:raytransfer-ellipse';
 
 
 
@@ -42,16 +43,16 @@ pixelpitch_mm=1.4e-3;
 sensordiagonal_mm=2*3.5;
 lensThickness=4.827;
 
-cameraRTF = piCameraCreate('raytransfer','lensfile','pixel4a-rearcamera-filmtoscene-raytransfer.json');
-
+%cameraRTF = piCameraCreate('raytransfer','lensfile','pixel4a-rearcamera-filmtoscene-raytransfer.json');
+cameraRTF = piCameraCreate('raytransfer','lensfile','pixel4a-rearcamera-ellipse-raytransfer.json');
 %cameraRTF = piCameraCreate('raytransfer','lensfile','/home/thomas42/Documents/MATLAB/libs/isetlens/local/dgauss.22deg.50.0mm_aperture6.0.json-raytransfer.json')
 cameraRTF.filmdistance.value=filmdistance_mm/1000;
     
 
-thisR.set('pixel samples',100);
+thisR.set('pixel samples',500);
 thisR.set('film diagonal',sensordiagonal_mm,'mm');
  aspectratio = size(pixel4aLensVignetSlope,2)/size(pixel4aLensVignetSlope,1);
- filmresolution_vertical=400;
+ filmresolution_vertical=100;
  filmresolution_horizontal=round(filmresolution_vertical*aspectratio);
 thisR.set('film resolution',[filmresolution_horizontal filmresolution_vertical]);
 
@@ -105,8 +106,8 @@ linestyle={'-' ,'-.'};
 relativeIllum=maxnorm(oi.data.photons(end/2,:,1));
 hold on;             
 h=plot(xaxis,relativeIllum,'color',color{1,1},'linewidth',2,'linestyle',linestyle{1});
-x=2.731905465288036+1;
-plot(xaxis,cosd(atand(xaxis/x)).^4,'r--')
+%x=2.731905465288036;
+%plot(xaxis,cosd(atand(xaxis/x)).^4,'r--')
 
 % Measured vignetting
 x=(1:size(pixel4aLensVignetSlope,2)); x=x-x(end/2); x=x*pixelpitch_mm;
@@ -115,5 +116,5 @@ hold on; plot(x,pixel4aLensVignetSlope(end/2,:),'b-')
 
 xlabel('Image height (mm)');
 title('Relative illumination');
-legend('Simulated','Cosine fourth','measured')
+legend('Simulated','measured')
 
