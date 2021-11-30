@@ -20,7 +20,7 @@ planes.output=offset_objectside;
 
 %% Get ZEMAX rays
 X=dlmread('Gout-P4Ra_20111103.txt','\s',1);
-
+X=dlmread('/usr/local/scratch/thomas42/MATLAB/libs/isetlens/local/Gout-P4Rb183050_20211115.txt','\s',1);
 
 Xnonan=X(~isnan(X(:,1)),:);
 
@@ -37,7 +37,7 @@ oRays=Xnonan(:,[8 9 10 11 12 13]);
 
 
 %% Polynomial fit
-polyDeg = 4
+polyDeg = 5
 
 % Pupils for Double gaussian only. (At this moment estimating this takes a long time get
 % high quality)
@@ -53,7 +53,7 @@ sparsitytolerance = 0*1e-4;
 
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
 [polyModel] = lensPolyFit(iRays, oRays,...
-    'visualize', true, 'fpath', fpath,...
+    'visualize', true,...
     'maxdegree', polyDeg,...
     'sparsitytolerance',sparsitytolerance);
 

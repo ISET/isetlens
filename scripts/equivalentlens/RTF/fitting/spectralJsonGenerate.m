@@ -1,4 +1,4 @@
-function jsonPath = spectralJsonGenerate(fPolyPath, varargin)
+function [jsonPath,rtf] = spectralJsonGenerate(fPolyPath, varargin)
 % Write json files for polynomial terms for multiple wavelengths.
 %
 % Json file structure:
@@ -102,5 +102,7 @@ js.polynomials = polynomials;
 opts.indent = ' ';
 jsonwrite(jsonPath, js, opts);
 
+% full json matlab represtation
+rtf=js;
 
 end

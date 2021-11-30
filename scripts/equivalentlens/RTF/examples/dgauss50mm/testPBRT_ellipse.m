@@ -1,4 +1,4 @@
-%% Pixel 4 Front camera PBRT test
+%% Dgauss 50mm test with PBRT using ellipse PassNoPass
 clear
 ieInit
 if ~piDockerExists, piDockerConfig; end
@@ -8,20 +8,16 @@ if ~piDockerExists, piDockerConfig; end
 
 thisR=piRecipeDefault('scene','ChessSet')
 %thisR=piRecipeDefault('scene','flatSurface'); thisR.set('light','#1_Light_type:point','type','distant')
-thisDocker = 'vistalab/pbrt-v3-spectral:raytransfer-spectral';
-thisDocker = 'vistalab/pbrt-v3-spectral:raytransfer-ellipse';
+
 
 
 %% Set camera position
 
+%% Set camera position
 
-%filmZPos_m=-1.5;
-%thisR.lookAt.from(3)=filmZPos_m;
-%distanceFromFilm_m=1.469+50/1000\
-
-% Set camera and camera position
 filmZPos_m           = -0.9;
 thisR.lookAt.from(3)= filmZPos_m;
+distanceFromFilm_m   = 1.469+50/1000
 
 
 
@@ -33,22 +29,35 @@ thisR.lookAt.from(3)= filmZPos_m;
 %load('p4aLensVignetFrontCam_p0286s.mat')
 
 
-filmdistance_mm=0.464135918;
+filmdistance_mm=37.959;
 pixelpitch_mm=1.4e-3; 
-%sensorwidth_mm=pixelpitch_mm*size(pixel4aLensVignetFrontCamp0286s,2)
-%sensorheight_mm=pixelpitch_mm*size(pixel4aLensVignetFrontCamp0286s,1)
+
 %sensordiagonal_mm=sqrt(sensorwidth_mm^2+sensorheight_mm^2)
-sensordiagonal_mm=3.5;
 
 
-%% Add a lens and render.
 
-% Nonlinear
-label{1}='ellipse'
-%cameras{1} = piCameraCreate('raytransfer','lensfile','pixel4a-rearcamera-filmtoscene-raytransfer.json');
-cameras{1} = piCameraCreate('raytransfer','lensfile','pixel4a-rearcamera-ellipse-raytransfer.json');
+%% Compare  circls and ellipse approach, for now this runs on separate docker images
+label{1}='omni'
+cameras{1} = piCameraCreate('omni','lensfile','dgauss.22deg.50.0mm_aperture6.0.json');
+cameras{1}.aperturediameter.type='float';
+cameras{1}.aperturediameter.value=7
+cameras{1}.filmdistance.type='float';
+rmfield(cameras{1},'focusdistance');
 
 
+thisDocker{1} = 'vistalab/pbrt-v3-spectral:raytransfer-spectral';
+
+label{2}='circles'
+cameras{2} = piCameraCreate('raytransfer','lensfile','dgauss.22deg.50.0mm_aperture6.0.json-filmtoscene-raytransfer.json');
+cameras{2}.aperturediameter.type='float';
+cameras{2}.aperturediameter.value=7
+thisDocker{2} = 'vistalab/pbrt-v3-spectral:raytransfer-spectral';
+
+label{3}='ellipse'
+cameras{3} = piCameraCreate('raytransfer','lensfile','dgauss.22deg.50.0mm_aperture6.0-diaphragm7mm-raytransfer.json');
+
+
+thisDocker{3} = 'vistalab/pbrt-v3-spectral:raytransfer-ellipse';
 
 
 % Linear
@@ -62,15 +71,15 @@ for c=1:numel(cameras)
     cameraRTF = cameras{c};
     cameraRTF.filmdistance.value=filmdistance_mm/1000;
     
-    thisR.set('pixel samples',320);
-    thisR.set('film diagonal',sensordiagonal_mm/2,'mm');
-    thisR.set('film resolution',[300 300])
+    thisR.set('pixel samples',100);
+    thisR.set('film diagonal',40,'mm');
+    thisR.set('film resolution',[300 300]);
     
     
-    thisR.integrator.subtype='path'
+    thisR.integrator.subtype='path';
     
     thisR.integrator.numCABands.type = 'integer';
-    thisR.integrator.numCABands.value =1
+    thisR.integrator.numCABands.value =1;
     
     
     
@@ -83,17 +92,27 @@ for c=1:numel(cameras)
     
     %
     
-    [oiTemp,result] = piRender(thisR,'render type','radiance','dockerimagename',thisDocker);
+    [oiTemp,result] = piRender(thisR,'render type','radiance','dockerimagename',thisDocker{c});
     oiTemp.name=label{c};
     oi{c} =oiTemp;
     
     
-    oiWindow(oiTemp)
+    oiWindow(oiTemp);
     pause(2)
     %exportgraphics(gca,['./fig/chesset_pixel4a' label{c} '.png'])
   %  exportgraphics(gca,['./fig/chesset_pixel4arear_quick' label{c} '.png'])
 end
-%%
+%% Compare diagional
+maxnorm=@(x)x/max(x);
+figure; hold on
+for i=1:numel(oi)
+    plot(maxnorm(diag(oi{i}.data.illuminance)));
+end
+xlabel('pixels on diagonal')
+ylabel('illuminance')
+legend(label)
+
+
 return
 %% Vignetting plot
 

@@ -17,7 +17,11 @@ dir_rotated=  rot*direction(1:2)';
 poly=polyModel;
 for i=1:numel(poly)
         in_rot = [sqrt(origin(1).^2+origin(2).^2) dir_rotated(1) dir_rotated(2)];
-        output_rotated(i)=polyvaln(poly{i},in_rot);
+        if(iscell(poly)) % cell array
+            output_rotated(i)=polyvaln(poly{i},in_rot);
+        else % struct array
+            output_rotated(i)=polyvaln(poly(i),in_rot);
+        end
 end
 
 
@@ -29,5 +33,6 @@ output_rotated(4:5) = invrot*output_rotated(4:5)'; %(u,v)
 %% Compare 3D trace and rotationally invariant trace
 arrivalPos=output_rotated(1:3);
 arrivalDirection=output_rotated(4:6);
+
 end
 

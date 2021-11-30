@@ -45,8 +45,10 @@ function [filmPositions,filmDirections] = rtfTraceObjectToFilm(rtf,origins,direc
 %}
 
 % Trace origin to the input plane of the RTF lens (linear extrapolation)
-alpha = abs(origins(1,3) - rtf.planes.input)./directions(:,3);
-inputOrigins = origins + alpha.*directions;
+inputplane_z = -rtf.thickness-rtf.planeoffsetinput;
+
+alpha = abs(origins(:,3) - inputplane_z)./directions(:,3);
+intersectionsOnInputPlane = origins + alpha.*directions;
 
 
 % Initialize as NaNs, the remaining NaNs in the end will correspond to
@@ -55,8 +57,35 @@ filmPositions = nan(size(origins));
 
 % Add Vignetting: Ray should pass all vignetting circles
 % Vectorized calculation for speed.
-pass = (doesRayPassCircles(inputOrigins,directions,rtf.circleRadii,rtf.circleSensitivities,rtf.circlePlaneZ));
+passnopass=rtf.polynomials.passnopass;
 
+
+% Rotate rays
+[rotatedOrigins,rotatedDirections]=rotateRays(intersectionsOnInputPlane,directions);
+
+% Determine which rays pass and which dont
+if(isequal(passnopass.method,'minimalellipse'))
+    centers=[passnopass.centersX passnopass.centersY];
+    radii=[passnopass.radiiX passnopass.radiiY];
+    pass = doesRayPassEllipse(rotatedOrigins,rotatedDirections,passnopass.positions,radii,centers,passnopass.intersectPlaneDistance);
+else
+    % Make backwards compatible 
+        pass = (doesRayPassCircles(intersectionsOnInputPlane,directions,rtf.circleRadii,rtf.circleSensitivities,rtf.circlePlaneZ));
+end
+
+
+%% Convert polynomials to readable format by polyvaln
+polyvalnStruct={};
+polynomials=rtf.polynomials.poly;
+for i=1:numel(polynomials)
+        poly=polynomials(i);
+        temp = struct;
+        temp.Coefficients = poly.coeff';
+        temp.ModelTerms = [poly.termr'; poly.termdx'; poly.termdy']';
+        polyvalnStruct{i}=temp;
+end
+
+%%
 % Evaluate polynomial using parallel for loop
 % I should to vectorize this computation. The main difficulty to do this
 % will be in rtfTrace 
@@ -71,7 +100,7 @@ parfor r=1:size(origins,1)
     
     % arrivalPos is the position on the rtf output plane
     % arrivalDir is the direction it leaves the Pos
-    [arrivalPos,arrivalDirection] = rtfTrace(inputOrigins(r,:),directions(r,:),rtf.polyModel);
+    [arrivalPos,arrivalDirection] = rtfTrace(intersectionsOnInputPlane(r,:),directions(r,:),polyvalnStruct);
     
     % Continue trace to film ( linear extrapolation)
     % Find the alpha such that the rtfOutput ray ends up on the film

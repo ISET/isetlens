@@ -30,6 +30,10 @@ lens = lensC('fileName', lensFileName)
  lens.surfaceArray(12).apertureD=diaphragm_diameter
  lens.apertureMiddleD=diaphragm_diameter
  
+%%
+impoint=lens.findImagePoint([0 0 -3000],1,1)
+z_im_mm = impoint(1,3)
+ 
 %% Find Pupils
 % Optical system needs to be defined to be comptaible wich legacy code
 % 'paraxFindPupils'.

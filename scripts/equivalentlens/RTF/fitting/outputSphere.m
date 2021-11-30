@@ -14,7 +14,7 @@ function [fn] = outputSphere(sphericalradius,sphericaloffset)
         radiusfinal=-abs(sphericalradius);
         offset=sphericaloffset; diameter=2*abs(radiusfinal); % works well
         
-        finalsurface= surfaceC('sCenter', [0 0 radiusfinal+offset], 'sRadius',radiusfinal)
+        finalsurface= surfaceC('sCenter', [0 0 radiusfinal+offset], 'sRadius',radiusfinal);
         finalsurface.apertureD=diameter;
         
         

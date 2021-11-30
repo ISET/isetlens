@@ -47,34 +47,35 @@ outputrays=outputrays(passedRays,:);
 % Collect all rays per off-axis position
 [pupilShapes,positions,intersectionplane] = vignettingIntersectionsWithPlanePerPosition(inputrays,planes.input,'circleplanedistance',intersectionPlaneDistance);
 [radii,centers] = vignettingFitEllipses(pupilShapes);
-  
+
+
 if(visualize)
     figure;
     subplot(211)
-    plot(positions,radii','.-','markersize',10,'linewidth',2)
-    title('Ellipse Radii')
-    legend('X','Y')
+    plot(positions,radii','.-','markersize',10,'linewidth',2);
+    title('Ellipse Radii');
+    legend('X','Y');
     subplot(212)
-    plot(positions,centers','.-','markersize',10,'linewidth',2)
-    title('Ellipse Centers')
-    legend('X','Y')
+    plot(positions,centers','.-','markersize',10,'linewidth',2);
+    title('Ellipse Centers');
+    legend('X','Y');
 
 
 
 % Show pupil sampling    
 figure;
-nbPos = numel(positions)
+nbPos = numel(positions);
 for p=1:numel(positions)
-    subplot(ceil(sqrt(nbPos)),ceil(sqrt(nbPos)),p)
+    subplot(ceil(sqrt(nbPos)),ceil(sqrt(nbPos)),p);
     hold on
     pupil=pupilShapes{p};
-    scatter(pupil(1,:),pupil(2,:),'.')
+    scatter(pupil(1,:),pupil(2,:),'.');
     
     drawellipse('center',[centers(1,p) centers(2,p)],'semiaxes',[radii(1,p) radii(2,p)],'color','r');
 %   pupil=pupilShapes{1};
 %      pupil(isnan(pupil(1,:)))=[]; % Remove nans
     %scatter(pupil(1,:),pupil(2,:),'r+')
-    title(positions(p))
+    title(positions(p));
     
     axis equal
     
@@ -83,6 +84,12 @@ end
 
 end
 
+
+%% Upsample or resample
+% positionsUpSample = linspace(positions(1),positions(end),round(0.5*numel(positions)));
+% radii=[interp1(positions,radii',positionsUpSample)']
+% centers=[ interp1(positions,centers',positionsUpSample)'];
+% positions=[ positionsUpSample];
 
 %% Polynomial fit
 fpath = fullfile(ilensRootPath, 'local', 'polyjson_test.json');
@@ -106,7 +113,7 @@ rtf{w}.passnopass.intersectPlaneDistance=intersectionplane;
 %% Generate Spectral JSON file
 
 
-fpath = fullfile(outputdir,[lensName '-raytransfer.json']);
+fpath = fullfile(outputdir,[lensName '.json']);
 
 if ~isempty(fpath)
     jsonPath = spectralJsonGenerate(polyModel, 'lensthickness',...

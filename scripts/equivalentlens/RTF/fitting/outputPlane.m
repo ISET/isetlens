@@ -1,3 +1,4 @@
+
 function [fn] = outputPlane(offset)
 
 fn = @addFinalSurface;
@@ -12,7 +13,7 @@ fn = @addFinalSurface;
         
         radiusfinal=1e10; % large to make it nearly flat
         filmpos=offset;
-        finalsurface = surfaceC('sCenter', [0 0 radiusfinal+filmpos], 'sRadius',radiusfinal)
+        finalsurface = surfaceC('sCenter', [0 0 radiusfinal+filmpos], 'sRadius',radiusfinal);
         finalsurface.apertureD=200*lens.surfaceArray(end).apertureD ;
         
         
