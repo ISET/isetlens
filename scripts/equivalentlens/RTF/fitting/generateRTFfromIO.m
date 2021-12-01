@@ -1,4 +1,4 @@
-function [rtf] =generateRTFfromIO(lensName,inputrays,outputrays,offsetinput,offsetoutput,lensThickness_mm,varargin)
+function [rtf] =generateRTFfromIO(lensName,rtfName,inputrays,outputrays,offsetinput,offsetoutput,lensThickness_mm,varargin)
 %generateRTFfromIO Give the inputoutput information, generate a full RTF
 %function, including vignetting and ouput the JSON file.
 %%%%%%%%%%%%%%%%%%%% AUTOMATIC BELOW %%%%%%%%%%%%%%%%%%%%%%% 
@@ -6,6 +6,7 @@ function [rtf] =generateRTFfromIO(lensName,inputrays,outputrays,offsetinput,offs
 varargin = ieParamFormat(varargin);
 p = inputParser;
 p.addRequired('lensname', @ischar);
+p.addRequired('rtfname', @ischar);
 p.addRequired('inputrays', @isnumeric);
 p.addRequired('outputrays', @isnumeric);
 p.addRequired('offsetinput', @isnumeric);      
@@ -18,7 +19,7 @@ p.addParameter('sparsitytolerance', 0, @ischar);
 p.addParameter('outputdir',  './',@ischar);      
 p.addParameter('lensdescription',  '',@ischar);      
 p.addParameter('intersectionplanedistance',2.5893,@isnumeric);
-p.parse(lensName,inputrays,outputrays,offsetinput,offsetoutput,lensThickness_mm,varargin{:});
+p.parse(lensName,rtfName,inputrays,outputrays,offsetinput,offsetoutput,lensThickness_mm,varargin{:});
 
 
 polyDegree = p.Results.polynomialdegree;
@@ -112,8 +113,14 @@ rtf{w}.passnopass.intersectPlaneDistance=intersectionplane;
 
 %% Generate Spectral JSON file
 
+rtfdirectory = fullfile(outputdir,lensName);
 
-fpath = fullfile(outputdir,[lensName '.json']);
+if ~exist( fullfile(outputdir,lensName), 'dir')
+       mkdir(rtfdirectory)
+end
+
+
+fpath = fullfile(rtfdirectory,[rtfName '.json']);
 
 if ~isempty(fpath)
     jsonPath = spectralJsonGenerate(polyModel, 'lensthickness',...

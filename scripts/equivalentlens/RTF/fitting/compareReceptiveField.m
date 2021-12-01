@@ -13,16 +13,18 @@ diaphragm_mm=7;
 gridpoints=1000
 
 %% Wide angle lens
-   imageheights = [0 5 8]
+ %{  
+  imageheights = [0 5 8]
   isetlensName= 'wide.56deg.12.5mm.json';
   rtfName='wide.56deg.12.5mm';
   filmdistance_mm=6.5273+0.1;
   receptiveFieldDistanceFromFilm_mm=1552.6;
   diaphragm_mm=1.2946;
   gridpoints=1000
- 
+ %}
 
 %% Petzval
+%{
 imageheights = [0 5 8]
   isetlensName= 'petzval.12deg.50.0mm.json'
   rtfName='petzval.12deg.50.0mm';
@@ -30,8 +32,8 @@ imageheights = [0 5 8]
   receptiveFieldDistanceFromFilm_mm=2549.5;
   diaphragm_mm=18.7143;
   gridpoints=2000
-    
-% %
+%}    
+
 
 %% Calculate RF
 for i=1:numel(imageheights)
@@ -89,6 +91,7 @@ end
 
 
 %% Compare LSF as function of polydegree
+color = hot;
 
 fig=figure(2);clf; hold on
 fig.Position= [371 462 1085 504]
@@ -96,7 +99,7 @@ fig.Position= [371 462 1085 504]
 % Sunselection of position indices
 positionIndices=[1 2 numel(imageheights)];
 p=1
-xy=1
+xy=2
 for i=1:numel(positionIndices)
     isel=positionIndices(i);
 
@@ -104,7 +107,7 @@ for i=1:numel(positionIndices)
     peakshift=peaksLens(xy,isel); % Choose one to shift peaks to be centede around 0
         % Do not use the peak shift for respective lens or rtf because you would
         % remove an actual alignment mismatch
-    data=binsLens(:,1,isel);
+    data=binsLens(:,xy,isel);
     xlimits = [min(data) max(data)]-peakshift;
     for p=1:numel(degrees)
        
@@ -113,21 +116,36 @@ for i=1:numel(positionIndices)
         
         maxValueLens = max(countsLens(:,xy,isel));
 
-        plot(binsLens(:,xy,isel)-peakshift,countsLens(:,xy,isel)/maxValueLens,'k')
-        %plot(binsLensPix(:,xy,i)-peakshift,countsLensPix(:,xy,i),'k--')
+        hlens=plot(binsLens(:,xy,isel)-peakshift,countsLens(:,xy,isel)/maxValueLens,'k-.','linewidth',2)
+        %plot(binsLensPix(:,xy,i)-peakshift,countsLensPix(:,xy,i)/maxValueLens,'m--')
         line([1 1]*(peaksLensPix(xy,isel)-peakshift),[0 1],'color','k','linestyle',':')
         line(-[1 1]*(peaksLensPix(xy,isel)-peakshift),[0 1],'color','k','linestyle',':')
 
-        plot(binsRTF(:,xy,isel,p)-peakshift,countsRTF(:,xy,isel,p)/maxValueLens,'r')
+        hrtf=plot(binsRTF(:,xy,isel,p)-peakshift,countsRTF(:,xy,isel,p)/maxValueLens,'color',color(round(25*p),:),'linewidth',2)
         if(i==1)
-            title({['degree=' num2str(degrees(p))],['h=' num2str(imageheights(isel)) ' mm']})
+            title({['\textbf{Degree} $\mathbf{' num2str(degrees(p)) '}$'],['$\mathbf{h=' num2str(imageheights(isel)) '}$ \textbf{mm}']})
         else
-            title(['h=' num2str(imageheights(isel)) ' mm'])
+            title(['$\mathbf{h=' num2str(imageheights(isel)) '}$ \textbf{mm}'])
         end
         
-        xlabel('Micron')
+        % Only show units on bottom subfig for less mess
+        if(i==3)
+            xlabel('Micron')
+        end
         xlim(xlimits)
         
+        ax=gca;
+        ax.Position(3:4)=[0.0844 0.1856]
         
     end
 end
+legh=legend([hlens hrtf],'Ground truth','RTF')
+legh.Box='off'
+legh.Orientation='horizontal'
+legh.Position=[0.4222 0.9625 0.1725 0.0333]
+% Formatting
+set(findall(gcf,'-property','FontSize'),'FontSize',8);
+set(findall(gcf,'-property','interpreter'),'interpreter','latex');
+
+
+exportgraphics(gcf,'/scratch/thomas42/rtfpaper/dgauss-polyreceptivefield.pdf')

@@ -50,7 +50,7 @@ visualize=true;
 rtfLensName=[lensNameNoJsonExtension '-poly' num2str(polyDegree) '-diaphragm' num2str(diaphragmDiameter_mm) 'mm-raytransfer'];
 
 %% generateRTF
-rtf=generateRTFfromIO(rtfLensName,iRays,oRays,offset_sensorside,offset_objectside,lensThickness,'outputdir',...
+rtf=generateRTFfromIO(lensNameNoJsonExtension,rtfLensName,iRays,oRays,offset_sensorside,offset_objectside,lensThickness,'outputdir',...
     outputDir,'visualize',visualize,'polynomialdegree',polyDegree,'intersectionplanedistance',17);
 
 

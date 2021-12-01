@@ -3,7 +3,7 @@ ieInit;
 
 lensName={};
 filmdiagonal=[];polyDegree=[];
-
+diaphragmDiameters=[];
 %lensName{end+1} = 'wide.56deg.12.5mm'; filmdiagonal(end+1)=40;polyDegree(end+1)=5;
 %lensName{end+1} = 'wide.56deg.12.5mm'; filmdiagonal(end+1)=40;polyDegree(end+1)=2;
 %lensName{end+1} = 'wide.56deg.12.5mm'; filmdiagonal(end+1)=40;polyDegree(end+1)=3;
@@ -20,20 +20,25 @@ filmdiagonal=[];polyDegree=[];
 %lensName{end+1} = 'dgauss.22deg.12.5mm'; filmdiagonal(end+1)=20;
 
 %lensName{end+1} = 'dgauss.22deg.3.0mm';filmdiagonal(end+1)=10;polyDegree(end+1)=5;
-%lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=5;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=5; diaphragmDiameters(end+1)=2;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=5; diaphragmDiameters(end+1)=5;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=5; diaphragmDiameters(end+1)=7;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=5; diaphragmDiameters(end+1)=12;
+
+
 %lensName{end+1} = 'dgauss.22deg.6.0mm';filmdiagonal(end+1)=10;polyDegree(end+1)=5;
   
 %lensName{end+1} = 'petzval.12deg.6.0mm';
 %lensName{end+1} = 'petzval.12deg.100.0mm';
 %lensName{end+1} = 'petzval.12deg.12.5mm';filmdiagonal(end+1)=11;polyDegree(end+1)=5;
 %lensName{end+1} = 'petzval.12deg.3.0mm';
-lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=1;
-lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=2;
-lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=3;
-lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=4;
-lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=5;
-lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=6;
-lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=7;
+% lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=1;
+% lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=2;
+% lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=3;
+% lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=4;
+% lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=5;
+% lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=6;
+% lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1)=7;
   
  
 %lensName{end+1} = 'reversed.telephoto.37deg.100mm';
@@ -63,7 +68,7 @@ lensName{end+1} = 'petzval.12deg.50.0mm';filmdiagonal(end+1)=80;polyDegree(end+1
   
 %%
 outputdir = './rtfs/'
-outputdir = fullfile(piRootPath,'data','lens/')
+outputdir = fullfile(piRootPath,'data','lens/RTF/')
 
 
 failed={};
@@ -75,8 +80,11 @@ for i=1:numel(lensName)
         % Set diaphragm size small enough, else PBRT might automatically
         % adjust causing a mismatchin the comparison. 
         lens=lensC('file',[lensName{i} '.json']);
-        diaphragmdiameter_mm(i)=lens.apertureMiddleD/1.4;
-        
+        if(isnan(diaphragmDiameters(i)))
+            diaphragmdiameter_mm(i)=lens.apertureMiddleD/2;
+        else
+            diaphragmdiameter_mm(i)= diaphragmDiameters(i);
+        end
         % Generate RTF
         [rtf,rtfname]=isetlensToRTF(lensName{i},'outputdir',outputdir,'diaphragmdiameter', diaphragmdiameter_mm(i),'polydegree',polyDegree(i));
         rtfLensName{i}=rtfname;
