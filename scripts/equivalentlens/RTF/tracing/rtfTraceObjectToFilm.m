@@ -90,6 +90,7 @@ end
 % I should to vectorize this computation. The main difficulty to do this
 % will be in rtfTrace 
 filmDirections = zeros(size(origins,1),3);
+absolutePosition= zeros(size(origins,1),3);
 parfor r=1:size(origins,1)
 
    % If the ray is vignetted, skip to the next candidate tray. This avoids
@@ -100,16 +101,17 @@ parfor r=1:size(origins,1)
     
     % arrivalPos is the position on the rtf output plane
     % arrivalDir is the direction it leaves the Pos
-    [arrivalPos,arrivalDirection] = rtfTrace(intersectionsOnInputPlane(r,:),directions(r,:),polyvalnStruct);
-    
+    [arrivalPosOnOutputPlane,arrivalDirection] = rtfTrace(intersectionsOnInputPlane(r,:),directions(r,:),polyvalnStruct);
+    arrivalPosOnOutputPlane(3)=rtf.planeoffsetoutput;
+
     % Continue trace to film ( linear extrapolation)
     % Find the alpha such that the rtfOutput ray ends up on the film
     % plane.  
     % rtfOutput(3) + alpha * rtfDirection(3) = filmZposition(3)
     % alpha = (filmZPosition(3) - rtfOutput(3))/rtfDirection(3)
     %
-    alpha = abs(arrivalPos(3) - filmdistance_mm) ./ arrivalDirection(3);  % Distance to film
-    filmPositions(r,:) = arrivalPos + alpha*arrivalDirection;             % 
+    alpha = abs(rtf.planeoffsetoutput - filmdistance_mm) ./ arrivalDirection(3);  % Distance to film
+    filmPositions(r,:) = arrivalPosOnOutputPlane + alpha*arrivalDirection;             % 
     filmDirections(r,:) = arrivalDirection;
     
 end

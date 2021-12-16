@@ -1,4 +1,4 @@
-function [arrivalPos,arrivalDirection] = rtfTrace(origin,direction,polyModel)
+function [arrivalPosOnOutputPlane,arrivalDirection] = rtfTrace(origin,direction,polyModel)
 % Step 1: Define rotation matrix
 alpha=atan2d(origin(2),origin(1));
 
@@ -31,7 +31,7 @@ output_rotated(1:2) = invrot*output_rotated(1:2)'; %(x,y)
 output_rotated(4:5) = invrot*output_rotated(4:5)'; %(u,v)
 
 %% Compare 3D trace and rotationally invariant trace
-arrivalPos=output_rotated(1:3);
+arrivalPosOnOutputPlane=output_rotated(1:2);
 arrivalDirection=output_rotated(4:6);
 
 end

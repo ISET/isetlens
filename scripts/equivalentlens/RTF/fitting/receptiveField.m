@@ -1,4 +1,4 @@
-function [bins,counts,peaks,lens] = receptiveFieldRTF(lenstype,lensFilePath,filmdistance_mm,receptiveFieldDistanceFromFilm_mm,varargin)
+function [bins,counts,peaks,lens] = receptiveField(lenstype,lensFilePath,filmdistance_mm,receptiveFieldDistanceFromFilm_mm,varargin)
 varargin = ieParamFormat(varargin);
 p = inputParser;
 p.addRequired('lenstype', @ischar);
@@ -55,8 +55,11 @@ directions = directions./sqrt(sum(directions.^2,2));
 %% Trace rays 
 if(isequal(lenstype,"rtf"))
     % Trace through RTF lens
-    planeDistanceFromOutputPlane =  receptiveFieldDistanceFromFilm_mm-(filmdistance_mm+lensThickness+RTF.planeoffsetoutput);
-    positionsOnFilm=rtfTraceObjectToFilm(RTF,origins,directions,planeDistanceFromOutputPlane);
+    % Ik heb mijn twijfels dat ik de positie hier correct bereken
+    
+    %planeDistanceFromOutputPlane =  receptiveFieldDistanceFromFilm_mm-(filmdistance_mm+lensThickness+RTF.planeoffsetoutput);
+    planeDistanceFromRearVertex =  receptiveFieldDistanceFromFilm_mm-(filmdistance_mm+lensThickness);
+    positionsOnFilm=rtfTraceObjectToFilm(RTF,origins,directions,planeDistanceFromRearVertex);
 elseif(isequal(lenstype,"isetlens"))
     waveindex=1;
     waveIndices=waveindex*ones(1, size(origins, 1));

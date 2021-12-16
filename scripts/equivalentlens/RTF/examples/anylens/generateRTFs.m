@@ -20,10 +20,13 @@ diaphragmDiameters=[];
 %lensName{end+1} = 'dgauss.22deg.12.5mm'; filmdiagonal(end+1)=20;
 
 %lensName{end+1} = 'dgauss.22deg.3.0mm';filmdiagonal(end+1)=10;polyDegree(end+1)=5;
-lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=5; diaphragmDiameters(end+1)=2;
-lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=5; diaphragmDiameters(end+1)=5;
-lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=5; diaphragmDiameters(end+1)=7;
-lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=5; diaphragmDiameters(end+1)=12;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=8; diaphragmDiameters(end+1)=7;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=9; diaphragmDiameters(end+1)=7;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=10; diaphragmDiameters(end+1)=7;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=11; diaphragmDiameters(end+1)=7;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=12; diaphragmDiameters(end+1)=7;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=15; diaphragmDiameters(end+1)=7;
+lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)=20; diaphragmDiameters(end+1)=7;
 
 
 %lensName{end+1} = 'dgauss.22deg.6.0mm';filmdiagonal(end+1)=10;polyDegree(end+1)=5;
@@ -68,7 +71,8 @@ lensName{end+1} = 'dgauss.22deg.50.0mm';filmdiagonal(end+1)=40;polyDegree(end+1)
   
 %%
 outputdir = './rtfs/'
-outputdir = fullfile(piRootPath,'data','lens/RTF/')
+outputdir =  './'
+%outputdir = fullfile(piRootPath,'data','lens/RTF/')
 
 
 failed={};
