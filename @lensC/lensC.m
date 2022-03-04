@@ -83,7 +83,7 @@ classdef lensC <  handle
       % To convert a file in millimeters to meters
        thislens = lensC('filename','2ElLens.json','units','mm');
        thislens.fileWrite('2ElLensMeters.json','units','m')
-       type '2ElLens.dat'
+       type '2ElLens.json'
        type '2ElLensMeters.json'
        delete('2ElLensMeters.json');
     %}
@@ -129,8 +129,12 @@ classdef lensC <  handle
         inFocusPosition = [0 0 0];
     end
     
-    methods (Access = public)
-        
+    methods (Static)
+        list();
+    end
+    
+    methods (Access = public)        
+
         % Multiple element lens constructor
         function obj = lensC(varargin)
             % thisLens = lens(varargin)
