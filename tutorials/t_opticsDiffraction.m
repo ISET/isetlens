@@ -34,10 +34,10 @@ point = psCreate(0,0,-1e+15);
 
 % Read a lens file and create a lens. The "diffraction" lens consists of a
 % spehrical plane, an aperture, and a flat plane behind it.
+% we don't have a .json version yet
 lensFileName = fullfile(ilensRootPath,'data', 'lens', 'diffraction.dat');
 
-
-
+nSamples = 20;
 % Lens comes back with 400:50:700
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
