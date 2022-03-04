@@ -13,7 +13,7 @@ p.parse(varargin{:});
 quiet = p.Results.quiet;
 
 %%
-files = dir(fullfile(ilensRootPath,'data','lens','*.dat'));
+files = dir(fullfile(ilensRootPath,'data','lens','*.json'));
 if quiet, return; end
 
 for ii=1:length(files)

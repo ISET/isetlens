@@ -64,28 +64,28 @@ classdef lensC <  handle
     % Examples:
     %{
       % Create a lens object
-      thislens = lensC('filename','dgauss.22deg.3.0mm.dat');
+      thislens = lensC('filename','dgauss.22deg.3.0mm.json');
       thislens.draw;
       thislens.plot('focal distance');
       thislens.thickness
     %}
     %{
       % Read in under the assumption that the file contains meters 
-      thislens = lens('filename','dgauss.22deg.3.0mm.dat','units','m');
+      thislens = lens('filename','dgauss.22deg.3.0mm.json','units','m');
       thislens.draw;
     %}
     %{
       % Read in explicitly stating that the file contains 'mm'
-      thislens = lens('filename','2ElLens.dat','units','mm');
+      thislens = lens('filename','2ElLens.json','units','mm');
       thislens.draw;
     %}
     %{
       % To convert a file in millimeters to meters
-       thislens = lensC('filename','2ElLens.dat','units','mm');
-       thislens.fileWrite('2ElLensMeters.dat','units','m')
+       thislens = lensC('filename','2ElLens.json','units','mm');
+       thislens.fileWrite('2ElLensMeters.json','units','m')
        type '2ElLens.dat'
-       type '2ElLensMeters.dat'
-       delete('2ElLensMeters.dat');
+       type '2ElLensMeters.json'
+       delete('2ElLensMeters.json');
     %}
     %{
         lens = lensC('filename','dgauss.22deg.100.0mm.json')
@@ -166,7 +166,7 @@ classdef lensC <  handle
             p.addParameter('figurehandle',[],@isgraphics);
             p.addParameter('blackboxmodel',[])
             
-            fullFileName = which('2ElLens.dat');
+            fullFileName = which('2ElLens.json');
             p.addParameter('filename',fullFileName,@(x)(exist(x,'file')));
             
             p.parse(varargin{:});
