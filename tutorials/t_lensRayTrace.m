@@ -34,14 +34,14 @@ point{4} = [-pX  pY, pZ_far]/6; % Bottom right -,+
 %% Read a lens file and create a lens
 
 %{
- lensFileName = fullfile(cisetRootPath,'data','lens','gullstrand.dat');
- lensFileName = fullfile(cisetRootPath,'data','lens','wide.22mm.dat');
- lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens.dat');
- lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_16mm.dat');
- lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_35mm.dat');
- lensFileName = fullfile(cisetRootPath,'data','lens','fisheye.16mm.dat');
+ lensFileName = fullfile(cisetRootPath,'data','lens','gullstrand.json');
+ lensFileName = fullfile(cisetRootPath,'data','lens','wide.22mm.json');
+ lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens.json');
+ lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_16mm.json');
+ lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_35mm.json');
+ lensFileName = fullfile(cisetRootPath,'data','lens','fisheye.16mm.json');
 %}
-lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.50.0mm.dat');
+lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.50.0mm.json');
 exist(lensFileName,'file');
 
 % Small number of samples
