@@ -1,4 +1,4 @@
-function files = list(~,varargin)
+function files = list(varargin)
 % List and summarize the lenses in data/lens
 %
 % ISETBIO Team, 2018
@@ -8,6 +8,7 @@ p = inputParser;
 
 % If you want the list returned without a print
 p.addParameter('quiet',false,@islogical);
+
 p.parse(varargin{:});
 
 quiet = p.Results.quiet;

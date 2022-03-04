@@ -130,7 +130,7 @@ classdef lensC <  handle
     end
     
     methods (Static)
-        list();
+        files = list(varargin);
     end
     
     methods (Access = public)        
