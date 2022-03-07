@@ -171,7 +171,7 @@ classdef lensC <  handle
             p.addParameter('blackboxmodel',[])
             
             fullFileName = which('2ElLens.json');
-            p.addParameter('filename',fullFileName,@(x)(isfile(x)));
+            p.addParameter('filename',fullFileName,@(x)(exist(x,'file')));
             
             p.parse(varargin{:});
             

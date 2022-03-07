@@ -14,7 +14,7 @@ function obj =  draw(obj, fHdl, lColor)
 %
 % Parameters
 %  obj  -   A lens object
-%  fHdl -   A figure handle.  If not passed, then ieNewGraphWin is
+%  fHdl -   A figure handle or a subplot description.  
 %           called and that figure handle is set in the lens object
 %           field fHdl 
 %  lColor - RGB value of lens lines (lens color).  Default is black [0 0 0]
@@ -25,10 +25,24 @@ function obj =  draw(obj, fHdl, lColor)
 %    psfCameraC.draw
 %
 
+%{
+  thisLens = lensC('filename','2ElLens.json');
+  thisLens.draw;                          % A window of its own
+  thisLens.draw([1,2,1]);                 % In a subplot
+  thisLens.draw(ieNewGraphWin,[0 0 1]);   % Blue lenses
+  thisLens.draw([1,2,1],[0 0 1]);         % Subplot and a Blue lenses
+%}
+
 %% Create the figure and set the parameters
 
 if ~exist('fHdl','var'), fHdl = ieNewGraphWin; axis equal;
 elseif isempty(fHdl)     % Do nothing
+elseif isa(fHdl,'double') 
+    % User sent in a 3-vector describing the subplot dimensions and panel
+    assert(numel(fHdl) == 3);
+    thisF = ieNewGraphWin;
+    subplot(fHdl(1),fHdl(2),fHdl(3));    
+    fHdl = thisF;    
 else,                    figure(fHdl); % Raise the figure
 end
 obj.fHdl = fHdl;
