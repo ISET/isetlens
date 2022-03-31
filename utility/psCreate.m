@@ -20,9 +20,9 @@ function points = psCreate(pX,pY,pZ)
 %
 % BW Copyright Vistasoft Team, 2014
 
-if ieNotDefined('pX'), pX = 0; end
-if ieNotDefined('pY'), pY = 0; end
-if ieNotDefined('pZ'), pZ = -500; end
+if notDefined('pX'), pX = 0; end
+if notDefined('pY'), pY = 0; end
+if notDefined('pZ'), pZ = -500; end
 
 nFH    = length(pX) * length(pY);
 nDepth = length(pZ);
