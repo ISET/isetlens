@@ -35,6 +35,7 @@ function [obj, fHdl] =  draw(obj, fHdl, lColor)
 
 %% Create the figure and set the parameters
 
+useSubplot = false; % default
 if ~exist('fHdl','var'), fHdl = ieNewGraphWin; axis equal;
 elseif isempty(fHdl)     % Do nothing
 elseif isa(fHdl,'double') 
@@ -43,6 +44,7 @@ elseif isa(fHdl,'double')
     thisF = ieNewGraphWin;
     subplot(fHdl(1),fHdl(2),fHdl(3));    
     fHdl = thisF;    
+    useSubplot = true;
 else,                    figure(fHdl); % Raise the figure
 end
 obj.fHdl = fHdl;
@@ -101,8 +103,12 @@ p2 = pointVisualize(obj, 'image principal point', 'p size', 10, 'color', 'g');
 
 % Image nodal point
 p3 = pointVisualize(obj, 'image nodal point', 'p size', 5, 'color', 'r');
-legend([p1 p2 p3],...
-    {'Image focal point', 'Image principal point', 'Image nodal point'});
+
+% we don't have room for the legend in a typical sub-plot:
+if useSubplot == false
+    legend([p1 p2 p3],...
+        {'Image focal point', 'Image principal point', 'Image nodal point'});
+end
 %% Now the microlens
 if isempty(obj.microlens)
     return;
