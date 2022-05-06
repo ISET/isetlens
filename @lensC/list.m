@@ -8,13 +8,20 @@ p = inputParser;
 
 % If you want the list returned without a print
 p.addParameter('quiet',false,@islogical);
+p.addParameter('lensRoot','',@ischar);
 
 p.parse(varargin{:});
 
 quiet = p.Results.quiet;
 
+if ~isempty(p.Results.lensRoot)
+    lensDir = p.Results.lensRoot;
+else
+    lensDir = ilensRootPath; 
+end
+
 %%
-files = dir(fullfile(ilensRootPath,'data','lens','*.json'));
+files = dir(fullfile(lensDir,'data','lens','*.json'));
 if quiet, return; end
 
 for ii=1:length(files)
