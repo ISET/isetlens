@@ -170,8 +170,9 @@ classdef lensC <  handle
             p.addParameter('figurehandle',[],@isgraphics);
             p.addParameter('blackboxmodel',[])
             
-            fullFileName = which('2ElLens.json');
-            p.addParameter('filename',fullFileName,@(x)(exist(x,'file')));
+            % Changed to look in isetcam/data/lens (Aug 2, 2022).
+            fullFileName = fullfile(piDirGet('lens'),'2ElLens.json');
+            p.addParameter('filename', fullFileName, @(x)(exist(x,'file')));
             
             p.parse(varargin{:});
             

@@ -1,5 +1,5 @@
 function files = lensList(varargin)
-% List and summarize the lenses in data/lens with a json extension
+% List and summarize the lenses in isetcam/data/lens with a json extension
 %
 % Syntax:
 %   files = lensList(...)
@@ -67,7 +67,7 @@ quiet = p.Results.quiet;
 
 %% List the json files
 
-files = dir(fullfile(ilensRootPath,'data','lens',star));
+files = dir(fullfile(piDirGet('lens'),star));
 if quiet, return; end
 
 % Not quiet, so print out the list
