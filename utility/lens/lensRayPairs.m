@@ -50,6 +50,7 @@ p.addParameter('maxradius', 0, @isnumeric);
 p.addParameter('minradius', 0, @isnumeric);
 p.addParameter('waveindex', 1, @isnumeric);
 p.addParameter('outputsurface',outputPlane(0.01)); % mm
+p.addParameter('diaphragmdiameter',NaN,@isnumeric); % mm
 
 
 p.parse(lensfile, varargin{:});
@@ -75,7 +76,7 @@ maxradius = p.Results.maxradius;
 minradius = p.Results.minradius;
 waveindex= p.Results.waveindex;
 outputSurface = p.Results.outputsurface;
-
+diaphragm_diameter = p.Results.diaphragmdiameter;
 %% Reverse the lens
 if reverse
     lensR = lensReverse(lensfile);
@@ -84,8 +85,14 @@ else
 end
 
 
-%%
+%% Set diaphragm diameter is requested
 
+if(~isnan(diaphragm_diameter))
+    % Get aperture index
+ index = lensR.get('diaphragm');
+ lensR.surfaceArray(index).apertureD=diaphragm_diameter;
+ lensR.apertureMiddleD=diaphragm_diameter;
+end
 %% Determine lens thickness
 firstEle = lensR.surfaceArray(1); % First lens element surface
 lastEle = lensR.surfaceArray(end); % First lens element surface
@@ -94,9 +101,13 @@ lastVertex = lastEle.sCenter(3)-lastEle.sRadius;
 
 lensThickness=abs(lastVertex-firstVertex);
 %%
-[iRays, oRays, planes] = raytraceLightField(lensR, nRadiusSamp,...
-        elevationMax, nElSamp, nAzSamp, inputPlaneOffset, outputSurface, 'visualize', visualize,...
-        'max radius', maxradius, 'min radius', minradius,'waveindex',waveindex);
+ [iRays, oRays, planes] = raytraceLightField(lensR, nRadiusSamp,...
+         elevationMax, nElSamp, nAzSamp, inputPlaneOffset, outputSurface, 'visualize', visualize,...
+         'max radius', maxradius, 'min radius', minradius,'waveindex',waveindex);
+
+%[iRays, oRays, planes] = raytraceLightFieldPupil(lensR, nRadiusSamp,...
+%        nElSamp, nAzSamp, inputPlaneOffset, outputSurface, 'visualize', visualize,...
+%        'max radius', maxradius, 'min radius', minradius,'waveindex',waveindex);    
     
 %% remove nan 
 nanIdx = find(any(isnan(oRays), 2));

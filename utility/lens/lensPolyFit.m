@@ -17,7 +17,7 @@ p.addRequired('iRays', @isnumeric);
 p.addRequired('oRays', @isnumeric);
 p.addParameter('maxdegree', 4, @isnumeric);
 p.addParameter('visualize', false, @islogical);
-p.addParameter('fpath', '', @ischar);
+p.addParameter('outputtype', 'plane', @ischar); % plane, surface
 p.addParameter('sparsitytolerance', 0, @isnumeric);      
 p.parse(iRays,oRays,varargin{:});
 
@@ -35,6 +35,9 @@ outputSelection = [1 2 3 4 5 6];
 % An analytical expression can be generated using 'polyn2sym(poly{i})'
 polyModel = cell(1, size(oRays, 2));
 for i=1:numel(outputSelection)
+    if(i==3)
+        
+    end
     polyModel{i} = polyfitn(iRays, oRays(:,outputSelection(i)),maxDegree);
     %polyModel{i}.VarNames={'x','u','v'};
     polyModel{i}.VarNames={'x','u','v'};
@@ -77,30 +80,8 @@ if visualize
     end
     
     
-%     ieNewGraphWin;
-%     
-%     for i=1:numel(outputSelection)
-%         pred(:,i)= polyvaln(polyModel{i},iRays(:,:));
-%         out = oRays(:,outputSelection(i));
-%         subplot(1,numel(outputSelection),i); hold on;
-%         relerr = (out-pred)./abs(out);
-%         boxplot(relerr(:));
-%         ylim(1e-2*[-1 1])
-%         title(labels{i})
-%         xlabel('Relative error')
-%         
-%     end
-%     
+
 end
 
-% %%  SHoudl be decouploed from this function
-% if ~isempty(fPath)
-%     jsonPath = polyJsonGenerate(polyModel, 'lensthickness', lensThickness, 'planes', planes, 'outpath', fPath,...
-%         'pupil pos', pupilPos,...
-%         'pupil radii', pupilRadii,'plane offset',planeOffset,...
-%         'circle radii',circleRadii,...
-%         'circle sensitivities',circleSensitivities,...
-%         'circle plane z',circlePlaneZ);
-% 
-% end
+
 end
