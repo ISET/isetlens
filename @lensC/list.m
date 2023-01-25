@@ -1,27 +1,35 @@
 function files = list(varargin)
 % List and summarize the lenses in data/lens
 %
-% ISETBIO Team, 2018
+% Synopsis
+%   files = lensC.list;
+%
+% Inputs
+%   N/A
+%
+% Key/val pairs
+%   quiet - DO not print, just return the list
+%
+% Output
+%   files - Array of file information
+%
+% See also
+%   lensC
 
-%%
+%% Parse inputs
 p = inputParser;
 
 % If you want the list returned without a print
 p.addParameter('quiet',false,@islogical);
-p.addParameter('lensRoot','',@ischar);
 
 p.parse(varargin{:});
 
 quiet = p.Results.quiet;
 
-if ~isempty(p.Results.lensRoot)
-    lensDir = p.Results.lensRoot;
-else
-    lensDir = ilensRootPath; 
-end
+lensDir = piDirGet('lens');
 
 %%
-files = dir(fullfile(lensDir,'data','lens','*.json'));
+files = dir(fullfile(lensDir,'*.json'));
 if quiet, return; end
 
 for ii=1:length(files)

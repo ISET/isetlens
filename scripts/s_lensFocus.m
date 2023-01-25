@@ -71,7 +71,7 @@ outputDir = fileparts(outFile);
 
 % For the dgauss lenses 22deg is the half width of the field of view
 
-allLenses = lensList;
+allLenses = lensC.list;
 thisLens = 15;
 lensfile =  allLenses(thisLens).name;
 filmwidth  = 2;

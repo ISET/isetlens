@@ -70,13 +70,8 @@ classdef lensC <  handle
       thislens.thickness
     %}
     %{
-      % Read in under the assumption that the file contains meters 
-      thislens = lens('filename','dgauss.22deg.3.0mm.json','units','m');
-      thislens.draw;
-    %}
-    %{
       % Read in explicitly stating that the file contains 'mm'
-      thislens = lens('filename','2ElLens.json','units','mm');
+      thislens = lensC('filename','2ElLens.json','units','mm');
       thislens.draw;
     %}
     %{
