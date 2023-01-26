@@ -35,7 +35,9 @@ point = psCreate(0,0,-1e+15);
 % Read a lens file and create a lens. The "diffraction" lens consists of a
 % spehrical plane, an aperture, and a flat plane behind it.
 % we don't have a .json version yet
-lensFileName = fullfile(ilensRootPath,'data', 'lens', 'diffraction.dat');
+lensFileName = fullfile(piDirGet('lens'),'diffraction.dat');
+
+% lensFileName = fullfile(ilensRootPath,'data', 'lens', 'diffraction.dat');
 
 nSamples = 20;
 % Lens comes back with 400:50:700
@@ -126,7 +128,7 @@ end
 % case.  It is similar, but not that close.
 maxnorm= @(x)(x/max(x));
 ieNewGraphWin;
-for ii=1:numel(apertures)
+for ii=1:numel(apertures)-1
     % Smooth the curves a bit with a Gaussian
     % We could also run more rays, which smooths the data too.  I am a
     % little worried how much this might widen the curve, but hardly at

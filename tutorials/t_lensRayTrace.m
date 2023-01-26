@@ -33,16 +33,8 @@ point{4} = [-pX  pY, pZ_far]/6; % Bottom right -,+
 
 %% Read a lens file and create a lens
 
-%{
- lensFileName = fullfile(cisetRootPath,'data','lens','gullstrand.json');
- lensFileName = fullfile(cisetRootPath,'data','lens','wide.22mm.json');
- lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens.json');
- lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_16mm.json');
- lensFileName = fullfile(cisetRootPath,'data','lens','2ElLens_35mm.json');
- lensFileName = fullfile(cisetRootPath,'data','lens','fisheye.16mm.json');
-%}
-lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.50.0mm.json');
-exist(lensFileName,'file');
+lenses = lensC.list;
+lensFileName = lenses(32).name;
 
 % Small number of samples
 nSamples = 501;   % Number of ray samples that we trace
@@ -86,17 +78,19 @@ fDistance = camera.autofocus(550,'nm');
 camera.set('film position',[0 0 fDistance]);
 
 %camera.set('pointsource', point);
-camera.rays=point
+% camera.rays=point
 
-% % Estimate the PSF and show the ray trace
-% nLines = 100;  % Do not draw the rays
-% jitter = true;
-% camera.estimatePSF('n lines',nLines, 'jitter flag',jitter);
-% set(gca,'xlim',[-50 40],'ylim',[-15 15])
+%% Estimate the PSF and show the ray trace
+nLines = 100;  % Do not draw the rays
+jitter = true;
+camera.estimatePSF('n lines',nLines, 'jitter flag',jitter);
+set(gca,'xlim',[-50 40],'ylim',[-15 15])
 
-% % Show the point spread in the optical image window
-% oi = camera.oiCreate;
-% ieAddObject(oi); oiWindow;
+%% Show the point spread in the optical image window
+oi = camera.oiCreate;
+oi = oiCrop(oi,[125 125 50 50]);
+ieAddObject(oi); oiWindow;
+
 % oiSet(oi,'gamma',0.7);
 
-% %%
+%% END
