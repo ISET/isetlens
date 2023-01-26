@@ -17,8 +17,9 @@ ieInit
 %%  Initialize a point and a camera
 
 point{1} = [0 0 -1000];   % Negative is in object space
+lensFileName = 'dgauss.22deg.12.5mm.json';
 
-lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.12.5mm.dat');
+% lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.12.5mm.dat');
 lens = lensC('fileName',lensFileName);
 lens.apertureSample = [301 301];          % Number of samples at first lens
 
@@ -58,7 +59,7 @@ camera.draw(nLines);
 camera.rays.plot('entrance pupil');
 
 %% Next dgauss test case
-lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.6.0mm.dat');
+lensFileName = 'dgauss.22deg.6.0mm.json';
 lens = lensC('fileName',lensFileName);
 
 camera = psfCameraC('lens',lens,'film',film,'pointsource',point);
