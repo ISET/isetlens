@@ -64,28 +64,23 @@ classdef lensC <  handle
     % Examples:
     %{
       % Create a lens object
-      thislens = lensC('filename','dgauss.22deg.3.0mm.dat');
+      thislens = lensC('filename','dgauss.22deg.3.0mm.json');
       thislens.draw;
       thislens.plot('focal distance');
       thislens.thickness
     %}
     %{
-      % Read in under the assumption that the file contains meters 
-      thislens = lens('filename','dgauss.22deg.3.0mm.dat','units','m');
-      thislens.draw;
-    %}
-    %{
       % Read in explicitly stating that the file contains 'mm'
-      thislens = lens('filename','2ElLens.dat','units','mm');
+      thislens = lensC('filename','2ElLens.json','units','mm');
       thislens.draw;
     %}
     %{
       % To convert a file in millimeters to meters
-       thislens = lensC('filename','2ElLens.dat','units','mm');
-       thislens.fileWrite('2ElLensMeters.dat','units','m')
-       type '2ElLens.dat'
-       type '2ElLensMeters.dat'
-       delete('2ElLensMeters.dat');
+       thislens = lensC('filename','2ElLens.json','units','mm');
+       thislens.fileWrite('2ElLensMeters.json','units','m')
+       type '2ElLens.json'
+       type '2ElLensMeters.json'
+       delete('2ElLensMeters.json');
     %}
     %{
         lens = lensC('filename','dgauss.22deg.100.0mm.json')
@@ -129,8 +124,12 @@ classdef lensC <  handle
         inFocusPosition = [0 0 0];
     end
     
-    methods (Access = public)
-        
+    methods (Static)
+        files = list(varargin);
+    end
+    
+    methods (Access = public)        
+
         % Multiple element lens constructor
         function obj = lensC(varargin)
             % thisLens = lens(varargin)
@@ -144,7 +143,7 @@ classdef lensC <  handle
             %   'surface array'
             %   'aperture sample'
             %   'figure handle'
-            %   'diffraction enabled'  (Run HURB)
+            %   'diffraction enabled'  (Run HURB or huygens)
             %   'blackbox model'
             %
             
@@ -161,13 +160,14 @@ classdef lensC <  handle
             p.addParameter('aperturesample',[],@isvector);
             p.addParameter('aperturemiddled',[],@isscalar);
             p.addParameter('focallength',[],@isnumeric);
-            p.addParameter('diffractionenabled',[],@islogical);
+            p.addParameter('diffractionenabled',false,@islogical);
             p.addParameter('wave',[],@isvector)
             p.addParameter('figurehandle',[],@isgraphics);
             p.addParameter('blackboxmodel',[])
             
-            fullFileName = which('2ElLens.dat');
-            p.addParameter('filename',fullFileName,@(x)(exist(x,'file')));
+            % Changed to look in isetcam/data/lens (Aug 2, 2022).
+            fullFileName = fullfile(piDirGet('lens'),'2ElLens.json');
+            p.addParameter('filename', fullFileName, @(x)(exist(x,'file')));
             
             p.parse(varargin{:});
             
@@ -177,9 +177,10 @@ classdef lensC <  handle
             obj.fullFileName = which(p.Results.filename);
             
             % Basics
-            if ~isempty(p.Results.name), obj.name = p.Results.name; end
-            if ~isempty(p.Results.type), obj.name = p.Results.type; end
+            if ~isempty(p.Results.name), obj.name  = p.Results.name; end
+            if ~isempty(p.Results.type), obj.name  = p.Results.type; end
             if ~isempty(p.Results.units),obj.units = p.Results.units; end
+            obj.diffractionEnabled = p.Results.diffractionenabled;
 
             % Parameters
             if ~isempty(p.Results.aperturesample)

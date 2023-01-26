@@ -1,4 +1,4 @@
-function fileWrite(obj, fullFileName, varargin)
+function fullFileName = fileWrite(obj, fullFileName, varargin)
 % Writes PBRT lens file, either as text of JSON
 %
 % Syntax:

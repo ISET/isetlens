@@ -30,6 +30,10 @@
 
 %% Initialize ISETBIO
 ieInit;
+if piCamBio
+    error('Use ISETBio, not ISETCam');
+end
+if ~piDockerExists, piDockerConfig; end
 
 %% Render a fast, low quality retinal image
 % We have several scenes that have been modified and verified to work with
@@ -43,7 +47,12 @@ ieInit;
 % page (https://github.com/isetbio/isetbio/wiki/3D-Image-Formation). 
 
 % You can select a scene as follows:
-myScene = sceneEye('numbersAtDepth');
+thisSE = sceneEye('letters at depth','eye model','arizona');
+
+% The units are in meters
+toA = [-0.0486     0.0100     0.5556];
+toB = [  0         0.0100     0.8333];
+toC = [ 0.1458     0.0100     1.6667];
 
 % ISETBIO requires a "working directory." If one is not specified when
 % creating a scene, the default is in isetbioRootPath/local. All data
@@ -58,52 +67,61 @@ myScene = sceneEye('numbersAtDepth');
 % The sceneEye object contains information of the 3D scene as well as the
 % parameters of the eye optics included in the raytracing. You can see a
 % list of the parameters available in the object structure:
-myScene
+thisSE
 
+%% Set the scene rendering parameters
 % Let's render a quick, low quality retinal image first. Let's name this
-% render fastExample.
-myScene.name = 'fastExample';
 
-% Let's change the number of rays to render with. 
-myScene.numRays = 64;
+% Position the eye off to the side so we can see the 3D easily
+from = [0.25,0.3,-0.2];
+thisSE.set('from',from);
 
-% Let's also change the resolution of the render. The retinal image is
-% always square, so there is only one parameter for resolution.
-myScene.resolution = 128;
+% Look at the position with the 'B'.  The values for each of the letters
+% are included above.
+thisSE.set('to',toB);
 
-% Now let's render. This may take a few seconds, depending on the number of
-% cores on your machine. On a machine with 2 cores it takes ~15 seconds. 
-oi = myScene.render;
+% Have a quick check with the pinhole
+thisSE.set('use pinhole',true);
 
-% Now we have an optical image that we can use with the rest of ISETBIO. We
-% can take a look at what it looks like right now:
-ieAddObject(oi);
-oiWindow;
+% Given the distance from the scene, this FOV captures everything we want
+thisSE.set('fov',30);             % Degrees
 
+thisSE.recipe.set('render type', {'radiance','depth'});
+
+%% Render the scene with the GPU
+thisDockerGPU = dockerWrapper;
+thisSE.piWRS('docker wrapper',thisDockerGPU);
+thisSE.summary;
 
 %% Step through accommodation
+
 % Now let's render a series of retinal images at different accommodations.
 % This section renders roughly in 30 sec on a machine with 8 cores. 
 
-accomm = [1 5 10]; % in diopters
+thisSE.set('use pinhole',false);
+accomm = [1 5 10]; % in diopters (1 meter, 0.2 meters, 0.1 meter)
+
+thisDocker = dockerWrapper.humanEyeDocker;
+
 opticalImages = cell(length(accomm),1);
 for ii = 1:length(accomm)
     
-    myScene.accommodation = accomm(ii);
-    myScene.name = sprintf('accom_%0.2fdpt',myScene.accommodation);
+    thisSE.set('accommodation',accomm(ii));
+    thisSE.name = sprintf('accom_%0.2fdpt',thisSE.get('accommodation'));
     
     % When we change accommodation the lens geometry and dispersion curves
     % of the eye will change. ISETBIO automatically generates these new
     % files at rendering time and will output them in your working
     % directory. In general, you may want to periodically clear your
     % working directory to avoid a build up of files.
-    oi = myScene.render;
-    ieAddObject(oi);
+    oi = thisSE.piWRS('docker wrapper',thisDocker);
+    % oi = piAIdenoise(oi);
+    % oiWindow(oi);
+
     opticalImages{ii} = oi;
 end
 
-oiWindow;
-
+%%
 
 
 

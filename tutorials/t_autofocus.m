@@ -51,7 +51,7 @@ oiWindow(oi);
 fprintf('PSF diameter: %.2f um\n',oiPSF(oi,'diameter','units','um'));
 
 %% Now, show the ray trace for the yFan case
-nLines = 20;
+nLines = 50;
 camera.draw(nLines);
 
 %% Notice that we now have the entrance pupil in the yFan sample points

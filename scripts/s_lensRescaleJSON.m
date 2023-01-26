@@ -14,7 +14,7 @@ ieInit
 %
 
 % Here is a list of all of them
-lensFiles = lensList;
+lensFiles = lensC.list;
 
 % Pick one 
 this = 8;

@@ -1,7 +1,24 @@
-%% Set
 function set(obj,pName,val,varargin)
+%% lensC:  Set gateway
+%  
+% Synopsis
+%  lensC.set(pName,val,varargin);
+%
+% Inputs
+%  pName - property name
+%  val   - property value
+%
+% See also
+%   lensC.get
+
+%% Squeeze out spaces and force to lower case
 pName = ieParamFormat(pName);
+
+%% Onward
 switch pName
+    case 'name'
+        % lens.set('name','thisName');
+        obj.name = val;
     case 'wave'
         % lens.set('wave',val);
         % The wavelength var is annoying. This could go away
@@ -21,10 +38,10 @@ switch pName
         % Used for microlens.  Set the size, as measured by the front
         % aperture, to a particular size in mm.
         obj.adjustSize(val);
-    case 'middleaperturediameter'
+    case {'middleaperturediameter','aperturediameter'}
         % Set the middle aperture to diameter val (mm)
-        middleAperture = obj.get('aperture');
-        obj.surfaceArray(middleAperture).apertureD = val;
+        idx = obj.get('aperture index');
+        obj.surfaceArray(idx).apertureD = val;
     case 'aperturesample'
         obj.apertureSample = val;
     case 'surfacearrayindex'

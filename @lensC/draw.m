@@ -1,4 +1,4 @@
-function obj =  draw(obj, fHdl, lColor)
+function [obj, fHdl] =  draw(obj, fHdl, lColor)
 % Draw the the multi-element lens surfaces and microlens in a graph window
 %
 % Syntax
@@ -14,7 +14,7 @@ function obj =  draw(obj, fHdl, lColor)
 %
 % Parameters
 %  obj  -   A lens object
-%  fHdl -   A figure handle.  If not passed, then ieNewGraphWin is
+%  fHdl -   A figure handle or a subplot description.  
 %           called and that figure handle is set in the lens object
 %           field fHdl 
 %  lColor - RGB value of lens lines (lens color).  Default is black [0 0 0]
@@ -25,10 +25,27 @@ function obj =  draw(obj, fHdl, lColor)
 %    psfCameraC.draw
 %
 
+%{
+  thisLens = lensC('filename','2ElLens.json');
+  thisLens.draw;                          % A window of its own
+  thisLens.draw([1,2,1]);                 % In a subplot
+  thisLens.draw(ieNewGraphWin,[0 0 1]);   % Blue lenses
+  thisLens.draw([1,2,1],[0 0 1]);         % Subplot and a Blue lenses
+%}
+
 %% Create the figure and set the parameters
 
+useSubplot = false; % default
+drawLegend = true; % default
 if ~exist('fHdl','var'), fHdl = ieNewGraphWin; axis equal;
 elseif isempty(fHdl)     % Do nothing
+elseif isa(fHdl,'double') 
+    % User sent in a 3-vector describing the subplot dimensions and panel
+    assert(numel(fHdl) == 3);
+    thisF = ieNewGraphWin;
+    subplot(fHdl(1),fHdl(2),fHdl(3));    
+    fHdl = thisF;    
+    drawLegend = false; % overlays graphic when in a subplot
 else,                    figure(fHdl); % Raise the figure
 end
 obj.fHdl = fHdl;
@@ -39,12 +56,17 @@ if ~exist('lColor','var'), lColor = [0 0 0]; end
 if ~isempty(obj.microlens)
     subplot(1,2,1);
 end
+idx = obj.get('aperture index');
 
 nSurfaces = obj.get('n surfaces');
 for lensEl = 1:nSurfaces
     % Get each surface element and draw it
     curEl = obj.surfaceArray(lensEl);
-    curEl.draw('fig',gcf,'color',lColor);    
+    if lensEl == idx
+        curEl.draw('fig',gcf,'color',[1 0.2 0]);
+    else
+        curEl.draw('fig',gcf,'color',lColor);
+    end
 end
 
 % Make sure the surfaces are all shown within the range
@@ -69,6 +91,7 @@ end
 
 axis image
 xlabel('mm'); ylabel('mm');
+title(sprintf('Lens:  %s\n',obj.get('name')));
 
 %% Set Focal point, principle point and nodal point
 hold all
@@ -81,8 +104,12 @@ p2 = pointVisualize(obj, 'image principal point', 'p size', 10, 'color', 'g');
 
 % Image nodal point
 p3 = pointVisualize(obj, 'image nodal point', 'p size', 5, 'color', 'r');
-legend([p1 p2 p3],...
-    {'Image focal point', 'Image principal point', 'Image nodal point'});
+
+% we don't have room for the legend in a typical sub-plot:
+if drawLegend
+    legend([p1 p2 p3],...
+        {'Image focal point', 'Image principal point', 'Image nodal point'});
+end
 %% Now the microlens
 if isempty(obj.microlens)
     return;
