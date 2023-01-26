@@ -2,14 +2,16 @@
 %
 %  Demonstrate tracing through the Gullstrand eye model.
 %
-% TL/BW Vistasoft Team
+% TL/BW Many years ago.
+% See also
+%   The human eye modeling work in ISET3d-v4 and ISETBio
 
 %%
 ieInit;
 
 %% Read the lens file and create a lens
 
-lensFileName = fullfile(ilensRootPath,'data', 'lens', 'gullstrand.dat');
+lensFileName = fullfile(piDirGet('lens'), 'gullstrand.dat');
 
 apertureMiddleD = 3;   % (mm) a relatively narrow pupil
 
@@ -20,6 +22,8 @@ thisLens = lensC('aperture sample', [nSamples nSamples], ...
     'aperture Middle D', apertureMiddleD,...
     'name','Gullstrand',...
     'focalLength',16.5);    
+
+thisLens.bbmCreate;
 
 % Draw the lens
 thisLens.draw
@@ -50,17 +54,18 @@ for ii=1:nSurfaces
 end
 
 %% Create a film (sensor), in this case this is the retina
+
 % In the future we may want this to be curved.
 
 % wavelength samples
 wave = thisLens.get('wave');
 
-% Let's only model the are around the fovea for now.
+% Let's only model around the fovea for now.
 % I am not sure what these units are.  I think millimeters.
 sensorSize = 0.026;    % mm?
 
 % The retina is very close to 16.5 mm from the back of the lens
-filmPosition = 16.7;
+filmPosition = 16.5;
 
 sensor = filmC('position', [0 0 filmPosition], ...
     'size', [sensorSize sensorSize], ...
@@ -96,7 +101,7 @@ iorImageSpace = 1.336;
 nLines = 500;
 jitter = true;
 camera.estimatePSF('n lines', nLines, 'jitter flag',jitter);
-set(gca,'xlim',[-5 20]); grid on
+set(gca,'xlim',[-15 20]); grid on
 
 %% Show the point spread in the optical image window
 
@@ -107,36 +112,16 @@ ieAddObject(oi); oiWindow;
 % Plot the illuminance along a horizontal line through the middle
 sz = oiGet(oi,'size');
 oiPlot(oi,'illuminance hline',round([1,sz(1)/2]));
-set(gca,'xlim',[-30 30],'xtick',-30:5:30)
+set(gca,'xlim',[-15 15],'xtick',-15:5:15)
 
 %%  Show a mesh of the luminance of the point spread
 
 illuminance = oiGet(oi,'illuminance');
 s = oiGet(oi,'spatial support','um');
 
-vcNewGraphWin;
+ieNewGraphWin;
 mesh(s(:,:,1), s(:,:,2), illuminance);
+set(gca,'xlim',[-6 6],'xtick',-6:2:6,'ylim',[-6 6],'ytick',-6:2:6)
 xlabel('Position (um)'); ylabel('Position (um)');
 
-%% psfTarget should be the normalized illuminance
-
-%% This human eye model has a focal length of 16.5 mm
-
-% We have some issue with it, though.  In CISET things seemed OK.  Now
-% BW is confused
-%{
-lensFileName = fullfile(ilensRootPath,'data', 'lens', 'gullstrand.dat');
-lens = lensC('fileName',lensFileName);
-film = filmC;
-camera = psfCameraC('lens',lens,'film',film,'pointsource',point);
-
 %%
-camera.film.position(3)
-camera.autofocus(550,'nm',1,1.236);   % This gets us really close.
-camera.film.position(3)
-
-camera.estimatePSF('n lines', nLines, 'jitter flag',jitter);
-oi = camera.oiCreate;
-ieAddObject(oi); oiWindow;
-
-%}
