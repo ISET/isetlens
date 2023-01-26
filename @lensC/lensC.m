@@ -166,15 +166,21 @@ classdef lensC <  handle
             p.addParameter('blackboxmodel',[])
             
             % Changed to look in isetcam/data/lens (Aug 2, 2022).
+            % Allow
             fullFileName = fullfile(piDirGet('lens'),'2ElLens.json');
-            p.addParameter('filename', fullFileName, @(x)(exist(x,'file')));
+            p.addParameter('filename', fullFileName, @(x)(exist(x,'file') || exist(x.name,'file')));
             
             p.parse(varargin{:});
+            if isstruct(p.Results.filename)
+                filename = p.Results.filename.name;
+            else
+                filename = p.Results.filename;
+            end
             
             % Initialize with the lens file and default name
-            obj.fileRead(p.Results.filename,'units',p.Results.units);
-            [~,obj.name,~] = fileparts(p.Results.filename);
-            obj.fullFileName = which(p.Results.filename);
+            obj.fileRead(filename,'units',p.Results.units);
+            [~,obj.name,~] = fileparts(filename);
+            obj.fullFileName = which(filename);
             
             % Basics
             if ~isempty(p.Results.name), obj.name  = p.Results.name; end
