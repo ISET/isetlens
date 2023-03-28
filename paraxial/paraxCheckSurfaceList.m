@@ -36,9 +36,10 @@ for si=1:length(surfsIN.order)
         case {'GRIN','GRINlens'} 
             surfslist{surfsIN.order(si)}=surfsIN.list{surfsIN.order(si)};
         case {'diaphragm'}
-            if si==1 %
-                Npre=n_ob;
-               [A,Vd_pre]=RefractiveIndexDispersion(586.7*1e-6,'mm','air0');
+            if si==1 % Just assume air if the first one is a diaphragm
+                Npre=n_ob;   %
+                Vd_pre = 0;  % Abbe number is 0
+                % [A,Vd_pre]=RefractiveIndexDispersion(586.7*1e-6,'mm','air0');
             else
                 Npre=surfslist{surfsIN.order(si-1)}.N;
                 Vd_pre=surfslist{surfsIN.order(si-1)}.abbeNumber;
