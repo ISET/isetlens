@@ -89,8 +89,12 @@ set(gca,'xlim',[-50 40],'ylim',[-15 15])
 %% Show the point spread in the optical image window
 oi = camera.oiCreate;
 oi = oiCrop(oi,[125 125 50 50]);
-ieAddObject(oi); oiWindow;
+% oiWindow(oi);
 
+rgb = oiGet(oi,'rgb');
+ieFigure;
+% oiPlot(oi,'irradiance image with grid')
+oiPlot(oi,'irradiance image wave',[], 550, 15);
 % oiSet(oi,'gamma',0.7);
 
 %% END

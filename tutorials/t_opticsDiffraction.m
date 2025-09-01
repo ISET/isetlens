@@ -1,5 +1,7 @@
 %% Optics diffraction tests for ISETLens
 %
+%                   *** Under Construction ***
+%
 % This script creates a point test input and then blurs it in 3 different
 % ways. 
 %
@@ -67,7 +69,7 @@ film = filmC('position', [0 0 5], ...
  apertures = [2, 1, 0.5, 0.25 0.1];   
 %}
 
-% {
+%{
 % Small example
 nSamples = [301, 401, 501 801]*5;  
 apertures = [2, 1, 0.5 0.1]; 
@@ -81,7 +83,7 @@ for ii=1:numel(apertures)
     lens.set('aperture sample',[nSamples(ii), nSamples(ii)]);
     lens.get('aperture diameter')
 
-    %% Create a camera out of lens, film ,and point source    
+    % Create a camera out of lens, film ,and point source    
     camera = psfCameraC('lens',lens,'film',film,'point source',point);
     
     % Automatically place the film at a distance where 550 nm will be in focus.
@@ -127,7 +129,7 @@ end
 % apertures the HURB should come close to matching the diffraction limited
 % case.  It is similar, but not that close.
 maxnorm= @(x)(x/max(x));
-ieNewGraphWin;
+ieFigure;
 for ii=1:numel(apertures)-1
     % Smooth the curves a bit with a Gaussian
     % We could also run more rays, which smooths the data too.  I am a
@@ -149,16 +151,15 @@ for ii=1:numel(apertures)-1
     plot(udata(ii).pos,maxnorm((2*besselj(1,x)./(x+eps)).^2),'k:','Linewidth',2);
 end
 
-return;
 
 %% Theoretical results based on ISET formula
-
+%{
 % Compare the PSF from HURB with ISET implementation
 
 % Match the camera parameters with the ones we used above.
 sensorWidth     = thisR.get('film width','m');
 focalLength     = camera.film.position(3)*1e-3;
-filmDistance    = thisR.get('film distance','m') 
+filmDistance    = thisR.get('film distance','m'); 
 apertureDiameter = camera.lens.apertureMiddleD*1e-3;
 
 % BW(?): This is an annoying way to make a single point scene.
@@ -308,6 +309,7 @@ ylabel('Relative radiance');
 legend('Theoretical', 'HURB', 'Huygens-Fresnel');
 
 %% Produce Huygens-Fresnel results
+
 % This does not work at the moment.
 %{
 % This section takes a long time to run - and you should only do it on
