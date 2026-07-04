@@ -165,8 +165,8 @@ switch fileFormat
             if ~isempty(sAsphericCoeff{ii})
                 jsonLens.surfaces(ii).aspheric_coefficients = sAsphericCoeff{ii};
             end
-            if ~isequal(sConicConstant, 0)
-                jsonLens.surfaces(ii).conic_constant = sAsphericCoeff{ii};
+            if sConicConstant(ii) ~= 0
+                jsonLens.surfaces(ii).conic_constant = sConicConstant(ii);
             end
         end
         

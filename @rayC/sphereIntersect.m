@@ -9,7 +9,7 @@ function intersectPosition = sphereIntersect(obj,center,radius)
 %
 % AL Vistasoft 2015
 
-nRays = length(obj.origin);
+nRays = size(obj.origin,1);
 
 % Make a vector of the center and radius
 repCenter = repmat(center, [nRays 1]);

@@ -168,11 +168,15 @@ classdef lensC <  handle
             % Changed to look in isetcam/data/lens (Aug 2, 2022).
             % Allow
             fullFileName = fullfile(piDirGet('lens'),'2ElLens.json');
-            p.addParameter('filename', fullFileName, @(x)(exist(x,'file') || exist(x.name,'file')));
+            p.addParameter('filename', fullFileName, @localLensFileExists);
             
             p.parse(varargin{:});
             if isstruct(p.Results.filename)
-                filename = p.Results.filename.name;
+                if isfield(p.Results.filename,'folder') && ~isempty(p.Results.filename.folder)
+                    filename = fullfile(p.Results.filename.folder,p.Results.filename.name);
+                else
+                    filename = p.Results.filename.name;
+                end
             else
                 filename = p.Results.filename;
             end
@@ -193,7 +197,7 @@ classdef lensC <  handle
                 obj.apertureSample = p.Results.aperturesample;
             end
 
-            if ~isempty(p.Results.wave), obj.set('wave',wave);  end
+            if ~isempty(p.Results.wave), obj.set('wave',p.Results.wave);  end
             % if ~isempty(p.Results.diffractionenabled)
             %     obj.diffractionEnabled = p.Results.diffractionenabled;
             % end
@@ -278,4 +282,13 @@ classdef lensC <  handle
     end
 end
 
-
+function tf = localLensFileExists(fileName)
+if isstruct(fileName)
+    if isfield(fileName,'folder') && ~isempty(fileName.folder)
+        fileName = fullfile(fileName.folder,fileName.name);
+    else
+        fileName = fileName.name;
+    end
+end
+tf = ischar(fileName) && exist(fileName,'file');
+end
