@@ -80,7 +80,14 @@ p.addRequired('fullFileName',@ischar);
 p.addParameter('description',obj.type,@ischar);
 p.addParameter('units','mm',@(x)(ismember(x,{'um','mm','m'})));
 
-% fullFileName = which(fullFileName);
+% Full files should have a first character that is '/' on Macs.   Ask Dave
+% what to check on a Windows machine.
+if ismac || isunix
+    assert(fullFileName(1) == '/');
+else
+    warning('Cannot check for full path on Windows yet\n%s\n',fullFileName);
+end
+
 p.parse(fullFileName,varargin{:});
 
 obj.fullFileName = fullFileName;
