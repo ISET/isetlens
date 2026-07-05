@@ -40,6 +40,7 @@ function rays = rtSourceToEntrance(obj, pointSource, jitterFlag, rtType, subSect
 if notDefined('jitterFlag'),     jitterFlag = false;     end
 if notDefined('rtType'),         rtType = 'realistic';   end
 if notDefined('subSection'),     subSection = [];    end
+% if notDefined('visualize'),      vis = true;         end
 
 % Define rays object
 rays = rayC();    % Classic rays

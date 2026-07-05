@@ -22,12 +22,11 @@
 % This calculation of transverse chromatic aberration is based on notes
 % from DHB.
 %
-% AL/BW Vistasoft Team, Copyright 2014
 
 %%
-ieInit
+ieInit;
 
-%% Use the simple default lens with an aperture in the middle.
+%% Use the default two-element lens with an aperture in the middle.
 thisLens = lensC;
 
 %% Set index of refraction for the lens
@@ -67,10 +66,10 @@ fprintf('Calculating for %d points\n',length(ps));
 thisLens.draw;
 pause(2);
 
-hold on;
-for ii=1:length(ps)
-    plot3(ps{ii}(3),ps{ii}(2),ps{ii}(3),'ro')
-end
+% hold on;
+% for ii=1:length(ps)
+%     plot3(ps{ii}(3),ps{ii}(2),ps{ii}(3),'ro')
+% end
 
 %%
 % ps = [0 -5 -101.5];
@@ -87,9 +86,8 @@ nLines = 0; jitterFlag = true;
 psfCamera.estimatePSF('n lines', nLines, 'jitter flag', jitterFlag);
 
 oi = psfCamera.oiCreate;
-ieAddObject(oi); oiWindow;
+oiWindow(oi);
 oi = oiSet(oi,'gamma',0.5);  % Makes the red/blue visible
-vcReplaceAndSelectObject(oi);
 
 %% Shift the aperture position to create transverse CA
 
@@ -100,7 +98,7 @@ pOrig    = s.get('zpos');     % Original position of the aperture
 
 
 %% Show the changing magnification with aperture z position
-d = -15;
+d = [-15 -5];
 
 for ii=1:length(d)
     aSurface = thisLens.get('aperture index');  % The surface with the aperture
@@ -108,9 +106,9 @@ for ii=1:length(d)
     psfCamera.film.clear();    % Clear the film
     
     s.set('zpos',pOrig + d(ii));  % Change the z position of the aperture
-    thisLens.sortSurfaceOrder;        % Make sure the s array is updated with the new position
-    thisLens.draw;
-    pause(2);
+    thisLens.sortSurfaceOrder;    % Make sure the s array is updated with the new position
+    % thisLens.draw;
+    % pause(2);
     
     % Should we add to the psf or should we start fresh?  We need to be
     % clearer.
@@ -122,16 +120,8 @@ for ii=1:length(d)
     oi = psfCamera.oiCreate;
     oi = oiSet(oi,'name',sprintf('Aperture pos = %.1f',s.get('z pos')));
     oi = oiSet(oi,'gamma',0.5);  % Makes the red/blue visible
-    ieAddObject(oi); oiWindow;
+    oiWindow(oi);
     
-end
-
-%% Show the points and the lens
-
-thisLens.draw
-hold on;
-for ii=1:length(ps)
-    plot3(ps{ii}(3),ps{ii}(2),ps{ii}(3),'ro')
 end
 
 %%

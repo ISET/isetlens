@@ -22,22 +22,27 @@ function obj = recordOnFilm(obj, film, varargin)
 % AL Copyright Vistasoft Team, 2014
 
 %%
+varargin = ieParamFormat(varargin);
+
 p = inputParser;
+
 p.addRequired('obj',@(x)(isa(x,'rayC')));
 p.addRequired('film',@(x)(isa(x,'filmC')));
 p.addParameter('nLines',0);
 p.addParameter('fig',[],@(x)(isa(x,'matlab.ui.Figure')));
 p.addParameter('samps', [], @isvector);
+p.addParameter('visualize',true);
 
 p.parse(obj,film,varargin{:});
 nLines = p.Results.nLines;
 h      = p.Results.fig;
 samps  = p.Results.samps;
+vis    = p.Results.visualize;
 
 % There are cases we don't want a figure to pop up.  Need to figure out how
 % to suppress.  If we can do it without another parameter, that would be
 % good.
-if isempty(h) && (nLines > 0), h = ieNewGraphWin; end
+if isempty(h) && (nLines > 0) && vis, h = ieFigure; end
 
 % We need to separate out the case of plenoptic rays and standard rays
 
@@ -61,7 +66,7 @@ liveRays.origin = rayIntersection(liveRays,film.position(3));
 
 
 %% Plot ray-trace
-if (isnumeric(nLines) && nLines > 0 || isstruct(nLines) && nLines.numLines > 0)
+if (isnumeric(nLines) && nLines > 0 || isstruct(nLines) && nLines.numLines > 0) && vis
     raysVisualize(oldOrigin,liveRays.origin,'nLines',nLines,'fig',h,...
         'samps', samps);
     film.draw;
@@ -93,8 +98,11 @@ if(isa(film, 'filmSphericalC'))
     imagePixel.position = [phi * abs(sensorRadius) theta * abs(sensorRadius) ];
     
     % Not sure why these are always shown.  Consider making an option.
-    ieFigure; hist(theta);
-    ieFigure; hist(phi);
+    if vis
+        ieFigure; hist(theta);
+        ieFigure; hist(phi);
+    end
+
     
 elseif(isa(film, 'filmC'))
     % When the filmC is the plane, this ....
@@ -185,7 +193,7 @@ imagePixel.position = ...
     serialWantedPixel = sub2ind(size(film.image), single(wantedPixel(:,1)), single(wantedPixel(:,2)), single(wantedPixel(:,3)));
     
     % Special cases for lots of photons, one photon, or no photons
-    if (length(serialUniqueIndex(:)) == 1)
+    if (isscalar(serialUniqueIndex(:)))
         % special case for length 1.  For some reason, hist has issues with
         % length 1.
         serializeFilm = film.image(:);
@@ -194,19 +202,26 @@ imagePixel.position = ...
         serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + 1;
         film.image = reshape(serializeFilm, size(film.image));
         
-    elseif(~isempty(serialUniqueIndex(:) > 0))
+    elseif(~~any(serialUniqueIndex(:) > 0, "all"))
         
         % Make a histogram count of something.  Looks like AL counts the
         % number of rays using hist() and then adds that count to a
         % location in the film image.
-        [countEntries] = hist(serialWantedPixel, serialUniqueIndex);
-        
+
+        % [countEntriesTMP] = hist(serialWantedPixel, serialUniqueIndex);
+        % edges = [serialUniqueIndex - 0.5; serialUniqueIndex(end) + 0.5];
+        % Adjust edges so histcounts returns counts aligned with serialUniqueIndex bins:
+        % construct edges between consecutive unique indices (midpoints) and extend at ends
+        midpoints = (serialUniqueIndex(1:end-1) + serialUniqueIndex(2:end)) / 2;
+        edges = [serialUniqueIndex(1) - 0.5; midpoints; serialUniqueIndex(end) + 0.5];
+        countEntries = histcounts(serialWantedPixel, edges);
+
         %serialize the film, then the indices, then add by countEntries
         serializeFilm = film.image(:);
         
         % Add the count to the serialized film and then reshape and place
         % in the film image.
-        serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries';
+        serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries(:);
         film.image = reshape(serializeFilm, size(film.image));
     else
         warning('No photons collected on film!');

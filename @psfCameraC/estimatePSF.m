@@ -26,6 +26,7 @@ function camera = estimatePSF(camera, varargin)
 %
 % AL/BW Vistasoft Team, Copyright 2014
 % ZLY, 2020
+%
 % See also:
 %  s_isetauto.m
 
@@ -39,6 +40,8 @@ p.addParameter('jitterflag', false, @islogical);
 p.addParameter('subsection', []);
 p.addParameter('rttype', 'realistic', @ischar);
 p.addParameter('nlines', 0);
+p.addParameter('visualize',false);
+
 validOpt = {'HURB','huygens'};
 p.addParameter('diffractionmethod', 'HURB', @(x)(ismember(x,validOpt)));
 
@@ -50,6 +53,7 @@ subsection = p.Results.subsection;
 diffractionMethod = p.Results.diffractionmethod;
 rtType = p.Results.rttype;
 nLines = p.Results.nlines;
+vis = p.Results.visualize;
 
 %%
 if isequal(diffractionMethod, 'HURB') 
@@ -68,14 +72,14 @@ if isequal(diffractionMethod, 'HURB')
         camera.rays.expandWavelengths(camera.lens.wave);
         
         %lens intersection and raytrace
-        [h, samps] = camera.lens.rtThroughLens(camera.rays, nLines);
+        [h, samps] = camera.lens.rtThroughLens(camera.rays, nLines,'visualize',vis);
         % title('Point source to final surface')
         %         obj.lens.rays.aExitInt.XY = origin
         %         obj.lens.rays.aExitInt.XY = direction
         
         % intersect with "film" and add to film
         if isempty(h)
-            camera.rays.recordOnFilm(camera.film, 'nLines',nLines);
+            camera.rays.recordOnFilm(camera.film, 'nLines',nLines,'visualize',vis);
         else
             camera.rays.recordOnFilm(camera.film, 'nLines',nLines,...
                     'fig', h, 'samps', samps);
@@ -200,10 +204,10 @@ elseif isequal(diffractionMethod, 'huygens') && camera.lens.diffractionEnabled
     %End Huygens ray-trace
 end
 
-if isnumeric(nLines) && nLines || isstruct(nLines) && nLines.numLines
+if ((isnumeric(nLines) && nLines) || (isstruct(nLines) && nLines.numLines)) && vis
     
     %% Set Focal point, principle point and nodal point
-    hold all
+    hold on
     
     % Image focal point
     p1 = pointVisualize(camera.lens, 'image focal point', 'p size', 10, 'color', 'b');

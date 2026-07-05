@@ -47,8 +47,11 @@ function [figHdl, samps, endPoint, direction] = rtThroughLens(obj, rays, nLines,
 
 %%
 p = inputParser;
+varargin = ieParamFormat(varargin);
+
 p.addParameter('visualize', true, @islogical);
 p.parse(varargin{:});
+
 vis = p.Results.visualize;
 
 %% Ray trace calculation starts here
@@ -244,13 +247,11 @@ for lensEl = 1:nSurfaces
         
         % At the last surface, add the rays and store the light field
         if lensEl == nSurfaces
-              intersectZ = repmat(curEl.sCenter(3), [nRays 1]);    % Thomas: this seemed to be missing?
+            intersectZ = repmat(curEl.sCenter(3), [nRays 1]); 
             rays.aExitInt.XY = endPoint(:,1:2);  % only X-Y coords
             rays.aExitInt.Z  = intersectZ;       % aperture Z
             rays.aExitDir    = rays.direction;
-        end
-        
-
+        end       
         
     elseif (curEl.sRadius == 0)
         % This is an aperture plane
@@ -287,15 +288,14 @@ for lensEl = 1:nSurfaces
         rays.aMiddleDir    = rays.direction;
         apertureCount = 1;   % Check that we never get here again!
         
-        if lensEl == 1 && nLines > 0
+        % To visualize or not
+        if lensEl == 1 && nLines > 0 && vis
             [samps,figHdl] = raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl);
             hold on
-        elseif isstruct(nLines) && nLines.numLines > 0 || isnumeric(nLines) && nLines > 0
-            if vis
-                raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
-            end
+        elseif ((isstruct(nLines) && nLines.numLines > 0) || isnumeric(nLines) && nLines > 0)  && vis
+            raysVisualize(rays.origin,endPoint,'nLines',nLines,'surface',curEl,'fig',figHdl,'samps',samps);
         end
-        
+
         % HURB diffraction calculation
         if (obj.diffractionEnabled)
             obj.rtHURB(rays, endPoint, curApSemiDiam);
