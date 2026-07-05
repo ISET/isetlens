@@ -1,4 +1,4 @@
-%% Lens ray tracing illustrated
+%% Lens ray tracing
 %
 %  Create a point source
 %  Read in a lens file
@@ -6,7 +6,8 @@
 %  Visualize Ray trace the point through the lens to the film
 %  Create an optical image of the ray trace
 %
-% AL/BW VISTASOFT 2014  Edited by BW, AJ, 2017 June
+% All the way back to Andy Lin days!  2014.
+%
 
 %%
 ieInit
@@ -87,14 +88,12 @@ camera.estimatePSF('n lines',nLines, 'jitter flag',jitter);
 set(gca,'xlim',[-50 40],'ylim',[-15 15])
 
 %% Show the point spread in the optical image window
-oi = camera.oiCreate;
-oi = oiCrop(oi,[125 125 50 50]);
-% oiWindow(oi);
 
+oi  = camera.oiCreate;
+oi  = oiCrop(oi,[125 125 50 50]);
 rgb = oiGet(oi,'rgb');
-ieFigure;
-% oiPlot(oi,'irradiance image with grid')
+
+% Rather than use oiWindow(oi), I plot the image with the spatial grid.
 oiPlot(oi,'irradiance image wave',[], 550, 15);
-% oiSet(oi,'gamma',0.7);
 
 %% END

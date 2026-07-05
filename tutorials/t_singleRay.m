@@ -15,12 +15,12 @@ wave = thisLens.get('wave');
 
 %% Lens add surface for final ray trace
 %
-% The script as TG found it only traces until the last surface. He added
-% one more nearly flat surface behind the lens. This is a hack such that
-% the ray tracer continues until final surface for visualisation.
+% The script traces until the last surface. TG added one more nearly flat
+% surface behind the lens. This is a hack such that the ray tracer
+% continues until final surface for visualisation.
 %
-% I think we have other ways, by adding film.  But for now, let's just use
-% Thomas' method.
+% Usually, we trace to the end by creating a camera and adding film.  But
+% for this example, let's just use TG's method.
 
 radiusfinal = 1e9;   % large to make it nearly flat
 finalsurface = surfaceC('sCenter', [0 0 radiusfinal+20], 'sRadius',radiusfinal,'wave',wave);
