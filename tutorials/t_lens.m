@@ -1,6 +1,7 @@
 %% Lens tutorial
 %
-% We draw the lens and find all the pre-defined lenses.
+% * Draw a lens
+% * Find all the pre-defined lenses.
 %
 % See also
 %   lensC
@@ -24,3 +25,5 @@ thisLens.plot('focal distance');
 thisLens = lensC('filename',lenses(11).name);
 
 thisLens.draw;
+
+%%

@@ -8,11 +8,11 @@
 %
 % AL/BW VISTASOFT 2014
 
-% We could also do this for a couple of film distances and point distances
 %%
 ieInit
 
 %% Make a point far away.  A little off center and 100 mm from the back surface
+% We could also do this for a couple of film distances and point distances
 
 pY = [0 0.2 0.5 1];
 point = psCreate(0,pY,-1000);
@@ -57,12 +57,12 @@ camera.estimatePSF('n lines', nLines, 'jitter flag', jitter);
 %% Show the point spread in the optical image window
 
 oi = camera.oiCreate;
-ieAddObject(oi); oiWindow;
+oiWindow(oi);
 
 %% Move the sensor to different distances from the lens
 
 % Sensor distances near the lens focal plane
-dist = filmDistance + [-0.2 0 0.2];
+dist = filmDistance + [-0.5 0 0.5];
 for dd = dist
     sensor = filmC('position', [0 0 dd], ...
         'size', [2 2], ...
@@ -78,7 +78,7 @@ for dd = dist
     oi = camera.oiCreate;
     oi = oiSet(oi,'name',sprintf('Sensor dist %.1f',dd));
     
-    ieAddObject(oi); oiWindow;
+    oiWindow(oi);
 end
 
 
