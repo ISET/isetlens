@@ -81,9 +81,8 @@ sensor = sensorCreate('MT9V024');       % This is a 6 um sensor
 sensor = sensorSetSizeToFOV(sensor,2);  % Make it small
 sensor = sensorCompute(sensor,oi);
 
-% Bring up the window, with the display intensity scaled to max
-sensorWindow(sensor,'scale',1);
+% Bring up the sensor window.
+sensorWindow(sensor);
 
 %%
-
 

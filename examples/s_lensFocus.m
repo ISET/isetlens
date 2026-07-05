@@ -1,7 +1,7 @@
 %% Render using a lens plus a microlens
 %
 % Dependencies:
-%    ISET3d, ISETCam, JSONio
+%    ISET3d, ISETCam, Docker/PBRT
 %
 % Check that you have the updated docker image by running
 %
@@ -24,56 +24,25 @@
 
 ieInit;
 if ~piDockerExists, piDockerConfig; end
-if isempty(which('RdtClient'))
-    error('You must have the remote data toolbox on your path'); 
-end
+
 %% Read the pbrt files
 
-% sceneName = 'kitchen'; sceneFileName = 'scene.pbrt';
-% sceneName = 'living-room'; sceneFileName = 'scene.pbrt';
-sceneName = 'ChessSet'; sceneFileName = 'ChessSet.pbrt';
+sceneName = 'chessSet';
+thisR = piRecipeDefault('scene name',sceneName);
+thisR.set('render type',{'radiance','depth'});
+thisR.set('skymap','room.exr');
 
-% The output directory will be written here to inFolder/sceneName
-inFolder = fullfile(piRootPath,'local','scenes');
-
-% This is the PBRT scene file inside the output directory
-inFile = fullfile(inFolder,sceneName,sceneFileName);
-
-if ~exist(inFile,'file')
-    % Sometimes the user runs this many times and so they already have
-    % the file.  We only fetch the file if it does not exist.
-    fprintf('Downloading %s from RDT',sceneName);
-    dest = piPBRTFetch(sceneName,'pbrtversion',3,...
-        'destinationFolder',inFolder,...
-        'delete zip',true);
-end
-
-thisR  = piRead(inFile);
-
-% We will output the calculations to a temp directory.  
-outFolder = fullfile(tempdir,sceneName);
-outFile   = fullfile(outFolder,[sceneName,'.pbrt']);
-thisR.set('outputFile',outFile);
 %% Set render quality
 
 % Set resolution for speed or quality.
 thisR.set('film resolution',round([30 20]));  % Super small for speed
 thisR.set('pixel samples',1);                 % Very few rays
 
-%% Set output file
-
-oiName = sceneName;
-outFile = fullfile(piRootPath,'local',oiName,sprintf('%s.pbrt',oiName));
-thisR.set('outputFile',outFile);
-outputDir = fileparts(outFile);
-
 %% Add camera with lens
 
 % For the dgauss lenses 22deg is the half width of the field of view
 
-allLenses = lensC.list;
-thisLens = 15;
-lensfile =  allLenses(thisLens).name;
+lensfile = 'dgauss.22deg.3.0mm.json';
 filmwidth  = 2;
 filmheight = 2;
 fprintf('Using lens: %s\n',lensfile);
@@ -108,9 +77,9 @@ thisR.sampler.subtype    = 'sobol';
 
 thisR.set('aperture diameter',2);   % thisR.summarize('all');
 
-% Focal distance from 0.1 to 10 meters.  Six samples.  The last one is
-% very far and thus is really the lens focal length.
-setFocusDistance = [logspace(-0.3,1.5,5),100];
+% Focal distance from 1 to 30 meters.  The last one is very far and thus is
+% really the lens focal length.
+setFocusDistance = [logspace(0,1.5,2),100];
 lensFilm = zeros(size(setFocusDistance));
 infocusDistance = zeros(size(setFocusDistance));
 
@@ -118,20 +87,26 @@ for ii=1:numel(setFocusDistance)
     
     thisR.set('focus distance',setFocusDistance(ii));
     
-    % Change this for depth of field effects.
-    piWrite(thisR,'creatematerials',true);
-    
     % PBRT estimates the distance.  It is not perfectly aligned to the depth
     % map, but it is close.
+    [~, result] = piWRS(thisR, ...
+        'show',false, ...
+        'render type',{'radiance','depth'}, ...
+        'name',sprintf('%s focus %.2f m',sceneName,setFocusDistance(ii)));
     
-    [oi, result] = piRender(thisR,'render type','depth');
-    
-    % Parse the result for the lens to film distance and the in-focus
-    % distance in the scene.
-    [lensFilm(ii), infocusDistance(ii)] = piRenderResult(result);
+    % Older PBRT output included parseable focus diagnostics.  PBRT v4 may
+    % omit those strings, so use the recipe getters as the stable path.
+    if (ischar(result) || isstring(result)) && ...
+            contains(result,'film to back of lens:') && ...
+            contains(result,'Focus distance in scene: ')
+        [lensFilm(ii), infocusDistance(ii)] = piRenderResult(result);
+    else
+        lensFilm(ii) = thisR.get('film distance','m');
+        infocusDistance(ii) = thisR.get('focus distance','m');
+    end
 end
 
-ieNewGraphWin;
+ieFigure;
 semilogx(infocusDistance,lensFilm,'ok--');
 xlabel('In focus distance (m)');
 ylabel('Film distance (m)');

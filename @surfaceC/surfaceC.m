@@ -134,9 +134,9 @@ classdef surfaceC <  handle
                     res = obj.wave;
                 case 'n'
                     res = obj.n;
-                case 'sRadius'
+                case 'sradius'
                     res = obj.sRadius;
-                case {'zpos','zintercept'}
+                case {'zpos','zposition','zintercept'}
                     % The z-position of the surface.
                     % The surface is a sphere.  We know the position of the
                     % sphere center. We subtract the sphere radius to find
@@ -146,7 +146,7 @@ classdef surfaceC <  handle
                 case 'conicconstant'
                     res = obj.conicConstant;
                 case 'asphericcoeff'
-                    res = obj.ashphericCoeff;
+                    res = obj.asphericCoeff;
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end
@@ -176,6 +176,7 @@ classdef surfaceC <  handle
                     prevWave = obj.wave;
                     obj.wave = val;
                     obj.n = interp1(prevWave, obj.n, obj.wave, 'linear', 'extrap');
+                    obj.n = obj.n(:);
                     
                 case 'n' % Index of refraction
                     % There should be one index of refraction for each
@@ -187,8 +188,8 @@ classdef surfaceC <  handle
                 
                 case 'conicconstant' % conicConstant parameter (i.e. "Q")
                     obj.conicConstant = val;
-                case 'ashphericcoeff'
-                    obj.ashphericCoeff = val;
+                case {'asphericcoeff','ashphericcoeff'}
+                    obj.asphericCoeff = val;
                 case {'subtype'}
                     % Type of surface
                     obj.subtype = val;

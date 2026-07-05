@@ -221,7 +221,7 @@ for lensEl = 1:nSurfaces
         rays.normalizeDir();
         
         % newVec2 = newVec./repmat(sqrt(sum(newVec.*newVec, 2)), [1 3]); %normalizes each row
-        % vcNewGraphWin; plot(newVec(:),newVec2(:),'.');
+        % ieFigure; plot(newVec(:),newVec2(:),'.');
         %
         %note: curN won't change if the surface is an aperture
         prevN = curN;

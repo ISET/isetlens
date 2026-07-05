@@ -22,7 +22,11 @@ pName = ieParamFormat(pName);
 switch pName
     % Lens general parameters
     case 'name'
+        % Shorter name, without the path.
         res = obj.name;
+    case 'fullfilename'
+        % Full path
+        res = obj.fullFileName;
     case 'wave'
         res = obj.wave;
     case 'nwave'

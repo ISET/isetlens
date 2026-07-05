@@ -47,7 +47,7 @@ switch(pType)
         filmDistance = lensFocus(obj,objDist);
         filmDistance(filmDistance < 0) = NaN;
 
-        hdl = vcNewGraphWin;
+        hdl = ieFigure;
         semilogx(objDist,filmDistance,'ko-','LineWidth',1); grid on;
         xlabel('Obj dist (mm)'); ylabel('Focal distance (mm)');
         title(sprintf('%s',obj.name));
@@ -55,4 +55,3 @@ switch(pType)
 end
 
 end
-

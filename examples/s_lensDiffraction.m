@@ -9,8 +9,8 @@ pt{1} = [0, 0,-100];      % Pretty far away
 film.size = [0.05 0.05];    % 200 microns
 
 %% A sphere and a planar surface for the diffraction
-% This one has a radius of 8mm.
-lens = lensC('filename','diffraction8.dat');
+% This lens file is maintained with the shared ISETCam/ISET3D lens data.
+lens = lensC('filename',fullfile(piDirGet('lens'),'diffraction.dat'));
 lens.draw;
 lens.bbmCreate;
 

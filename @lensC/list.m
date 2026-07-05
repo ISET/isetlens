@@ -8,7 +8,8 @@ function files = list(varargin)
 %   N/A
 %
 % Key/val pairs
-%   quiet - DO not print, just return the list
+%   quiet      - Do not print, just return the list (false)
+%   nameonly   - Return the whole file struct, ot just the name (false)
 %
 % Output
 %   files - Array of file information
@@ -17,23 +18,38 @@ function files = list(varargin)
 %   lensC
 
 %% Parse inputs
+
+varargin = ieParamFormat(varargin);
+
 p = inputParser;
 
 % If you want the list returned without a print
 p.addParameter('quiet',false,@islogical);
+p.addParameter('nameonly',false,@islogical);
 
 p.parse(varargin{:});
 
 quiet = p.Results.quiet;
-
-lensDir = piDirGet('lens');
+nameonly = p.Results.nameonly;
 
 %%
-files = dir(fullfile(lensDir,'*.json'));
-if quiet, return; end
+files = dir(fullfile(piDirGet('lens'),'*.json'));
 
-for ii=1:length(files)
-    fprintf('%d - %s\n',ii,files(ii).name);
+if nameonly
+    names = cell(numel(files),1);
+    for ii=1:numel(files)
+        names{ii} = files(ii).name;
+    end
+    files = names;
 end
+
+if quiet, return;
+else
+    fprintf('\nLens JSON files\n\n')
+    for ii=1:length(files)
+        fprintf('%d - %s\n',ii,files(ii).name);
+    end
+end
+
 
 end

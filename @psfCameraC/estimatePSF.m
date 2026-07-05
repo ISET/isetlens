@@ -135,7 +135,7 @@ elseif isequal(diffractionMethod, 'huygens') && camera.lens.diffractionEnabled
         
         numApertureSamplesTot = length(apXGridFlat);
         
-        % vcNewGraphWin;
+        % ieFigure;
         % plot(apXGridFlat, apYGridFlat, 'o');  %plot the aperture samples
         
         % Create sensor grid

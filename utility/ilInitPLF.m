@@ -23,15 +23,15 @@ function [pts, lens, film] = ilInitPLF
 % BW SCIEN STANFORD, 2018
 %
 % See also
-%   s_initPLF
+%   lensC, filmC, psCreate
 
 %% pts
 
 % Some day this will be a point source object
 pts{1} = [0 1.7 -103];
 
-%% Define the Lens 
-lensFileName = fullfile(ilensRootPath,'data', 'lens', '2ElLens.dat');
+%% Define the Lens
+lensFileName = fullfile(piDirGet('lens'),'2ElLens.json');
 nSamples = 151;
 apertureMiddleD = 8;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...

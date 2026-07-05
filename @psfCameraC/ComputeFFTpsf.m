@@ -101,7 +101,7 @@ theta = atan2(Yn,Xn); % theta
 % II) Apodization (assumed uniform for all the wavelength)
 typeApod = 'uniform';
 [ApodW]  = psfGetApodFun(typeApod,rho,theta,0);
-% vcNewGraphWin; imagesc(ApodW)
+% ieFigure; imagesc(ApodW)
 
 % III) Phase Function = Seidel Aberration + Defocus
 % Wavelength dependence (included in the function)
@@ -118,7 +118,7 @@ W_pa  = psfGetPhaseFun(CoeffPA,'primary aberration',rho,theta);
 % IV) PUPIL FUNCTION= APODIZATION * EXP (-i*k*PHASE_FUNCTION)
 % Wavelength dependence (included in the function)
 [PupilFun] = psfGetPupilFun(ApodW,W_pa,W_def,wave_mm);
-% vcNewGraphWin; imagesc(abs(PupilFun(:,:,1)))
+% ieFigure; imagesc(abs(PupilFun(:,:,1)))
 
 %% COMPUTE POINT SPREAD FUNCTION (PSF)
 light_type = 'incoherent';

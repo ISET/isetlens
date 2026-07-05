@@ -166,15 +166,25 @@ classdef lensC <  handle
             p.addParameter('blackboxmodel',[])
             
             % Changed to look in isetcam/data/lens (Aug 2, 2022).
+            % Allow
             fullFileName = fullfile(piDirGet('lens'),'2ElLens.json');
-            p.addParameter('filename', fullFileName, @(x)(exist(x,'file')));
+            p.addParameter('filename', fullFileName, @localLensFileExists);
             
             p.parse(varargin{:});
+            if isstruct(p.Results.filename)
+                if isfield(p.Results.filename,'folder') && ~isempty(p.Results.filename.folder)
+                    filename = fullfile(p.Results.filename.folder,p.Results.filename.name);
+                else
+                    filename = p.Results.filename.name;
+                end
+            else
+                filename = p.Results.filename;
+            end
             
             % Initialize with the lens file and default name
-            obj.fileRead(p.Results.filename,'units',p.Results.units);
-            [~,obj.name,~] = fileparts(p.Results.filename);
-            obj.fullFileName = which(p.Results.filename);
+            obj.fileRead(filename,'units',p.Results.units);
+            [~,obj.name,~] = fileparts(filename);
+            obj.fullFileName = which(filename);
             
             % Basics
             if ~isempty(p.Results.name), obj.name  = p.Results.name; end
@@ -187,7 +197,7 @@ classdef lensC <  handle
                 obj.apertureSample = p.Results.aperturesample;
             end
 
-            if ~isempty(p.Results.wave), obj.set('wave',wave);  end
+            if ~isempty(p.Results.wave), obj.set('wave',p.Results.wave);  end
             % if ~isempty(p.Results.diffractionenabled)
             %     obj.diffractionEnabled = p.Results.diffractionenabled;
             % end
@@ -266,10 +276,19 @@ classdef lensC <  handle
             firstApertureRadius = obj.surfaceArray(1).apertureD/2;
             apertureMask = (aGrid.X.^2 + aGrid.Y.^2) <= firstApertureRadius^2;
             
-            % vcNewGraphWin;  mesh(double(apertureMask))
+            % ieFigure;  mesh(double(apertureMask))
             
         end        
     end
 end
 
-
+function tf = localLensFileExists(fileName)
+if isstruct(fileName)
+    if isfield(fileName,'folder') && ~isempty(fileName.folder)
+        fileName = fullfile(fileName.folder,fileName.name);
+    else
+        fileName = fileName.name;
+    end
+end
+tf = ischar(fileName) && exist(fileName,'file');
+end

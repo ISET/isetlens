@@ -84,6 +84,6 @@ aGrid.Z = repmat(obj.get('lens thickness'),[nPts,1]);
 
 %debug check
 %
-% vcNewGraphWin; plot(aGrid.X, aGrid.Y, 'o');
+% ieFigure; plot(aGrid.X, aGrid.Y, 'o');
 
 end

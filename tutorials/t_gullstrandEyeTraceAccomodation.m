@@ -1,16 +1,18 @@
 %% t_gullstrandEyeTraceAccomodation
 %
-% Here we demonstrate tracing through the gullstrand eye model. Using
-% Navarro's equations, we can also model the chromatic aberration present
-% in the eye.
+% Tracing through the gullstrand eye model. Using Navarro's equations,
+% we can also model the chromatic aberration present in the eye.
 %
-% We play with Navarro's accommodation-dependent model in this script. As
-% the eye accomodates at different distances in the scene, we, change the
-% radius, thickenss, and refractive index of the lens. 
-
+% We explore Navarro's accommodation-dependent model in this script.
+% As the eye accomodates at different distances in the scene, we,
+% change the radius, thickenss, and refractive index of the lens.
+%
 % TL/BW Vistasoft Team
+%
+% See also
+%  t_gullstranEyeTrace, human eye models in ISET3d/ISETBio
 
-% PROBLEMS: 
+% PROBLEMS:
 % The refractive power we measure of the Gullstrand eye (using CISET
 % raytracing with a point far away) is short of the actual refractive power
 % cited in the paper (e.g. 16.4 mm vs 16.7 mm)
@@ -21,24 +23,25 @@
 % the slope of the line is much steeper than is cited. This means the
 % refractive power increases too fast as the accommodation in diopters
 % increases. Why? Is this an issue with our CISET version of raytracing, or
-% are we modeling something incorrectly or missing something? 
+% are we modeling something incorrectly or missing something?
 
 %%
-% ieInit
+ieInit
 
 %% Read the lens file and create a lens
 
-lensFileName = fullfile(cisetRootPath,'data', 'lens', 'gullstrand.dat');
+lensFileName = fullfile(piDirGet('lens'), 'gullstrand.dat');
 
 apertureMiddleD = 2;   % (mm) a relatively narrow pupil
 
 nSamples = 125; % Number of spatial samples in the aperture.
-lens = lensC('apertureSample', [nSamples nSamples], ...
+thisLens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD,...
     'name','Gullstrand',...
     'focalLength',16.5);    % For CISET, 16.5mm is about the focal distance.
 
+thisLens.bbmCreate;
 
 % Set conicConstant
 % TODO: Set this in the lens file in the future
@@ -51,7 +54,7 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
 % end
 
 % Draw the lens
-lens.draw
+thisLens.draw
 
 
 %% Set index of refraction for the lens
@@ -82,7 +85,7 @@ end
 % In the future we may want this to be curved.
 
 % wavelength samples
-wave = lens.get('wave');
+wave = thisLens.get('wave');
 
 % Let's only model the are around the fovea for now. The fovea is around
 % 1.5 mm wide, so let's make the sensor 2 mm x 2 mm.
@@ -96,9 +99,9 @@ sensor = filmC('position', [0 0 filmPosition], ...
     'resolution',[300 300],...
     'wave', wave);
 
-%% Let's change the accommodation now. 
+%% Let's change the accommodation now.
 
-A = 0; % Accomodation in diopters, this is the change in diopters from the lens' normal refractive power. 
+A = .3; % Accomodation in diopters, this is the change in diopters from the lens' normal refractive power.
 
 % These equations are from Table 4 in Navarro's paper.
 anteriorRadius = 10.2 - 1.75*log(A+1);
@@ -118,10 +121,10 @@ lensIOR = 1.42 + (9e-5)*(10*A+A^2);
 % ANSWER: New equations in navarro need to be implemented
 
 lensMatrix = [7.8	0.55	1.3771	11;
-6.5	aqueousThickness	1.3374	10.5;
-0	0	0	10.2;
-anteriorRadius	lensThickness	lensIOR	10.632;
-posteriorRadius	0	1.336	10.632];
+    6.5	aqueousThickness	1.3374	10.5;
+    0	0	0	10.2;
+    anteriorRadius	lensThickness	lensIOR	10.632;
+    posteriorRadius	0	1.336	10.632];
 
 focalLength = 1/(60.6061 + A)*10^3; % mm
 
@@ -142,23 +145,24 @@ fclose(fid);
 
 nSamples = 125; % Number of spatial samples in the aperture.
 % Load the new lens file
-lens = lensC('apertureSample', [nSamples nSamples], ...
+thisLens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', newFileName, ...
     'apertureMiddleD', apertureMiddleD,...
     'name',sprintf('Gullstrand - %0.2fD',A),...
     'focalLength',16.5);    % For CISET, 16.5mm is about the focal distance.
 
-lens.draw
+thisLens.bbmCreate;
+thisLens.draw
 
 
 %% Trace
 
 pointsVerticalPosition = [0];
-pointDistance = -1e15; % 
+pointDistance = -1e15; %
 point = psCreate(0,pointsVerticalPosition,pointDistance);
 
-% Create the camera using the sensor and lens we defined above. 
-camera = psfCameraC('lens',lens,'film',sensor,'point',point);
+% Create the camera using the sensor and lens we defined above.
+camera = psfCameraC('lens',thisLens,'film',sensor,'point',point);
 
 % Estimate the PSF and show the ray trace
 nLines = 100;
@@ -170,3 +174,5 @@ set(gca,'xlim',[-5 20]); grid on
 
 % Delete the temp lens file
 delete(newFileName);
+
+%%

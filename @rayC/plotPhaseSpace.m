@@ -7,7 +7,7 @@ function obj = plotPhaseSpace(obj)
     position = obj.origin(:,1);
     theta_x = angles(:,1);
     
-    vcNewGraphWin;
+    ieFigure;
     subplot(1,2,1);
     plot(position, theta_x, 'o', 'MarkerSize', 2);  
     xlabel('x');
@@ -17,7 +17,7 @@ function obj = plotPhaseSpace(obj)
     position = obj.origin(:,2);
     theta_y = angles(:,2);
     
-    %vcNewGraphWin;
+    %ieFigure;
     subplot(1,2,2);
     plot(position, theta_y, 'o', 'MarkerSize', 2);  
     xlabel('y');

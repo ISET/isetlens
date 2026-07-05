@@ -17,7 +17,8 @@ ieInit
 %%  Initialize a point and a camera
 
 point{1} = [0 0 -1000];   % Negative is in object space
-lensFileName = 'dgauss.22deg.12.5mm.json';
+lenses = lensC.list('quiet',true);
+lensFileName = lenses(7).name;
 
 % lensFileName = fullfile(ilensRootPath,'data','lens','dgauss.22deg.12.5mm.dat');
 lens = lensC('fileName',lensFileName);
