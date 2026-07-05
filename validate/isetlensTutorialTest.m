@@ -89,6 +89,10 @@ reason = '';
 
 switch fileName
     case 't_rayTracingIntroduction'
+        if isempty(which('sceneEye')) || isempty(which('piCamBio')) || piCamBio
+            reason = 'requires ISETBio sceneEye support';
+            return;
+        end
         if isempty(which('piDockerExists')) || ~piDockerExists
             reason = 'requires ISET3D Docker/PBRT rendering support';
         end

@@ -11,7 +11,7 @@ ieInit;
 
 %% Read the lens file and create a lens
 
-lensFileName = fullfile(piDirGet('lens'), 'gullstrand.dat');
+lensFileName = fullfile(piDirGet('lens'), 'gullstrand.json');
 
 apertureMiddleD = 3;   % (mm) a relatively narrow pupil
 
@@ -119,7 +119,7 @@ set(gca,'xlim',[-15 15],'xtick',-15:5:15)
 illuminance = oiGet(oi,'illuminance');
 s = oiGet(oi,'spatial support','um');
 
-ieNewGraphWin;
+ieFigure;
 mesh(s(:,:,1), s(:,:,2), illuminance);
 set(gca,'xlim',[-6 6],'xtick',-6:2:6,'ylim',[-6 6],'ytick',-6:2:6)
 xlabel('Position (um)'); ylabel('Position (um)');

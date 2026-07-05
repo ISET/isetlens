@@ -34,19 +34,16 @@ point = psCreate(0,0,-1e+15);
 
 %% Change the aperture to see when diffraction becomes significant
 
-% Read a lens file and create a lens. The "diffraction" lens consists of a
-% spehrical plane, an aperture, and a flat plane behind it.
-% we don't have a .json version yet
-lensFileName = fullfile(piDirGet('lens'),'diffraction.dat');
-
-% lensFileName = fullfile(ilensRootPath,'data', 'lens', 'diffraction.dat');
-
-nSamples = 20;
-% Lens comes back with 400:50:700
+% Create a simple three-surface diffraction lens. This is equivalent to the
+% old diffraction.dat file, without requiring a DAT-file read.
+nSamples = 21;
 lens = lensC('apertureSample', [nSamples nSamples], ...
-    'fileName', lensFileName, ...
     'apertureMiddleD', 2, ...
     'diffractionEnabled', true);
+lens.name = 'diffraction';
+lens.focalLength = 6;
+lens.elementsSet([0; 0.18; 0.03], [8.04; 0; -1000], [3; 3; 3], [1.65; 1; 1]);
+lens.apertureMiddleD = 2;
 wave = lens.get('wave');
 lens.draw;
 % lens.set('wave', (400:10:700));
@@ -69,11 +66,9 @@ film = filmC('position', [0 0 5], ...
  apertures = [2, 1, 0.5, 0.25 0.1];   
 %}
 
-%{
 % Small example
-nSamples = [301, 401, 501 801]*5;  
-apertures = [2, 1, 0.5 0.1]; 
-%}
+nSamples = [21 25];
+apertures = [2 0.5];
 
 for ii=1:numel(apertures)
     
@@ -91,7 +86,7 @@ for ii=1:numel(apertures)
     
     % Estimate the PSF
     nLines = 0;      % Show lines
-    jitter = true;   % Randomize position of lines
+    jitter = false;  % Keep the tutorial deterministic
     
     % Limits the entrance aperture so this can run faster
     % But this is not reasonable for the diffraction calculation

@@ -94,7 +94,7 @@ vcReplaceAndSelectObject(oi);
 %% Shift the aperture position to create transverse CA
 
 % The second element of the surface array is the aperture (diaphragm)
-aSurface = thisLens.get('aperture');  % The surface with the aperture
+aSurface = thisLens.get('aperture index');  % The surface with the aperture
 s        = thisLens.get('surface array',aSurface);
 pOrig    = s.get('zpos');     % Original position of the aperture
 
@@ -103,7 +103,7 @@ pOrig    = s.get('zpos');     % Original position of the aperture
 d = -15;
 
 for ii=1:length(d)
-    aSurface = thisLens.get('aperture');  % The surface with the aperture
+    aSurface = thisLens.get('aperture index');  % The surface with the aperture
     s        = thisLens.get('surface array',aSurface);
     psfCamera.film.clear();    % Clear the film
     
