@@ -28,7 +28,7 @@ lensIntersectPosition = rays.origin +  repmat(lensIntersectT, [1 3]) .* rays.dir
 % if (nLines)
 %     raysVisualize ...
 %         
-% %     vcNewGraphWin;
+% %     ieFigure;
 % %     % Colors of the rays we will draw
 % %     lWidth = 0.5; lColor = [.5 0 1];
 % %     samps = randi(size(rays.origin,1),[nLines,1]);

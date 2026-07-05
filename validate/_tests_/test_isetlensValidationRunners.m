@@ -14,7 +14,7 @@ end
 
 function testRunnerEntryPointsExist(testCase)
 runnerNames = {'isetlensUnitTest','isetlensTutorialTest', ...
-    'lensUnitTest','lensUtilityUnitTest', ...
+    'isetlensExampleTest','lensUnitTest','lensUtilityUnitTest', ...
     'rayUnitTest','filmUnitTest','surfaceUnitTest','psfCameraUnitTest', ...
     'paraxialUnitTest','bbmUtilityUnitTest'};
 
@@ -42,6 +42,16 @@ run = isetlensTutorialTest('selection','t_lens');
 testCase.verifyEqual(run.repositoryName,'ISETLens');
 testCase.verifyEqual(run.suiteKind,'tutorials');
 testCase.verifyEqual(run.selector,'t_lens');
+testCase.verifyEqual(numel(run.results),1);
+testCase.verifyEqual(run.results.status,'Passed');
+end
+
+function testExampleRunnerSelection(testCase)
+run = isetlensExampleTest('selection','s_lensDiffraction');
+
+testCase.verifyEqual(run.repositoryName,'ISETLens');
+testCase.verifyEqual(run.suiteKind,'examples');
+testCase.verifyEqual(run.selector,'s_lensDiffraction');
 testCase.verifyEqual(numel(run.results),1);
 testCase.verifyEqual(run.results.status,'Passed');
 end

@@ -50,6 +50,20 @@ testCase.verifyNotEmpty(created);
 efl = lens.get('bbm','effective focal length');
 testCase.verifyEqual(numel(efl),lens.get('n wave'));
 testCase.verifyTrue(all(isfinite(efl)));
+testCase.verifyEqual(efl,ones(size(efl))*3.02149036112346,'AbsTol',1e-12);
+
+imageFocalPoint = lens.get('bbm','image focal point');
+imagePrincipalPoint = lens.get('bbm','image principal point');
+objectPrincipalPoint = lens.get('bbm','object principal point');
+testCase.verifyEqual(imageFocalPoint,ones(size(imageFocalPoint))*2.16635472971131,'AbsTol',1e-12);
+testCase.verifyEqual(imagePrincipalPoint,ones(size(imagePrincipalPoint))*-0.85513563141215,'AbsTol',1e-12);
+testCase.verifyEqual(objectPrincipalPoint,ones(size(objectPrincipalPoint))*-0.528256655155001,'AbsTol',1e-12);
+
+abcd = lens.get('bbm','abcd');
+testCase.verifyEqual(abcd(:,:,4), ...
+    [0.716982174619882 1.85471158226410; ...
+    -0.330962498794196 0.538590823957464], ...
+    'AbsTol',1e-12);
 
 filmSize = lens.filmSizeFromFOV(60);
 testCase.verifyEqual(numel(filmSize),lens.get('n wave'));

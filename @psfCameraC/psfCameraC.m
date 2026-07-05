@@ -98,7 +98,7 @@ classdef psfCameraC <  handle
                     % Force to unit area and flip up/down for a point spread
                     img = img./sum(img(:));
                     img = flipud(img);
-                    % vcNewGraphWin; mesh(img);
+                    % ieFigure; mesh(img);
                     
                     % Calculate the weighted centroid/center-of-mass
                     xSample = linspace(-flm.size(1)/2, flm.size(1)/2, flm.resolution(1));

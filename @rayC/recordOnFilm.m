@@ -93,8 +93,8 @@ if(isa(film, 'filmSphericalC'))
     imagePixel.position = [phi * abs(sensorRadius) theta * abs(sensorRadius) ];
     
     % Not sure why these are always shown.  Consider making an option.
-    vcNewGraphWin; hist(theta);
-    vcNewGraphWin; hist(phi);
+    ieFigure; hist(theta);
+    ieFigure; hist(phi);
     
 elseif(isa(film, 'filmC'))
     % When the filmC is the plane, this ....

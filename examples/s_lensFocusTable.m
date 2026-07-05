@@ -1,4 +1,5 @@
 %% s_lensFocusTable
+% SkipFile
 %
 % For each lens file, create a look-up table from object dist (in mm)
 % to proper film distance from the lens (mm). 
@@ -9,8 +10,11 @@
 % from the camera to object distance. The camera to object distance is
 % calculated using the 'lookat' values in the PBRT file.
 %
-% First, we build the whole table, T, that has the different *.dat files in the
-% data/lens directory as the rows and the distance to object as the columns. The
+% This is a data-generation script.  It is skipped by the automated example
+% smoke runner because it can be slow and writes generated MAT files.
+%
+% First, we build the whole table, T, that has the different JSON lens files as
+% the rows and the distance to object as the columns. The
 % entries are the focalDistance (all distances are millimeters, mm).
 %
 %   T(whichLens,dist) = focalDistance
@@ -29,9 +33,11 @@
 %
 % BW SCIEN Stanford, 2017
 
-%%  All the lenses in the pbrt2ISET directory
+%%  All the lenses in the shared lens directory
 
-lensDir = fullfile(ilensRootPath,'data','lens');
+lensDir = piDirGet('lens');
+outputDir = fullfile(ilensRootPath,'local','focusTables');
+if ~isfolder(outputDir), mkdir(outputDir); end
 
 % wide, tessar, fisheye, dgauss, telephoto, 2el, 2EL
 lensFiles = dir(fullfile(lensDir,'*.json'));   
@@ -50,10 +56,10 @@ allFocalLengths  = zeros(nFiles,1);
 for ii=1:nFiles
     fname = fullfile(lensDir,lensFiles(ii).name);
     for jj=1:length(objDistance)
-        allFilmDistance(ii,jj) = lensFocus(lensFiles(ii).name,objDistance(jj));
+        allFilmDistance(ii,jj) = lensFocus(fname,objDistance(jj));
     end
     % We should probably store this, too.
-    allFocalLengths(ii) = lensFocus(lensFiles(ii).name,max(objDistance)*10^6);
+    allFocalLengths(ii) = lensFocus(fname,max(objDistance)*10^6);
 end
 
 
@@ -72,7 +78,7 @@ allFilmDistance(allFilmDistance < 0) = NaN;
 % and the lens focal length, which would be derived by using a very
 % far distance
 
-hdl = ieNewGraphWin; 
+hdl = ieFigure;
 xlabel('Object distance (mm)'); ylabel('Film distance (mm)');
 grid on; hold on;
 
@@ -92,14 +98,15 @@ for ii=1:nFiles
     closestDistance = saveObjDistance(idx);    
     
     filmDistance = filmDistance(idx:end);
-    objDistance  = saveObjDistance(idx:end);
+    objDistanceToSave = saveObjDistance(idx:end);
     focalLength  = allFocalLengths(ii);
     
     % This plots the object and film distances for all of the lenses
-    loglog(objDistance,filmDistance);
+    loglog(objDistanceToSave,filmDistance);
 
-    [p,n,~] = fileparts(lensFiles(ii).name);
-    flFile = fullfile(lensDir,[n,'.FL.mat']);
+    [~,n,~] = fileparts(lensFiles(ii).name);
+    flFile = fullfile(outputDir,[n,'.FL.mat']);
+    objDistance = objDistanceToSave; %#ok<NASGU>
     save(flFile,'objDistance','filmDistance','focalLength','closestDistance');
 end
 set(gca,'xscale','log','yscale','log');

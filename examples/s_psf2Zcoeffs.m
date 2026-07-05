@@ -1,4 +1,5 @@
 %% PSF 2 Zernike Coefficients
+% SkipFile
 %
 % Search for the Zernike polynomial coefficients that produce a target PSF.
 % 
@@ -7,6 +8,9 @@
 %
 % Note this good Watson tutorial.  But it has no units, wavelength,
 % and such.
+%
+% This example uses older ISETCam wavefront parameter names and should be
+% modernized before it is included in automated smoke runs.
 %
 %  http://jov.arvojournals.org/article.aspx?articleid=2213266
 %
@@ -69,7 +73,7 @@ psfTarget = wvfGet(wvf,'psf');   % The spatial sample positions
  illuminance = oiGet(oi,'illuminance');
  s = oiGet(oi,'spatial support','um'); 
  tmp = interp2(s(1,:,1),s(:,1,2),illuminance,samp,samp(:),'cubic',0);
- vcNewGraphWin; mesh(samp,samp,tmp)
+ ieFigure; mesh(samp,samp,tmp)
  
  % Set this
  psfTarget = tmp/sum(tmp(:));
@@ -104,14 +108,14 @@ wvf2 = wvfComputePSF(wvf2);
 wvfPlot(wvf2,'image psf space','um')
 title('Estimated PSF');
 
-vcNewGraphWin;
+ieFigure;
 imagesc(samp,samp,psfTarget)
 title('Target PSF'); axis image; colormap(hot)
 grid on
 
 %
 psf = wvfGet(wvf2,'psf',wave);
-vcNewGraphWin;
+ieFigure;
 plot(psfTarget(1:5:end),psf(1:5:end),'.');
 axis equal; identityLine;
 grid on;
@@ -123,7 +127,7 @@ disp(zcoeffs(1:nCoeffs))
 
 %% Show the pupil phase functions
 
-vcNewGraphWin([],'tall');
+ieFigure([],'tall');
 subplot(2,1,1), wvfPlot(wvf,'image pupil phase','mm',wave,'no window')
 
 wvf2 = wvfSet(wvf,'zcoeffs',x);

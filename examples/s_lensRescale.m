@@ -1,92 +1,69 @@
 %% s_lensRescale
 %
-% Re-scaling lens lengths to a new focal length.
+% Re-scale a lens to a new focal length and write temporary lens files.
 %
-% Convert a lens design file to a new focal length from an existing lens
-% design file. The lens parameters (# surfaces, materials) don't change,
-% but their dimensions do, in order to accommodate the new focal length.
-%
-%  Copyright, VISTALAB 2017
+% This example keeps the old rescaling workflow lightweight enough for the
+% automated example runner: it scales one lens, writes DAT and JSON outputs
+% to temporary files, and traces a small deterministic point spread.
 %
 % See also
-%    lensC.scale
+%   lensC.scale, lensC.fileWrite, s_lensRescaleJSON
 
 %%
-ieInit
+ieInit;
 
-%%
-referenceFLength = 100;
+%% Read a reference lens and scale it to a shorter focal length
 
-desiredFLengths = [3.0 6.0, 12.5, 50.0];    % Units:   millimeters
+referenceFocalLength = 100;  % mm
+desiredFocalLength = 12.5;   % mm
+baseLensName = 'petzval.12deg';
 
-lenses = {'petzval.12deg'};
+lensFileName = fullfile(piDirGet('lens'), ...
+    sprintf('%s.%.1fmm.json',baseLensName,referenceFocalLength));
 
-for d=1:length(desiredFLengths)
-for l=1:length(lenses)
-    
-    baseLens = lenses{l};
- 
-    % Create an on-center, far-away point
-    point = psCreate(0,0,-10000);
-    
-    % Read a lens file and create a lens
-    % We assume that the base file describes a lens with 100mm focal
-    % length.
-    lensFileName = fullfile(ilensRootPath,'data','lens',sprintf('%s.%.1fmm.dat',baseLens,referenceFLength));
-    
-    % This is a small number of numerical samples in the aperture.  
-    nSamples = 351;
-    apertureMiddleD = 8;   % mm
-    lens = lensC('apertureSample', [nSamples nSamples], ...
-        'fileName', lensFileName, ...
-        'apertureMiddleD', apertureMiddleD);
-    
-    lens.draw
-    lens.bbmCreate();
-    
-    
-    %% Create a scaled lens
-    %  Scale all the parameters by the ratio of
-    %  focal lengths (desired to reference)
-    scaledLens = lensC('apertureSample', [nSamples nSamples], ...
-        'fileName', lensFileName, ...
-        'apertureMiddleD', apertureMiddleD);
-    scaleFactor = desiredFLengths(d)/scaledLens.focalLength;
-    
-    for ii=1:length(scaledLens.surfaceArray)
-        scaledLens.surfaceArray(ii).sRadius = scaledLens.surfaceArray(ii).sRadius * scaleFactor;
-        scaledLens.surfaceArray(ii).sCenter = scaledLens.surfaceArray(ii).sCenter * scaleFactor;
-        scaledLens.surfaceArray(ii).apertureD = scaledLens.surfaceArray(ii).apertureD * scaleFactor;
-    end
-    
-    scaledLens.bbmCreate();
-    scaledLens.focalLength = desiredFLengths(d);
-    scaledLens.name = sprintf('%s.%.1fmm',baseLens,desiredFLengths(d));
-    scaledLens.draw
-    
-    
-    fLength = scaledLens.get('bbm','effectivefocallength');
-    imageFocalPoint = scaledLens.get('bbm','imageFocalPoint');
-    
-    fprintf('Scaled lens focal length: %.2f mm\n',fLength(1));
-    fprintf('Rays focus %.2f mm away from the sensor\n',imageFocalPoint(1));
-    
-    
-    %% Ray trace the points to the film
-    %  Check that the points converge at some distance in front of the
-    %  sensor (to illustrate this convergence we place the sensor far away
-    %  from the lens).
-    
-    wave = lens.get('wave');
-    sensor = filmC('position', [0 0 154], ...
-        'size', [5 5], ...
-        'resolution',[300 300],...
-        'wave', wave);
-    camera = psfCameraC('lens',scaledLens,'film',sensor,'pointsource',point);
-    jitterFlag = true;
-    camera.estimatePSF('jitter flag', jitterFlag);
-    
-    fileWrite(scaledLens,fullfile(ilensRootPath,'data','lens',sprintf('%s.dat',scaledLens.name)));
-    fileWrite(scaledLens,fullfile(ilensRootPath,'data','lens',sprintf('%s.json',scaledLens.name)));
-end
-end
+baseLens = lensC('filename',lensFileName,'aperture sample',[9 9]);
+baseLens.bbmCreate();
+
+baseFocalLength = median(baseLens.get('bbm','effective focal length'));
+scaleFactor = desiredFocalLength/baseFocalLength;
+
+scaledLens = lensC('filename',lensFileName,'aperture sample',[9 9]);
+scaledLens.scale(scaleFactor);
+scaledLens.name = sprintf('%s.%.1fmm',baseLensName,desiredFocalLength);
+
+scaledFocalLength = median(scaledLens.get('bbm','effective focal length'));
+fprintf('Base focal length:   %.4f mm\n',baseFocalLength);
+fprintf('Scaled focal length: %.4f mm\n',scaledFocalLength);
+
+assert(abs(scaledFocalLength-desiredFocalLength) < 1e-8);
+
+%% Write temporary lens files
+
+tempDat = [tempname,'.dat'];
+tempJson = [tempname,'.json'];
+
+scaledLens.fileWrite(tempDat);
+scaledLens.fileWrite(tempJson);
+
+assert(exist(tempDat,'file') == 2);
+assert(exist(tempJson,'file') == 2);
+
+delete(tempDat);
+delete(tempJson);
+
+%% Ray trace a deterministic on-axis point through the scaled lens
+
+film = filmC('position',[0 0 lensFocus(scaledLens,1e6)], ...
+    'size',[1 1], ...
+    'resolution',[41 41], ...
+    'wave',scaledLens.get('wave'));
+
+camera = psfCameraC('lens',scaledLens, ...
+    'film',film, ...
+    'point source',{[0 0 -10000]});
+
+camera.estimatePSF('jitter flag',false,'n lines',0);
+
+assert(sum(camera.film.image(:)) > 0);
+
+%% END

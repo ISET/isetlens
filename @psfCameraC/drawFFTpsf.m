@@ -98,7 +98,7 @@ PSF = PSF(indy,indx,inW0);
 % TITLE
 % FontSize1=12;
 
-hdl = vcNewGraphWin;
+hdl = ieFigure;
 switch plotType
     case {'surf'}
         surf(X,Y,PSF); shading('interp');
@@ -118,6 +118,5 @@ zlabel('Normalized intensity')
 colormap('jet'); colorbar
 
 end
-
 
 

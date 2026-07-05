@@ -276,7 +276,7 @@ classdef lensC <  handle
             firstApertureRadius = obj.surfaceArray(1).apertureD/2;
             apertureMask = (aGrid.X.^2 + aGrid.Y.^2) <= firstApertureRadius^2;
             
-            % vcNewGraphWin;  mesh(double(apertureMask))
+            % ieFigure;  mesh(double(apertureMask))
             
         end        
     end

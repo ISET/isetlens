@@ -21,7 +21,7 @@
 %     
 %     %debug visualization
 %     newE = orig + dir;    
-%    % vcNewGraphWin;  
+%    % ieFigure;  
 %     hold on;
 %     samps = 1:10:size(orig(:,1));
 %     nSamps = length(samps);

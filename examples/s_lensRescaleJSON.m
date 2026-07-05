@@ -1,74 +1,63 @@
 %% s_lensRescaleJSON
 %
-%  Re-scaling lens lengths to a new focal length.
+% Re-scale a JSON lens, write it, read it back, and run a small ray trace.
 %
-%  Convert a lens design file to a new focal length from an existing
-%  lens design file. The lens parameters (# surfaces, materials) don't
-%  change, but their dimensions do, in order to accommodate the new
-%  focal length.
+% The generated JSON is written to a temporary file so this script can run
+% as an automated example without updating repository data.
+%
+% See also
+%   lensC.scale, lensC.fileWrite
 
 %%
-ieInit
+ieInit;
 
-%% Read a  lens file
-%
+%% Read a JSON lens and create a scaled copy
 
-% Here is a list of all of them
-lensFiles = lensC.list;
+lensFile = fullfile(piDirGet('lens'),'dgauss.22deg.3.0mm.json');
 
-% Pick one 
-this = 8;
-baseLens = lensC('fileName', lensFiles(this).name);
-
-baseLens.draw
+baseLens = lensC('filename',lensFile,'aperture sample',[9 9]);
 baseLens.bbmCreate();
 
+baseFocalLength = median(baseLens.get('bbm','effective focal length'));
+desiredFocalLength = 1.5;   % mm
+scaleFactor = desiredFocalLength/baseFocalLength;
 
-%% Create a scaled lens
-%  Scale all the parameters by the ratio of
-%  focal lengths (desired to reference)
+scaledLens = lensC('filename',lensFile,'aperture sample',[9 9]);
+scaledLens.scale(scaleFactor);
+scaledLens.name = sprintf('dgauss.22deg.%.1fmm',desiredFocalLength);
 
-scaledLens = baseLens;
-desiredFlength = 5e-3;   % Microlens
-scaleFactor = desiredFlength/scaledLens.focalLength;
+scaledFocalLength = median(scaledLens.get('bbm','effective focal length'));
+fprintf('Base focal length:   %.4f mm\n',baseFocalLength);
+fprintf('Scaled focal length: %.4f mm\n',scaledFocalLength);
 
-for ii=1:length(scaledLens.surfaceArray)
-    scaledLens.surfaceArray(ii).sRadius = scaledLens.surfaceArray(ii).sRadius * scaleFactor;
-    scaledLens.surfaceArray(ii).sCenter = scaledLens.surfaceArray(ii).sCenter * scaleFactor;
-    scaledLens.surfaceArray(ii).apertureD = scaledLens.surfaceArray(ii).apertureD * scaleFactor;
-end
-scaledLens.bbmCreate();
-scaledLens.focalLength = desiredFlength;
-scaledLens.name = sprintf('%s.%.1fmm','scaledLens',desiredFlength);
-scaledLens.draw
+assert(abs(scaledFocalLength-desiredFocalLength) < 1e-10);
 
-fLength = scaledLens.get('bbm','effective focal length');
-imageFocalPoint = scaledLens.get('bbm','imageFocalPoint');
+%% Write and read the scaled lens as JSON
 
-fprintf('Scaled lens focal length: %.2f mm\n',fLength(1));
-fprintf('Rays focus %.2f mm away from the sensor\n',imageFocalPoint(1));
+tempJson = [tempname,'.json'];
+scaledLens.fileWrite(tempJson);
+reloadedLens = lensC('filename',tempJson,'aperture sample',[9 9]);
+delete(tempJson);
 
-scaledLens.fileWrite(fullfile(ilensRootPath,'data','microlens','microlens.json'));
+reloadedLens.bbmCreate();
+reloadedFocalLength = median(reloadedLens.get('bbm','effective focal length'));
 
-%% Ray trace the points to the film
-%
-%  Check that the points converge at some distance in front of the
-%  sensor (to illustrate this convergence we place the sensor far away
-%  from the lens).
+assert(reloadedLens.get('n surfaces') == scaledLens.get('n surfaces'));
+assert(abs(reloadedFocalLength-scaledFocalLength) < 1e-4);
 
-wave = lens.get('wave');
-sensor = filmC('position', [0 0 154], ...
-    'size', [5 5], ...
-    'resolution',[300 300],...
-    'wave', wave);
-camera = psfCameraC('lens',scaledLens,'film',sensor,'pointsource',point);
+%% Ray trace a deterministic on-axis point through the reloaded lens
 
-nLines = 100;
-jitterFlag = true;
-camera.estimatePSF('nlines', nLines, 'jitter flag', jitterFlag);
+film = filmC('position',[0 0 lensFocus(reloadedLens,1e6)], ...
+    'size',[0.2 0.2], ...
+    'resolution',[41 41], ...
+    'wave',reloadedLens.get('wave'));
 
-% fileWrite(scaledLens,[scaledLens.name '.dat']);
+camera = psfCameraC('lens',reloadedLens, ...
+    'film',film, ...
+    'point source',{[0 0 -1000]});
 
-%% Check the focus for this lens
-[pt, ~, film] = ilInitPLF;
+camera.estimatePSF('jitter flag',false,'n lines',0);
 
+assert(sum(camera.film.image(:)) > 0);
+
+%% END
