@@ -30,7 +30,7 @@ ieInit
 
 %% Read the lens file and create a lens
 
-lensFileName = fullfile(piDirGet('lens'), 'gullstrand.dat');
+lensFileName = fullfile(piDirGet('lens'), 'gullstrand.json');
 
 apertureMiddleD = 2;   % (mm) a relatively narrow pupil
 
@@ -110,13 +110,6 @@ aqueousThickness = 3.05 - 0.05*log(A+1);
 lensThickness = 4 + 0.1*log(A+1);
 lensIOR = 1.42 + (9e-5)*(10*A+A^2);
 
-% Write a new lens file (changing the surfaces directly is too complicated
-% - I tried and failed.) Also, I can't use fileWrite (in the optics folder)
-% here because the lens numbers aren't in the form of a lensC class. Let's
-% just write it directly for now.
-
-% ---- WRITE temp lens file -----
-
 % TODO: What to do about wavelength dependent index of refraction?
 % ANSWER: New equations in navarro need to be implemented
 
@@ -128,28 +121,18 @@ lensMatrix = [7.8	0.55	1.3771	11;
 
 focalLength = 1/(60.6061 + A)*10^3; % mm
 
-newFileName = 'gullstrandAccomodated.dat';
-fid = fopen(newFileName,'w');
-
-str = sprintf('# Focal length (mm) \n');
-fprintf(fid,'%s',str);
-str = sprintf('%.3f\n',focalLength);
-fprintf(fid,'%s',str);
-str = sprintf('#    radius	 axpos	N	aperture\n');
-fprintf(fid,'%s',str);
-for ii=1:size(lensMatrix,1)
-    fprintf(fid,'%f\t%f\t%f\t%f\n', lensMatrix(ii,1), lensMatrix(ii, 2), lensMatrix(ii,3), lensMatrix(ii,4));
-end
-fclose(fid);
-% -------------------------------
-
 nSamples = 125; % Number of spatial samples in the aperture.
-% Load the new lens file
 thisLens = lensC('apertureSample', [nSamples nSamples], ...
-    'fileName', newFileName, ...
+    'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD,...
     'name',sprintf('Gullstrand - %0.2fD',A),...
-    'focalLength',16.5);    % For CISET, 16.5mm is about the focal distance.
+    'focalLength',focalLength);
+
+% Rebuild the surfaces from the accommodated Navarro parameters.  The second
+% column uses PBRT-style offsets, so shift it into lensC convention.
+surfaceOffset = [0; lensMatrix(1:(end-1),2)];
+thisLens.elementsSet(surfaceOffset, lensMatrix(:,1), lensMatrix(:,4), lensMatrix(:,3));
+thisLens.apertureMiddleD = apertureMiddleD;
 
 thisLens.bbmCreate;
 thisLens.draw
@@ -170,9 +153,4 @@ jitter = true;
 camera.estimatePSF('n lines', nLines, 'jitter flag',jitter);
 set(gca,'xlim',[-5 20]); grid on
 
-%% Clean up
-
-% Delete the temp lens file
-delete(newFileName);
-
-%%
+%% 

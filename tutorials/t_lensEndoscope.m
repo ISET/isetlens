@@ -14,15 +14,15 @@ ieInit
 
 %% Make a point far away.  A little off center and 100 mm from the back surface
 
-pY = (0:10:30);
+pY = [0 0.2 0.5 1];
 point = psCreate(0,pY,-1000);
 
 %% Read a lens file and create a lens
 
-lensFileName = fullfile(ilensRootPath,'data', 'lens', 'endoscope.dat');
+lensFileName = fullfile(piDirGet('lens'), 'endoscope.json');
 if ~exist(lensFileName,'file'), error('Missing lens file'); end
 
-nSamples = 251;
+nSamples = 41;
 apertureMiddleD = 8;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
@@ -40,9 +40,9 @@ wave = lens.get('wave');
 %   Objects are on the negative side
 %   distances are 'mm' 
 
-% In focus for dgauss.50mm is about 38.5 mm
-sensor = filmC('position', [0 0 38.5], ...
-    'size', [10 10], ...
+filmDistance = lensFocus(lens,1e6);
+sensor = filmC('position', [0 0 filmDistance], ...
+    'size', [2 2], ...
     'wave', wave);
 
 %% Ray trace the point to the film
@@ -51,7 +51,7 @@ camera = psfCameraC('lens',lens,'film',sensor,'point source',point);
 
 % Estimate the PSF and show the ray trace
 nLines = 0;
-jitter = true;
+jitter = false;
 camera.estimatePSF('n lines', nLines, 'jitter flag', jitter);
 
 %% Show the point spread in the optical image window
@@ -61,18 +61,17 @@ ieAddObject(oi); oiWindow;
 
 %% Move the sensor to different distances from the lens
 
-% Sensor distances from the lens
-dist = (36:1:40);
+% Sensor distances near the lens focal plane
+dist = filmDistance + [-0.2 0 0.2];
 for dd = dist
-    % In focus for dgauss.50mm is about 38.5 mm
     sensor = filmC('position', [0 0 dd], ...
-        'size', [10 10], ...
+        'size', [2 2], ...
         'wave', wave);
     camera = psfCameraC('lens',lens,'film',sensor,'point source',point);
     
     % Sequence of events for estimating the PSF,
     nLines = 0;
-    jitter = true;
+    jitter = false;
     camera.estimatePSF('n lines', nLines, 'jitter flag', jitter);
     
     % Show the point spread in the optical image window
@@ -85,18 +84,18 @@ end
 
 %% Fix the sensor, but move the point position further and nearer
 
-sensor = filmC('position', [0 0 38.5], ...
-    'size', [10 10], ...
+sensor = filmC('position', [0 0 filmDistance], ...
+    'size', [2 2], ...
     'wave', wave);
     
 % Point distances in mm from the lens
-pDist = [-5000, -1000, -500, -300];
+pDist = [-5000, -500];
 for dd = pDist
-    point = psCreate(0,2,dd);
+    point = psCreate(0,0.5,dd);
     
     % In focus for dgauss.50mm is about 38.5 mm
     camera = psfCameraC('lens',lens,'film',sensor,'point source',point);
-    camera.estimatePSF;
+    camera.estimatePSF('n lines',0,'jitter flag',false);
     
     %% Show the point spread in the optical image window
     oi = camera.oiCreate;
