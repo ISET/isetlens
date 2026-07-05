@@ -13,7 +13,8 @@ end
 end
 
 function testRunnerEntryPointsExist(testCase)
-runnerNames = {'isetlensUnitTest','lensUnitTest','lensUtilityUnitTest', ...
+runnerNames = {'isetlensUnitTest','isetlensTutorialTest', ...
+    'lensUnitTest','lensUtilityUnitTest', ...
     'rayUnitTest','filmUnitTest','surfaceUnitTest','psfCameraUnitTest', ...
     'paraxialUnitTest','bbmUtilityUnitTest'};
 
@@ -33,6 +34,16 @@ end
 
 function testMasterRunnerModeValidation(testCase)
 testCase.verifyTrue(localThrows(@() isetlensUnitTest('unknownMode')));
+end
+
+function testTutorialRunnerSelection(testCase)
+run = isetlensTutorialTest('selection','t_lens');
+
+testCase.verifyEqual(run.repositoryName,'ISETLens');
+testCase.verifyEqual(run.suiteKind,'tutorials');
+testCase.verifyEqual(run.selector,'t_lens');
+testCase.verifyEqual(numel(run.results),1);
+testCase.verifyEqual(run.results.status,'Passed');
 end
 
 function tf = localThrows(fcn)
